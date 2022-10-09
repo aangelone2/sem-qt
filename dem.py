@@ -24,17 +24,24 @@
 
 
 import sys
-from PyQt6.QtWidgets import *
-from PyQt6.QtGui import *
 
-import add
+from PyQt6.QtWidgets import QWidget, QPushButton, QApplication
+from PyQt6.QtWidgets import QVBoxLayout
+from PyQt6.QtGui import QFont
+
+import EQMessageBox
+
+import DataApi
+import AddWindow
+
+
 
 
 class main_window(QWidget):
-    def __init__(self):
+    def __init__(self, conn):
         super().__init__()
 
-        self.add_dialog = add.add_window()
+        self.add_dialog = AddWindow.AddWindow(conn)
 
         self.resize(300, 700)
 
@@ -60,14 +67,26 @@ class main_window(QWidget):
         self.show()
 
 
+
+
 def main():
     app = QApplication(sys.argv)
     app.setFont(QFont('Arial', 24))
 
-    w = main_window()
+    path = 'data/expenses.sqlite'
+    table = 'expenses'
+    try:
+        db_conn = DataApi.db_init(path, table)
+    except DataApi.DatabaseError:
+        EQMessageBox.ErrorMsg('Database error')
+        sys.exit()
+
+    w = main_window(db_conn)
     w.setWindowTitle('dem')
 
     sys.exit(app.exec())
+
+
 
 
 main()

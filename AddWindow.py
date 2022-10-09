@@ -23,55 +23,48 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import sys
-
 from PyQt6.QtCore import QRegularExpression
-
 from PyQt6.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton
 from PyQt6.QtWidgets import QGridLayout, QHBoxLayout, QVBoxLayout
+from PyQt6.QtGui import QValidator, QIntValidator,\
+    QDoubleValidator, QRegularExpressionValidator
 
-from PyQt6.QtGui import QValidator, QIntValidator, QRegularExpressionValidator
+from EQLineEdit import EQLineEdit
+
+import DataApi
 
 
-class add_window(QWidget):
+
+
+class AddWindow(QWidget):
     def init_textboxes(self):
-        self.focused = 0
-
-        yt = QLineEdit()
+        yt = EQLineEdit()
         yt.setValidator(QIntValidator(1000, 9999))
 
-        mt = QLineEdit()
+        mt = EQLineEdit()
         mt.setValidator(QIntValidator(1, 12))
 
-        dt = QLineEdit()
+        dt = EQLineEdit()
         dt.setValidator(QIntValidator(1, 31))
 
-        tt = QLineEdit()
+        tt = EQLineEdit()
         tt.setValidator(
                 QRegularExpressionValidator(
                     QRegularExpression("[IHFNER]")
                 )
         )
 
-        at = QLineEdit()
+        at = EQLineEdit()
+        at.setValidator(QDoubleValidator(-10000.0, +10000.0, 2))
 
-        jt = QLineEdit()
+        jt = EQLineEdit()
+        jt.setValidator(
+                QRegularExpressionValidator(
+                    QRegularExpression("^.{1,100}$")
+                )
+        )
         
         return [yt, mt, dt, tt, at, jt]
-
-
-    def check_state(self):
-        tb = self.t[self.focused]
-        state = tb.validator().validate(tb.text(), 0)[0]
-
-        if (state == QValidator.State.Acceptable):
-            color = 'lightgreen'
-        elif (state == QValidator.State.Intermediate):
-            color = 'lightyellow'
-        else:
-            color = 'lightred'
-
-        self.t[self.focused].setStyleSheet('background-color: ' + color)
 
 
     def refocus(self):
@@ -84,13 +77,23 @@ class add_window(QWidget):
 
 
     def init_connections(self):
-        for it, ti in enumerate(self.t):
-            ti.textChanged[str].connect(self.check_state)
+        for ti in self.t:
             ti.editingFinished.connect(self.refocus)
 
+        self.b[0].clicked.connect(self.add_slot)
+        self.b[1].clicked.connect(self.reset_focus)
+        self.b[2].clicked.connect(self.hide)
 
-    def __init__(self):
+
+    def reset_focus(self):
+        self.focused = 0
+        self.t[0].setFocus()
+
+
+    def __init__(self, conn):
         super().__init__()
+
+        self.conn = conn
 
         self.resize(800, 700)
 
@@ -113,14 +116,13 @@ class add_window(QWidget):
 
         ba = QPushButton('[A]dd expense')
         be = QPushButton('[E]dit expense')
-
         bq = QPushButton('[Q]uit')
-        bq.clicked.connect(self.hide)
 
         self.b = [ba, be, bq]
 
         self.init_connections()
-        
+        self.reset_focus()
+
         lay2 = QHBoxLayout()
         for bi in self.b:
             lay2.addWidget(bi)
@@ -131,3 +133,17 @@ class add_window(QWidget):
 
         # show() is missing, will be loaded from the main
         self.setLayout(lay3)
+
+
+    def add_slot(self):
+        fields = {
+            'year': self.t[0].text(),
+            'month': self.t[1].text(),
+            'day': self.t[2].text(),
+            'type': self.t[3].text(),
+            'amount': self.t[4].text(),
+            'justification': self.t[5].text()
+        }
+
+        DataApi.db_add(fields, self.conn)
+        self.reset_focus()
