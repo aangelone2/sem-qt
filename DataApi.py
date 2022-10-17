@@ -26,6 +26,7 @@
 import sqlite3
 import datetime
 from urllib.request import pathname2url
+import pandas as pd
 
 
 
@@ -83,3 +84,19 @@ def db_add(fields, conn):
 
     conn.execute(command)
     conn.commit()
+
+
+def db_fetch(start, end, conn):
+    res_list = conn.execute('''
+        SELECT rowid, date, type, amount, justification
+            FROM expenses
+            WHERE date BETWEEN \'{}\' AND \'{}\'
+            ORDER BY date ;
+        '''.format(start, end)
+    )
+
+    return pd.DataFrame(res_list,
+            columns = [
+                'id', 'date', 'type', 'amount', 'justification'
+            ]
+           )

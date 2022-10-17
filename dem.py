@@ -33,6 +33,7 @@ import EQMessageBox
 
 import DataApi
 import AddWindow
+import ListWindow
 
 
 
@@ -41,14 +42,16 @@ class main_window(QWidget):
     def __init__(self, conn):
         super().__init__()
 
-        self.add_dialog = AddWindow.AddWindow(conn)
-
         self.resize(300, 700)
 
         ba = QPushButton('[A]dd expenses')
+        self.add_dialog = AddWindow.AddWindow(conn)
         ba.clicked.connect(self.add_dialog.show)
 
         bl = QPushButton('[L]ist expenses')
+        self.list_dialog = ListWindow.ListWindow(conn)
+        bl.clicked.connect(self.list_dialog.show)
+
         bs = QPushButton('[S]ummarize expenses')
 
         bq = QPushButton('[Q]uit')
