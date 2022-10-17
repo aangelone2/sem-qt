@@ -55,28 +55,71 @@ class ListWindow(QWidget):
 
         self.ub = QPushButton('Update')
         self.ub.clicked.connect(self.update)
+        self.qb = QPushButton('Quit')
+        self.qb.clicked.connect(self.hide)
+
+        layb = QHBoxLayout()
+        layb.addWidget(self.ub)
+        layb.addWidget(self.qb)
 
         lay1 = QVBoxLayout()
         lay1.addWidget(self.s_cal)
         lay1.addWidget(self.e_cal)
-        lay1.addWidget(self.ub)
+        lay1.addLayout(layb)
 
-        self.tw = QTableWidget(12, 5)
-        self.tw.setColumnWidth(1, 200)
-        self.tw.setColumnWidth(4, 600)
+        layt = self.init_table_layout()
 
         lay2 = QHBoxLayout()
         lay2.addSpacing(100)
         lay2.addLayout(lay1)
         lay2.addSpacing(100)
-        lay2.addWidget(self.tw)
+        lay2.addLayout(layt)
         lay2.addSpacing(100)
 
         # show() is missing, will be loaded from the main
         self.setLayout(lay2)
 
 
+    def init_table_layout(self):
+        self.table = QTableWidget(0, 5)
+        self.table.verticalHeader().hide()
+
+        self.table.setColumnWidth(1, 200)
+        self.table.setColumnWidth(3, 200)
+        self.table.setColumnWidth(4, 525)
+
+        headers = ['ID', 'Date', 'Type', 'Amount', 'Justification']
+        for ih, h in enumerate(headers):
+            self.table.setHorizontalHeaderItem(ih, QTableWidgetItem(h))
+
+        label = QLabel('Total')
+        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.sum = QTableWidget(1, 5)
+        self.sum.verticalHeader().hide()
+
+        w = 225
+
+        headers = ['E', 'H', 'I', 'N', 'R']
+        for ih, h in enumerate(headers):
+            self.sum.setColumnWidth(ih, w)
+            self.sum.setHorizontalHeaderItem(ih, QTableWidgetItem(h))
+
+        self.sum = Common.lock_height(self.sum)
+
+        layt = QVBoxLayout()
+        layt.addWidget(self.table)
+        layt.addSpacing(50)
+        layt.addWidget(label)
+        layt.addSpacing(10)
+        layt.addWidget(self.sum)
+
+        return layt
+
+
     def update(self):
+        self.table.setRowCount(0)
+
         fmt = Qt.DateFormat.ISODate
 
         start_date = self.s_cal.selectedDate().toString(fmt)
@@ -85,10 +128,26 @@ class ListWindow(QWidget):
         df = DataApi.db_fetch(start_date, end_date, self.conn)
 
         for ir, row in df.iterrows():
+            self.table.insertRow(ir)
+
             for ic, (field, val) in enumerate(row.items()):
                 itm = QTableWidgetItem(str(val))
                 if (field != 'justification'):
                     itm.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
 
-                self.tw.setItem(ir, ic, itm)
+                self.table.setItem(ir, ic, itm)
 
+        asum = df.groupby('type').sum()
+        asum = asum['amount']
+
+        headers = ['E', 'H', 'I', 'N', 'R']
+        for i,h in enumerate(headers):
+            try:
+                val = asum.loc[h]
+            except KeyError:
+                val = 0.0
+
+            itm = QTableWidgetItem(str(val))
+            itm.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+
+            self.sum.setItem(0, i, itm)

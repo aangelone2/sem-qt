@@ -28,6 +28,17 @@ from PyQt6.QtWidgets import QWidget, QSizePolicy
 
 
 
+def lock_height(widget):
+    widget.setSizePolicy(
+            QSizePolicy(
+                QSizePolicy.Policy.Ignored,
+                QSizePolicy.Policy.Fixed
+            )
+    )
+
+    return widget
+
+
 def lock_size(widget):
     widget.setSizePolicy(
             QSizePolicy(
