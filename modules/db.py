@@ -31,22 +31,30 @@ import pandas as pd
 
 
 
+# subclass of Exception associated to errors in db connection
 class DatabaseError(Exception):
     pass
 
 
 
 
-def init(path, table):
+# establishes and returns a connection to a database
+# + path: the path of the database as a string
+# + table: the name of the table as a string
+# returns the established connection
+# throws DatabaseError if db or table are missing
+def init(path: str, table: str) -> sqlite3.Connection:
+
+    # procedure to verify if the database exists
     try:
         dburi = 'file:{}?mode=rw'.format(pathname2url(path))
         conn = sqlite3.connect(dburi, uri = True)
     except sqlite3.OperationalError:
         raise DatabaseError('Database not found')
 
-    curs = conn.cursor()
-
-    curs.execute(
+    # searches in the 'sqlite_master' table for the name of the
+    # desired table, throws if not found
+    curs = conn.execute(
             '''
             SELECT count(name)
                 FROM sqlite_master
@@ -54,13 +62,21 @@ def init(path, table):
             '''.format(table)
     )
 
-    if (curs.fetchone()[0] == 0):
+    # fetchall() should yield [(1,)]
+    if (curs.fetchall()[0][0] != 1):
         raise DatabaseError('Table not found')
 
     return conn
 
 
-def add(fields, conn):
+# adds a record to the database
+# + fields: dictionary of strings with fields for year, month,
+#   day, type, amount and justification, in this order
+# + conn: connection to the database
+def add(fields: dict[str], conn: sqlite3.Connection):
+
+    # additional validity check on the date (e.g., checks
+    # against things like '31 february')
     try:
         datetime.datetime(
                 year = int(fields['year']),
@@ -86,14 +102,21 @@ def add(fields, conn):
     conn.commit()
 
 
-def fetch(start, end, conn):
-    res_list = conn.execute('''
+# extracts data from the database
+# + start: starting date as a string, included
+# + end: ending date as a string, included
+# + conn: connection to the database
+# converts the results to a pd.DataFrame, with proper column names
+def fetch(start: str, end: str, conn: sqlite3.Connection) -> pd.DataFrame:
+    curs = conn.execute('''
         SELECT rowid, date, type, amount, justification
             FROM expenses
             WHERE date BETWEEN \'{}\' AND \'{}\'
             ORDER BY date ;
         '''.format(start, end)
     )
+
+    res_list = curs.fetchall()
 
     return pd.DataFrame(res_list,
                 columns = [
