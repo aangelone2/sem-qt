@@ -37,7 +37,7 @@ class DatabaseError(Exception):
 
 
 
-def db_init(path, table):
+def init(path, table):
     try:
         dburi = 'file:{}?mode=rw'.format(pathname2url(path))
         conn = sqlite3.connect(dburi, uri = True)
@@ -60,7 +60,7 @@ def db_init(path, table):
     return conn
 
 
-def db_add(fields, conn):
+def add(fields, conn):
     try:
         datetime.datetime(
                 year = int(fields['year']),
@@ -86,7 +86,7 @@ def db_add(fields, conn):
     conn.commit()
 
 
-def db_fetch(start, end, conn):
+def fetch(start, end, conn):
     res_list = conn.execute('''
         SELECT rowid, date, type, amount, justification
             FROM expenses
@@ -96,7 +96,7 @@ def db_fetch(start, end, conn):
     )
 
     return pd.DataFrame(res_list,
-            columns = [
-                'id', 'date', 'type', 'amount', 'justification'
-            ]
+                columns = [
+                    'id', 'date', 'type', 'amount', 'justification'
+                ]
            )
