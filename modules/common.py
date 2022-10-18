@@ -24,11 +24,9 @@
 
 
 from PyQt6 import QtCore
-
-from PyQt6.QtWidgets import QWidget, QSizePolicy
-from PyQt6.QtWidgets import QLineEdit
 from PyQt6.QtGui import QValidator
-from PyQt6.QtWidgets import QMessageBox
+from PyQt6.QtWidgets import QWidget, QSizePolicy, QMessageBox,\
+        QLineEdit, QHeaderView
 
 
 
@@ -86,3 +84,18 @@ class EQLineEdit(QLineEdit):
         super().__init__()
 
         self.textChanged[str].connect(self.check_state)
+
+
+
+
+def set_tw_behavior(tw, behavior):
+    if (behavior == 'equal'):
+        tw.horizontalHeader().setSectionResizeMode(
+                QHeaderView.ResizeMode.Stretch
+        )
+    elif (behavior == 'auto'):
+        tw.horizontalHeader().setSectionResizeMode(
+                QHeaderView.ResizeMode.ResizeToContents
+        )
+
+    return tw

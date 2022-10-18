@@ -24,13 +24,18 @@
 
 
 from PyQt6.QtCore import Qt, QDate
+from PyQt6.QtGui import QBrush, QColor
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
-        QCalendarWidget, QTableWidget, QTableWidgetItem
+        QCalendarWidget, QTableWidget, QTableWidgetItem,\
+        QHeaderView
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout,\
         QSizePolicy
 
 import modules.common as common
 import modules.db as db
+
+# #D9D9D9 also a good choice, slightly darker
+bcolor1 = '#E6E6E6'
 
 
 
@@ -84,9 +89,7 @@ class list_window(QWidget):
         self.table = QTableWidget(0, 5)
         self.table.verticalHeader().hide()
 
-        self.table.setColumnWidth(1, 200)
-        self.table.setColumnWidth(3, 200)
-        self.table.setColumnWidth(4, 525)
+        self.table = common.set_tw_behavior(self.table, 'equal')
 
         headers = ['ID', 'Date', 'Type', 'Amount', 'Justification']
         for ih, h in enumerate(headers):
@@ -97,12 +100,10 @@ class list_window(QWidget):
 
         self.sum = QTableWidget(1, 5)
         self.sum.verticalHeader().hide()
-
-        w = 225
+        self.sum = common.set_tw_behavior(self.sum, 'equal')
 
         headers = ['E', 'H', 'I', 'N', 'R']
         for ih, h in enumerate(headers):
-            self.sum.setColumnWidth(ih, w)
             self.sum.setHorizontalHeaderItem(ih, QTableWidgetItem(h))
 
         self.sum = common.lock_height(self.sum)
@@ -127,6 +128,9 @@ class list_window(QWidget):
 
         df = db.fetch(start_date, end_date, self.conn)
 
+        self.table = common.set_tw_behavior(self.table, 'auto')
+        self.table.horizontalHeader().setStretchLastSection(True)
+
         for ir, row in df.iterrows():
             self.table.insertRow(ir)
 
@@ -134,6 +138,9 @@ class list_window(QWidget):
                 itm = QTableWidgetItem(str(val))
                 if (field != 'justification'):
                     itm.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+
+                if (ic % 2 == 1):
+                    itm.setBackground(QColor(bcolor1))
 
                 self.table.setItem(ir, ic, itm)
 
