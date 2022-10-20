@@ -18,8 +18,6 @@ Simple Expense Manager
 
 ### `list_window`
 + Clean space under the sum `QTableView`
-+ Add gray columns to the sum `QTableView`
-+ Add `QLabels` to identify the `QCalendarWidget`s
 + Sort on column click (?)
 
 ### `main_window`
