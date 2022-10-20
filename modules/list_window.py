@@ -64,6 +64,26 @@ class list_window(QWidget):
 
         self.resize(1800, 1000)
 
+        # init calendar-button group
+        layc = self.init_cal_layout()
+
+        # init table group
+        layt = self.init_table_layout()
+
+        lay2 = QHBoxLayout()
+        lay2.addSpacing(100)
+        lay2.addLayout(layc)
+        lay2.addSpacing(100)
+        lay2.addLayout(layt)
+        lay2.addSpacing(100)
+
+        # show() is missing, will be loaded from the main
+        self.setLayout(lay2)
+
+
+    # inits the QVBoxLayout containing QCalendarWidgets and buttons
+    def init_cal_layout(self) -> QVBoxLayout:
+
         # MEMBER: QCalendarWidget for start date
         self.s_cal = QCalendarWidget()
         self.s_cal = common.lock_size(self.s_cal)
@@ -87,27 +107,30 @@ class list_window(QWidget):
         layb.addWidget(self.ub)
         layb.addWidget(self.qb)
 
-        lay1 = QVBoxLayout()
-        lay1.addWidget(self.s_cal)
-        lay1.addWidget(self.e_cal)
-        lay1.addLayout(layb)
+        label1 = QLabel('Start date [included]')
+        label1.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        # init table group
-        layt = self.init_table_layout()
+        label2 = QLabel('End date [included]')
+        label2.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        lay2 = QHBoxLayout()
-        lay2.addSpacing(100)
-        lay2.addLayout(lay1)
-        lay2.addSpacing(100)
-        lay2.addLayout(layt)
-        lay2.addSpacing(100)
+        layc = QVBoxLayout()
+        layc.addSpacing(50)
+        layc.addWidget(label1)
+        layc.addWidget(self.s_cal)
+        layc.addSpacing(50)
+        layc.addWidget(label2)
+        layc.addWidget(self.e_cal)
+        layc.addSpacing(50)
+        layc.addLayout(layb)
+        layc.addSpacing(50)
 
-        # show() is missing, will be loaded from the main
-        self.setLayout(lay2)
+        return layc
 
 
     # inits the QVBoxLayout containing the QTableView and the label
     def init_table_layout(self) -> QVBoxLayout:
+
+        # MEMBER: record listing table
         self.table = QTableWidget(0, 5)
         # hide record index number in the record table
         self.table.verticalHeader().hide()
@@ -122,6 +145,7 @@ class list_window(QWidget):
         label = QLabel('Total')
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
+        # MEMBER: aggregation table
         self.sum = QTableWidget(1, 5)
         # hide record index number in the sum table
         self.sum.verticalHeader().hide()
@@ -190,5 +214,7 @@ class list_window(QWidget):
 
             itm = QTableWidgetItem(str(val))
             itm.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            if (i % 2 == 1):
+                itm.setBackground(QColor(bcolor1))
 
             self.sum.setItem(0, i, itm)

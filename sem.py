@@ -34,7 +34,7 @@ import modules.list_window as lw
 
 version = {
         'major': 0,
-        'minor': 1,
+        'minor': 2,
         'revision': 0
 }
 
