@@ -50,7 +50,7 @@ def init(path: str, table: str) -> sqlite3.Connection:
         dburi = 'file:{}?mode=rw'.format(pathname2url(path))
         conn = sqlite3.connect(dburi, uri = True)
     except sqlite3.OperationalError:
-        raise DatabaseError('Database not found')
+        raise DatabaseError('database not found')
 
     # searches in the 'sqlite_master' table for the name of the
     # desired table, throws if not found
@@ -64,7 +64,7 @@ def init(path: str, table: str) -> sqlite3.Connection:
 
     # fetchall() should yield [(1,)]
     if (curs.fetchall()[0][0] != 1):
-        raise DatabaseError('Table not found')
+        raise DatabaseError('table not found')
 
     return conn
 

@@ -26,6 +26,9 @@
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton, QApplication
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
+import sqlite3
+
+import modules.config as config
 import modules.add_window as aw
 import modules.list_window as lw
 
@@ -36,7 +39,8 @@ import modules.list_window as lw
 # + two labels with program name and version number
 # + buttons to call up the add/visualize forms and quit
 class main_window(QWidget):
-    def __init__(self, version, conn):
+    def __init__(self, version: str,
+            cfg: config.config, conn: sqlite3.Connection):
         super().__init__()
 
         self.resize(700, 700)
@@ -44,11 +48,7 @@ class main_window(QWidget):
         l1 = QLabel('Simple Expense Manager')
         l1.setStyleSheet('QLabel {font-size: 40px}')
 
-        l2 = QLabel(
-                'Version {}.{}.{}'.format(
-                    version['major'], version['minor'], version['revision']
-                )
-        )
+        l2 = QLabel('Version {}'.format(version))
 
         lay1 = QVBoxLayout()
         lay1.addSpacing(100)
@@ -59,12 +59,12 @@ class main_window(QWidget):
 
         ba = QPushButton('[A]dd expenses')
         # MEMBER: add dialog window
-        self.add_dialog = aw.add_window(conn)
+        self.add_dialog = aw.add_window(cfg, conn)
         ba.clicked.connect(self.add_dialog.show)
 
         bl = QPushButton('[L]ist expenses')
         # MEMBER: list dialog window
-        self.list_dialog = lw.list_window(conn)
+        self.list_dialog = lw.list_window(cfg, conn)
         bl.clicked.connect(self.list_dialog.show)
 
         bq = QPushButton('[Q]uit')

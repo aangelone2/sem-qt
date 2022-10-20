@@ -35,6 +35,7 @@ import sqlite3
 
 import modules.common as common
 import modules.db as db
+import modules.config as config
 
 # color for odd columns in the QTableView,
 # #D9D9D9 also a good choice, slightly darker
@@ -56,7 +57,7 @@ class list_window(QWidget):
 
     # constructor
     # + conn: database connection
-    def __init__(self, conn: sqlite3.Connection):
+    def __init__(self, cfg: config.config, conn: sqlite3.Connection):
         super().__init__()
 
         # MEMBER: database connection for adding
@@ -68,7 +69,7 @@ class list_window(QWidget):
         layc = self.init_cal_layout()
 
         # init table group
-        layt = self.init_table_layout()
+        layt = self.init_table_layout(cfg)
 
         lay2 = QHBoxLayout()
         lay2.addSpacing(100)
@@ -128,7 +129,7 @@ class list_window(QWidget):
 
 
     # inits the QVBoxLayout containing the QTableView and the label
-    def init_table_layout(self) -> QVBoxLayout:
+    def init_table_layout(self, cfg: config.config) -> QVBoxLayout:
 
         # MEMBER: record listing table
         self.table = QTableWidget(0, 5)
@@ -151,9 +152,11 @@ class list_window(QWidget):
         self.sum.verticalHeader().hide()
         self.sum = common.set_tw_behavior(self.sum, 'equal')
 
+        # MEMBER: expense type list
+        self.tlist = list(cfg.tstr)
+
         # set header names in the sum table
-        headers = ['E', 'H', 'I', 'N', 'R']
-        for ih, h in enumerate(headers):
+        for ih, h in enumerate(self.tlist):
             self.sum.setHorizontalHeaderItem(ih, QTableWidgetItem(h))
 
         self.sum = common.lock_height(self.sum)
@@ -171,6 +174,7 @@ class list_window(QWidget):
     # updates the record selection visualized in the upper
     # table, as well as the sum visualized in the lower one
     def update(self):
+
         # resets the number of rows
         self.table.setRowCount(0)
 
@@ -202,9 +206,7 @@ class list_window(QWidget):
         asum = df.groupby('type').sum()
         asum = asum['amount']
 
-        headers = ['E', 'H', 'I', 'N', 'R']
-        for i,h in enumerate(headers):
-
+        for i,h in enumerate(self.tlist):
             # if no expense with a certain key is present,
             # return 0.0 (could be done in SQL, simpler here)
             try:

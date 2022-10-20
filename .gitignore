@@ -1,2 +1,4 @@
+config/
 data/
+extra/
 modules/__pycache__/
