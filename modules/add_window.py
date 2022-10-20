@@ -33,6 +33,7 @@ import sqlite3
 
 from modules.common import EQLineEdit
 import modules.db as db
+import modules.config as config
 
 
 
@@ -46,7 +47,7 @@ class add_window(QWidget):
 
     # constructor
     # + conn: database connection
-    def __init__(self, conn: sqlite3.Connection):
+    def __init__(self, cfg: config.config, conn: sqlite3.Connection):
         super().__init__()
 
         # MEMBER: database connection for adding
@@ -65,7 +66,7 @@ class add_window(QWidget):
         ]
 
         # MEMBER: textbox list, same order as self.l
-        self.init_textboxes()
+        self.init_textboxes(cfg)
 
         # label-textbox layout
         lay1 = QGridLayout()
@@ -101,7 +102,7 @@ class add_window(QWidget):
 
     # prepares the list of enhanced textboxes:
     # year/month/day/type/amount/justification
-    def init_textboxes(self):
+    def init_textboxes(self, cfg: config.config):
 
         # the checks here cannot protect against errors like '31
         # february': these will be intercepted later, in db.add
@@ -117,7 +118,7 @@ class add_window(QWidget):
         tt = EQLineEdit()
         tt.setValidator(
                 QRegularExpressionValidator(
-                    QRegularExpression("[IHFNER]")
+                    QRegularExpression('[' + cfg.tstr + ']')
                 )
         )
 

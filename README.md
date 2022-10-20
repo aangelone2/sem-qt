@@ -8,7 +8,7 @@ Simple Expense Manager
 + Add possibility to add more expense types
 
 ### Complex
-+ Switch to `MySQL`
++ Switch to `MySQL` (?)
 + Add many users (with ID/password management)
 
 ### `add_window`

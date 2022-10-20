@@ -27,16 +27,18 @@ import sys
 
 from PyQt6.QtWidgets import QApplication
 
+import modules.common as common
 import modules.db as db
+import modules.config as config
 import modules.main_window as mw
 import modules.add_window as aw
 import modules.list_window as lw
 
-version = {
-        'major': 0,
-        'minor': 2,
-        'revision': 0
-}
+
+
+
+config_file = 'config/config'
+version = '0.3.0'
 
 
 
@@ -49,15 +51,21 @@ def main():
     font.setPointSize(22)
     app.setFont(font)
 
-    path = 'data/expenses.sqlite'
-    table = 'expenses'
     try:
-        db_conn = db.init(path, table)
-    except db.DatabaseError:
-        EQMessageBox.ErrorMsg('Database error')
+        cfg = config.config(config_file)
+    except config.ConfigError:
+        common.ErrorMsg('config setup error')
         sys.exit()
 
-    w = mw.main_window(version, db_conn)
+    table = 'expenses'
+
+    try:
+        db_conn = db.init(cfg.path, table)
+    except db.DatabaseError:
+        common.ErrorMsg('database error')
+        sys.exit()
+
+    w = mw.main_window(version, cfg, db_conn)
     w.setWindowTitle('sem')
 
     sys.exit(app.exec())
