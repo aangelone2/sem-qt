@@ -57,7 +57,7 @@ class list_window(QWidget):
 
     # constructor
     # + conn: database connection
-    def __init__(self, cfg: config.config, conn: sqlite3.Connection):
+    def __init__(self, conn: sqlite3.Connection):
         super().__init__()
 
         # MEMBER: database connection for adding
@@ -69,7 +69,8 @@ class list_window(QWidget):
         layc = self.init_cal_layout()
 
         # init table group
-        layt = self.init_table_layout(cfg)
+        # mutable-dependent details not set (see update())
+        layt = self.init_table_layout()
 
         lay2 = QHBoxLayout()
         lay2.addSpacing(100)
@@ -99,7 +100,7 @@ class list_window(QWidget):
 
         # MEMBER: query update button
         self.ub = QPushButton('Update')
-        self.ub.clicked.connect(self.update)
+        self.ub.clicked.connect(self.update_tables)
         # MEMBER: quit button
         self.qb = QPushButton('Quit')
         self.qb.clicked.connect(self.hide)
@@ -129,7 +130,7 @@ class list_window(QWidget):
 
 
     # inits the QVBoxLayout containing the QTableView and the label
-    def init_table_layout(self, cfg: config.config) -> QVBoxLayout:
+    def init_table_layout(self) -> QVBoxLayout:
 
         # MEMBER: record listing table
         self.table = QTableWidget(0, 5)
@@ -139,9 +140,9 @@ class list_window(QWidget):
         self.table = common.set_tw_behavior(self.table, 'equal')
 
         # set header names in the record table
-        headers = ['ID', 'Date', 'Type', 'Amount', 'Justification']
-        for ih, h in enumerate(headers):
-            self.table.setHorizontalHeaderItem(ih, QTableWidgetItem(h))
+        self.table.setHorizontalHeaderLabels(
+            ['ID', 'Date', 'Type', 'Amount', 'Justification']
+        )
 
         label = QLabel('Total')
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -151,13 +152,6 @@ class list_window(QWidget):
         # hide record index number in the sum table
         self.sum.verticalHeader().hide()
         self.sum = common.set_tw_behavior(self.sum, 'equal')
-
-        # MEMBER: expense type list
-        self.tlist = list(cfg.tstr)
-
-        # set header names in the sum table
-        for ih, h in enumerate(self.tlist):
-            self.sum.setHorizontalHeaderItem(ih, QTableWidgetItem(h))
 
         self.sum = common.lock_height(self.sum)
 
@@ -171,11 +165,24 @@ class list_window(QWidget):
         return layt
 
 
+    # updates dialog with the current snapshot of mutable data:
+    # + config
+    # to be called whenever reloading the dialog
+    def update(self, cfg: config.config):
+        # MEMBER: expense type list
+        self.tlist = list(cfg.tstr)
+
+        # set header names in the sum table
+        self.sum.setHorizontalHeaderLabels(self.tlist)
+
+        if (not self.isVisible()):
+            self.show()
+
+
+
     # updates the record selection visualized in the upper
     # table, as well as the sum visualized in the lower one
-    def update(self):
-
-        # resets the number of rows
+    def update_tables(self):
         self.table.setRowCount(0)
 
         fmt = Qt.DateFormat.ISODate
@@ -197,7 +204,6 @@ class list_window(QWidget):
                 if (field != 'justification'):
                     itm.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
 
-                # odd columns are colored in light gray
                 if (ic % 2 == 1):
                     itm.setBackground(QColor(bcolor1))
 

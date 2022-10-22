@@ -31,13 +31,14 @@ import sqlite3
 import modules.config as config
 import modules.add_window as aw
 import modules.list_window as lw
+import modules.settings_window as sw
 
 
 
 
 # main splash screen: contains
 # + two labels with program name and version number
-# + buttons to call up the add/visualize forms and quit
+# + buttons to call up the add/list/settings forms and quit
 class main_window(QWidget):
     def __init__(self, version: str,
             cfg: config.config, conn: sqlite3.Connection):
@@ -50,6 +51,8 @@ class main_window(QWidget):
 
         l2 = QLabel('Version {}'.format(version))
 
+        self.cfg = cfg
+
         lay1 = QVBoxLayout()
         lay1.addSpacing(100)
         lay1.addWidget(l1)
@@ -57,20 +60,32 @@ class main_window(QWidget):
         lay1.addWidget(l2)
         lay1.addSpacing(100)
 
-        ba = QPushButton('[A]dd expenses')
         # MEMBER: add dialog window
-        self.add_dialog = aw.add_window(cfg, conn)
-        ba.clicked.connect(self.add_dialog.show)
+        self.add_dialog = aw.add_window(conn)
+        # MEMBER: list dialog window
+        self.list_dialog = lw.list_window(conn)
+        # MEMBER: settings dialog window
+        self.settings_dialog = sw.settings_window()
+
+        ba = QPushButton('[A]dd expenses')
+        ba.clicked.connect(
+                lambda: self.add_dialog.update(self.cfg)
+        )
 
         bl = QPushButton('[L]ist expenses')
-        # MEMBER: list dialog window
-        self.list_dialog = lw.list_window(cfg, conn)
-        bl.clicked.connect(self.list_dialog.show)
+        bl.clicked.connect(
+                lambda: self.list_dialog.update(self.cfg)
+        )
+
+        bs = QPushButton('[S]ettings')
+        bs.clicked.connect(
+                lambda: self.settings_dialog.update(self.cfg)
+        )
 
         bq = QPushButton('[Q]uit')
         bq.clicked.connect(QApplication.instance().quit)
 
-        b = [ba, bl, bq]
+        b = [ba, bl, bs, bq]
 
         lay2 = QVBoxLayout()
         lay2.addSpacing(100)
