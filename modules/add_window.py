@@ -47,7 +47,7 @@ class add_window(QWidget):
 
     # constructor
     # + conn: database connection
-    def __init__(self, cfg: config.config, conn: sqlite3.Connection):
+    def __init__(self, conn: sqlite3.Connection):
         super().__init__()
 
         # MEMBER: database connection for adding
@@ -66,7 +66,8 @@ class add_window(QWidget):
         ]
 
         # MEMBER: textbox list, same order as self.l
-        self.init_textboxes(cfg)
+        # mutable-dependent details not set (see update)
+        self.init_textboxes()
 
         # label-textbox layout
         lay1 = QGridLayout()
@@ -102,7 +103,7 @@ class add_window(QWidget):
 
     # prepares the list of enhanced textboxes:
     # year/month/day/type/amount/justification
-    def init_textboxes(self, cfg: config.config):
+    def init_textboxes(self):
 
         # the checks here cannot protect against errors like '31
         # february': these will be intercepted later, in db.add
@@ -115,12 +116,8 @@ class add_window(QWidget):
         dt = EQLineEdit()
         dt.setValidator(QIntValidator(1, 31))
 
+        # tt Validator is mutable-dependent (see update())
         tt = EQLineEdit()
-        tt.setValidator(
-                QRegularExpressionValidator(
-                    QRegularExpression('[' + cfg.tstr + ']')
-                )
-        )
 
         at = EQLineEdit()
         # 2 digits after decimal point
@@ -135,6 +132,20 @@ class add_window(QWidget):
         )
         
         self.t = [yt, mt, dt, tt, at, jt]
+
+
+    # updates dialog with the current snapshot of mutable data:
+    # + config
+    # to be called whenever reloading the dialog
+    def update(self, cfg: config.config):
+        self.t[3].setValidator(
+                QRegularExpressionValidator(
+                    QRegularExpression('[' + cfg.tstr + ']')
+                )
+        )
+
+        if (not self.isVisible()):
+            self.show()
 
 
     # called when editing terminates in any of the textboxes,
