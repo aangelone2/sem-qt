@@ -148,22 +148,13 @@ class add_window(QWidget):
             self.show()
 
 
-    # called when editing terminates in any of the textboxes,
-    # refocuses the following one or the first (if at the last)
-    def refocus(self):
-        if (self.focused < len(self.t) - 1):
-            self.focused += 1
-            self.t[self.focused].setFocus()
-        else:
-            self.focused = -1
-            self.b[0].setFocus()
-
-
     # connects the refocusing events of the textboxes and the
     # clicked events of the buttons
     def init_connections(self):
-        for ti in self.t:
-            ti.editingFinished.connect(self.refocus)
+        for i,ti in enumerate(self.t):
+            ti.editingFinished.connect(
+                lambda x = i: self.t[(x + 1) % len(self.t)].setFocus()
+            )
 
         self.b[0].clicked.connect(self.add)
         self.b[1].clicked.connect(self.reset_focus)
@@ -172,7 +163,6 @@ class add_window(QWidget):
 
     # resets the focus at the first textbox, also initializes
     def reset_focus(self):
-        self.focused = 0
         self.t[0].setFocus()
 
 
