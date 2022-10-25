@@ -41,28 +41,44 @@ class ConfigError(Exception):
 class config:
 
     # multiple constructors
-    def __init__(self, *args):
+    def __init__(self, filename: str = '', dic: dict[str] = {}):
         self.tstr = ''
         self.tdict = {}
 
         # loads config from file,
         # sets default and saves it to file if not existent
         # file should be in the format 'key: explanation'
-        if isinstance(args[0], str):
-            if (os.path.exists(args[0])):
-                self.load_config(args[0])
+        if (filename != ''):
+            if (os.path.exists(filename)):
+                self.load(filename)
             else:
-                self.create_config(args[0])
+                self.path = 'data/expenses.sqlite'
+                self.set_default()
+
+                self.save(filename)
 
         # dictionary constructor
-        elif isinstance(args[0], dict[str]):
-            for k in args[0]:
-                self.add_category(k, args[0][k])
+        elif (dic != {}):
+            self.path = 'data/expenses.sqlite'
+            for k in dic:
+                self.add(k, dic[k])
+
+
+    # sets default values for the configuration class
+    def set_default(self):
+        self.tstr = 'EHINR'
+        self.tdict = {
+                'E': 'Extra (voluptuary)',
+                'H': 'House expenses (rent...)',
+                'I': 'Income',
+                'N': 'Necessary',
+                'R': 'Refundable'
+        }
 
 
     # creates a new category from key and description:
     # keys must be of length 1 and non-repeating
-    def add_category(self, key: str, description: str):
+    def add(self, key: str, description: str):
         if (len(key) != 1):
             raise ConfigError('invalid type {}'.format(k))
 
@@ -74,45 +90,28 @@ class config:
         self.tdict[key] = description
 
 
-    # removes a category defined by its key
-    def remove_category(self, key: str):
-        self.tstr = self.tstr.replace(key, '')
-        self.tdict.pop(key)
+#    # removes a category defined by its key
+#    def remove(self, key: str):
+#        self.tstr = self.tstr.replace(key, '')
+#        self.tdict.pop(key)
 
 
     # loads the configuration from the given file
     # file should be in the format 'key: explanation'
-    def load_config(self, config_file: str):
+    def load(self, config_file: str):
         with open(config_file, 'r') as f:
             self.path = f.readline().replace('\n', '')
 
             for line in f:
                 key = line[0]
                 description = line[3:].replace('\n', '')
-                self.add_category(key, description)
+                self.add(key, description)
 
             f.close()
 
 
-    # sets default values for the configuration class
-    # and writes to file as 'key: explanation'
-    def create_config(self, config_file: str):
-        self.path = 'data/expenses.sqlite'
-
-        self.tstr = 'EHINR'
-        self.tdict = {
-                'E': 'Extra (voluptuary)',
-                'H': 'House expenses (rent...)',
-                'I': 'Income',
-                'N': 'Necessary',
-                'R': 'Refundable'
-        }
-
-        self.save_config(config_file)
-
-
     # saves to file as 'key: explanation'
-    def save_config(self, config_file: str):
+    def save(self, config_file: str):
         with open(config_file, 'w') as f:
             f.write(self.path + '\n')
 

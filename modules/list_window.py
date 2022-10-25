@@ -147,8 +147,8 @@ class list_window(QWidget):
         label = QLabel('Total')
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        # MEMBER: aggregation table
-        self.sum = QTableWidget(1, 5)
+        # MEMBER: aggregation table, columns added in update()
+        self.sum = QTableWidget(1, 0)
         # hide record index number in the sum table
         self.sum.verticalHeader().hide()
         self.sum = common.set_tw_behavior(self.sum, 'equal')
@@ -171,6 +171,11 @@ class list_window(QWidget):
     def update(self, cfg: config.config):
         # MEMBER: expense type list
         self.tlist = list(cfg.tstr)
+
+        # create required number of columns
+        self.sum.setColumnCount(0)
+        for i in range(len(self.tlist)):
+            self.sum.insertColumn(i)
 
         # set header names in the sum table
         self.sum.setHorizontalHeaderLabels(self.tlist)

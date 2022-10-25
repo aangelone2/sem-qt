@@ -4,9 +4,6 @@ Simple Expense Manager
 
 ## To Do
 
-### General
-+ Add possibility to add more expense types
-
 ### Complex
 + Switch to `MySQL` (?)
 + Add many users (with ID/password management)
@@ -24,8 +21,15 @@ Simple Expense Manager
 + Fix labels
 + Add keyboard shortcuts
 
+### `settings_window`
++ Do not allow category removal if present in data
+
 ### Extra
 + Organize packaging
 + Add description to README
 + Add screenshots/GIFs/videos
 + Add documentation
+
+### Cleanup
++ Add parents to each widget
++ QPushButton.setAutoDefault()

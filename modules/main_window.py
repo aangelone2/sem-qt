@@ -67,6 +67,10 @@ class main_window(QWidget):
         # MEMBER: settings dialog window
         self.settings_dialog = sw.settings_window()
 
+        self.settings_dialog.accepted_changes.connect(
+                self.update_cfg
+        )
+
         ba = QPushButton('[A]dd expenses')
         ba.clicked.connect(
                 lambda: self.add_dialog.update(self.cfg)
@@ -103,3 +107,8 @@ class main_window(QWidget):
         self.setLayout(lay3)
 
         self.show()
+
+
+    # accepted changes will change the local cfg
+    def update_cfg(self):
+        self.cfg = self.settings_dialog.cfg()

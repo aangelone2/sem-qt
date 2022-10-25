@@ -51,14 +51,16 @@ def main():
     font.setPointSize(22)
     app.setFont(font)
 
+    # checking for configs generation errors
     try:
-        cfg = config.config(config_file)
+        cfg = config.config(filename = config_file)
     except config.ConfigError:
         common.ErrorMsg('config setup error')
         sys.exit()
 
     table = 'expenses'
 
+    # checking for db connection errors
     try:
         db_conn = db.init(cfg.path, table)
     except db.DatabaseError:
@@ -68,7 +70,12 @@ def main():
     w = mw.main_window(version, cfg, db_conn)
     w.setWindowTitle('sem')
 
-    sys.exit(app.exec())
+    out = app.exec()
+
+    # saving (eventually) modified configs
+    w.cfg.save(config_file)
+
+    sys.exit(out)
 
 
 
