@@ -23,6 +23,7 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import QWidget, QPushButton,\
         QTableWidget, QTableWidgetItem
@@ -59,13 +60,11 @@ class settings_window(QWidget):
 
         # MEMBER: accept button
         self.bacc = QPushButton('Accept')
-        # FIXME add code to emit event
+        self.bacc.clicked.connect(self.close)
 
         # MEMBER: cancel button
         self.bcan = QPushButton('Cancel')
-        # current table contents will be ignored,
-        # the dialog will simply be hidden
-        self.bcan.clicked.connect(self.hide)
+        self.bcan.clicked.connect(self.close)
 
         layb2 = QHBoxLayout()
         layb2.addSpacing(100)
@@ -90,7 +89,7 @@ class settings_window(QWidget):
 
         # MEMBER: QTableWidget containing config elements
         # as (key, description) pairs
-        self.table = QTableWidget(0,2)
+        self.table = QTableWidget(0, 2)
 
         self.table.horizontalHeader().hide()
         self.table.verticalHeader().hide()
@@ -110,7 +109,9 @@ class settings_window(QWidget):
 
         # MEMBER: deletes current row in self.table
         self.bdel = QPushButton('-')
-        # FIXME connect clicked signal
+        self.bdel.clicked.connect(
+                lambda: self.table.removeRow(self.table.currentRow())
+        )
 
         lay = QVBoxLayout()
         lay.addWidget(self.badd)
@@ -145,11 +146,22 @@ class settings_window(QWidget):
 
     # return a configuration from the contents of self.table
     # using a dictionary as intermediate step
-    def return_cfg(self) -> config.config:
+    def cfg(self) -> config.config:
         contents = {}
 
-        with t as self.table:
-            for row in range(t.rowCount()):
-                contents[t.item(row, 0).text()] = t.item(row, 1)
+        for row in range(self.table.rowCount()):
+            contents[self.table.item(row, 0).text()] = self.table.item(row, 1).text()
 
-        return config.config(contents)
+        return config.config(dic = contents)
+
+
+    # custom signal to broadcast accepted changes in the cfg
+    accepted_changes = pyqtSignal()
+
+
+    # hides the window, emits a signal to broadcast acceptance
+    def close(self):
+        self.hide()
+
+        if (self.sender().text() == 'Accept'):
+            self.accepted_changes.emit()
