@@ -94,8 +94,8 @@ class EQLineEdit(QLineEdit):
         self.setStyleSheet('background-color: ' + color)
 
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent: QWidget):
+        super().__init__(parent)
 
         # validity checked whenever content changed
         self.textChanged[str].connect(self.check_state)

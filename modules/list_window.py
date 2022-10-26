@@ -44,23 +44,28 @@ bcolor1 = '#E6E6E6'
 
 
 
-# form to display and summarize records: contains
-# + two QCalendarWidget, to select start (self.s_cal) and end
-#   (self.e_cal) date for the queries
-# + an update and a quit button
-# + two QTableView, the upper one displaying the records within
-#   the date interval (self.table) and the lower one displaying
-#   the sum of the amounts for each expense type (self.sum).
-#   form to display and summarize records
-# + a label between the two tables
+# form to display and summarize records
 class list_window(QWidget):
-
-    # constructor
-    # + conn: database connection
     def __init__(self, conn: sqlite3.Connection):
         super().__init__()
 
-        # MEMBER: database connection for adding
+        # ATTRIBUTE: database connection for adding
+        self.conn = None
+        # ATTRIBUTE: QCalendarWidget for start date
+        self.s_cal = None
+        # ATTRIBUTE: QCalendarWidget for end date
+        self.e_cal = None
+        # ATTRIBUTE: query update button
+        self.ub = None
+        # ATTRIBUTE: quit button
+        self.qb = None
+        # ATTRIBUTE: record listing table
+        self.table = None
+        # ATTRIBUTE: aggregation table, columns added in update()
+        self.sum = None
+        # ATTRIBUTE: expense type list
+        self.tlist = []
+
         self.conn = conn
 
         self.resize(1800, 1000)
@@ -85,34 +90,30 @@ class list_window(QWidget):
 
     # inits the QVBoxLayout containing QCalendarWidgets and buttons
     def init_cal_layout(self) -> QVBoxLayout:
-
-        # MEMBER: QCalendarWidget for start date
-        self.s_cal = QCalendarWidget()
+        self.s_cal = QCalendarWidget(self)
         self.s_cal = common.lock_size(self.s_cal)
         self.s_cal.setStyleSheet('QCalendarWidget\
                 {font-size: 18px}')
 
-        # MEMBER: QCalendarWidget for end date
-        self.e_cal = QCalendarWidget()
+        self.e_cal = QCalendarWidget(self)
         self.e_cal = common.lock_size(self.e_cal)
         self.e_cal.setStyleSheet('QCalendarWidget\
                 {font-size: 18px}')
 
-        # MEMBER: query update button
-        self.ub = QPushButton('Update')
+        self.ub = QPushButton('Update', self)
         self.ub.clicked.connect(self.update_tables)
-        # MEMBER: quit button
-        self.qb = QPushButton('Quit')
+
+        self.qb = QPushButton('Quit', self)
         self.qb.clicked.connect(self.hide)
 
         layb = QHBoxLayout()
         layb.addWidget(self.ub)
         layb.addWidget(self.qb)
 
-        label1 = QLabel('Start date [included]')
+        label1 = QLabel('Start date [included]', self)
         label1.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        label2 = QLabel('End date [included]')
+        label2 = QLabel('End date [included]', self)
         label2.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         layc = QVBoxLayout()
@@ -131,9 +132,7 @@ class list_window(QWidget):
 
     # inits the QVBoxLayout containing the QTableView and the label
     def init_table_layout(self) -> QVBoxLayout:
-
-        # MEMBER: record listing table
-        self.table = QTableWidget(0, 5)
+        self.table = QTableWidget(0, 5, self)
         # hide record index number in the record table
         self.table.verticalHeader().hide()
 
@@ -144,11 +143,10 @@ class list_window(QWidget):
             ['ID', 'Date', 'Type', 'Amount', 'Justification']
         )
 
-        label = QLabel('Total')
+        label = QLabel('Total', self)
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        # MEMBER: aggregation table, columns added in update()
-        self.sum = QTableWidget(1, 0)
+        self.sum = QTableWidget(1, 0, self)
         # hide record index number in the sum table
         self.sum.verticalHeader().hide()
         self.sum = common.set_tw_behavior(self.sum, 'equal')
@@ -169,7 +167,6 @@ class list_window(QWidget):
     # + config
     # to be called whenever reloading the dialog
     def update(self, cfg: config.config):
-        # MEMBER: expense type list
         self.tlist = list(cfg.tstr)
 
         # create required number of columns

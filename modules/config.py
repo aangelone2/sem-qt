@@ -34,15 +34,15 @@ class ConfigError(Exception):
 
 
 
-# configuration settings class: contains
-# + database path (path)
-# + expense type keys joined in a sorted string (tstr)
-# + dictionary with type keys and explanations (tdict)
+# configuration settings class
 class config:
-
-    # multiple constructors
     def __init__(self, filename: str = '', dic: dict[str] = {}):
+
+        # ATTRIBUTE: database path
+        self.path = None
+        # ATTRIBUTE: string containing category keys
         self.tstr = ''
+        # ATTRIBUTE: (key, description) dictionary for categs
         self.tdict = {}
 
         # loads config from file,
@@ -88,12 +88,6 @@ class config:
         tlist = sorted(self.tstr + key)
         self.tstr = ''.join(tlist)
         self.tdict[key] = description
-
-
-#    # removes a category defined by its key
-#    def remove(self, key: str):
-#        self.tstr = self.tstr.replace(key, '')
-#        self.tdict.pop(key)
 
 
     # loads the configuration from the given file

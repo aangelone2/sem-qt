@@ -38,36 +38,35 @@ import modules.config as config
 
 
 
-# form to add new elements to the dataframe: contains
-# + a list of labels identifying the fields (self.l)
-# + a list of EQLineEdit which accept and validate the content
-#   for each field (self.t)
-# + an add record, edit record and quit button
+# form to add new elements to the dataframe
 class add_window(QWidget):
-
-    # constructor
-    # + conn: database connection
     def __init__(self, conn: sqlite3.Connection):
         super().__init__()
 
-        # MEMBER: database connection for adding
+        # ATTRIBUTE: database connection for adding
+        self.conn = None
+        # ATTRIBUTE: label list
+        self.l = None
+        # ATTRIBUTE: textbox list, same order as self.l
+        # mutable-dependent details not set (see update)
+        self.t = None
+        # ATTRIBUTE: button list
+        self.b = None
+
         self.conn = conn
 
         self.resize(800, 700)
 
-        # MEMBER: label list
         self.l = [
-            QLabel('Year'),
-            QLabel('Month'),
-            QLabel('Day'),
-            QLabel('Type'),
-            QLabel('Amount'),
-            QLabel('Justification')
+            QLabel('Year', self),
+            QLabel('Month', self),
+            QLabel('Day', self),
+            QLabel('Type', self),
+            QLabel('Amount', self),
+            QLabel('Justification', self)
         ]
 
-        # MEMBER: textbox list, same order as self.l
-        # mutable-dependent details not set (see update)
-        self.init_textboxes()
+        self.t = self.init_textboxes()
 
         # label-textbox layout
         lay1 = QGridLayout()
@@ -76,11 +75,10 @@ class add_window(QWidget):
             lay1.addWidget(li, idx, 0)
             lay1.addWidget(ti, idx, 1)
 
-        # MEMBER: button list
         self.b = [
-            QPushButton('[A]dd expense'),
-            QPushButton('[E]dit expense'),
-            QPushButton('[Q]uit')
+            QPushButton('[A]dd expense', self),
+            QPushButton('[E]dit expense', self),
+            QPushButton('[Q]uit', self)
         ]
 
         # init connections and reset cursor to first textbox
@@ -103,27 +101,27 @@ class add_window(QWidget):
 
     # prepares the list of enhanced textboxes:
     # year/month/day/type/amount/justification
-    def init_textboxes(self):
+    def init_textboxes(self) -> list[EQLineEdit]:
 
         # the checks here cannot protect against errors like '31
         # february': these will be intercepted later, in db.add
-        yt = EQLineEdit()
+        yt = EQLineEdit(self)
         yt.setValidator(QIntValidator(1000, 9999))
 
-        mt = EQLineEdit()
+        mt = EQLineEdit(self)
         mt.setValidator(QIntValidator(1, 12))
 
-        dt = EQLineEdit()
+        dt = EQLineEdit(self)
         dt.setValidator(QIntValidator(1, 31))
 
         # tt Validator is mutable-dependent (see update())
-        tt = EQLineEdit()
+        tt = EQLineEdit(self)
 
-        at = EQLineEdit()
+        at = EQLineEdit(self)
         # 2 digits after decimal point
         at.setValidator(QDoubleValidator(-10000.0, +10000.0, 2))
 
-        jt = EQLineEdit()
+        jt = EQLineEdit(self)
         # Accepts up to 100 characters
         jt.setValidator(
                 QRegularExpressionValidator(
@@ -131,7 +129,7 @@ class add_window(QWidget):
                 )
         )
         
-        self.t = [yt, mt, dt, tt, at, jt]
+        return [yt, mt, dt, tt, at, jt]
 
 
     # updates dialog with the current snapshot of mutable data:

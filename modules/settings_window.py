@@ -39,13 +39,22 @@ bcolor1 = '#E6E6E6'
 
 
 
-# settings dialog: contains
-# + a QWidgetTable which will display a config when updated
-# + add/delete buttons for table rows (config elements)
-# + accept/cancel buttons
+# settings dialog
 class settings_window(QWidget):
     def __init__(self):
         super().__init__()
+
+        # ATTRIBUTE: accept button
+        self.bacc = None
+        # ATTRIBUTE: cancel button
+        self.bcan = None
+        # ATTRIBUTE: QTableWidget of config elements
+        # as (key, description) pairs
+        self.table = None
+        # ATTRIBUTE: button, adds row at the end of self.table
+        self.badd = None
+        # ATTRIBUTE: deletes current row in self.table
+        self.bdel = None
 
         self.resize(400, 400)
 
@@ -58,12 +67,10 @@ class settings_window(QWidget):
         lay1.addWidget(self.table)
         lay1.addLayout(layb1)
 
-        # MEMBER: accept button
-        self.bacc = QPushButton('Accept')
+        self.bacc = QPushButton('Accept', self)
         self.bacc.clicked.connect(self.close)
 
-        # MEMBER: cancel button
-        self.bcan = QPushButton('Cancel')
+        self.bcan = QPushButton('Cancel', self)
         self.bcan.clicked.connect(self.close)
 
         layb2 = QHBoxLayout()
@@ -86,10 +93,7 @@ class settings_window(QWidget):
     # creates the QWidgetTable but does not fill it
     # (content is mutable-dependent, see update())
     def setup_table(self):
-
-        # MEMBER: QTableWidget containing config elements
-        # as (key, description) pairs
-        self.table = QTableWidget(0, 2)
+        self.table = QTableWidget(0, 2, self)
 
         self.table.horizontalHeader().hide()
         self.table.verticalHeader().hide()
@@ -100,15 +104,12 @@ class settings_window(QWidget):
 
     # sets up the add/delete buttons
     def setup_ad_buttons(self) -> QVBoxLayout:
-
-        # MEMBER: adds row in the last position of self.table
-        self.badd = QPushButton('+')
+        self.badd = QPushButton('+', self)
         self.badd.clicked.connect(
                 lambda: self.table.insertRow(self.table.rowCount())
         )
 
-        # MEMBER: deletes current row in self.table
-        self.bdel = QPushButton('-')
+        self.bdel = QPushButton('-', self)
         self.bdel.clicked.connect(
                 lambda: self.table.removeRow(self.table.currentRow())
         )
