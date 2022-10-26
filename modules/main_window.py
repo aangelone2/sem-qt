@@ -36,20 +36,27 @@ import modules.settings_window as sw
 
 
 
-# main splash screen: contains
-# + two labels with program name and version number
-# + buttons to call up the add/list/settings forms and quit
+# main screen
 class main_window(QWidget):
     def __init__(self, version: str,
             cfg: config.config, conn: sqlite3.Connection):
         super().__init__()
 
+        # ATTRIBUTE: stored configuration settings
+        self.cfg = None
+        # ATTRIBUTE: add dialog window
+        self.add_dialog = None
+        # ATTRIBUTE: list dialog window
+        self.list_dialog = None
+        # ATTRIBUTE: settings dialog window
+        self.settings_dialog = None
+
         self.resize(700, 700)
 
-        l1 = QLabel('Simple Expense Manager')
+        l1 = QLabel('Simple Expense Manager', self)
         l1.setStyleSheet('QLabel {font-size: 40px}')
 
-        l2 = QLabel('Version {}'.format(version))
+        l2 = QLabel('Version {}'.format(version), self)
 
         self.cfg = cfg
 
@@ -60,33 +67,30 @@ class main_window(QWidget):
         lay1.addWidget(l2)
         lay1.addSpacing(100)
 
-        # MEMBER: add dialog window
         self.add_dialog = aw.add_window(conn)
-        # MEMBER: list dialog window
         self.list_dialog = lw.list_window(conn)
-        # MEMBER: settings dialog window
         self.settings_dialog = sw.settings_window()
 
         self.settings_dialog.accepted_changes.connect(
                 self.update_cfg
         )
 
-        ba = QPushButton('[A]dd expenses')
+        ba = QPushButton('[A]dd expenses', self)
         ba.clicked.connect(
                 lambda: self.add_dialog.update(self.cfg)
         )
 
-        bl = QPushButton('[L]ist expenses')
+        bl = QPushButton('[L]ist expenses', self)
         bl.clicked.connect(
                 lambda: self.list_dialog.update(self.cfg)
         )
 
-        bs = QPushButton('[S]ettings')
+        bs = QPushButton('[S]ettings', self)
         bs.clicked.connect(
                 lambda: self.settings_dialog.update(self.cfg)
         )
 
-        bq = QPushButton('[Q]uit')
+        bq = QPushButton('[Q]uit', self)
         bq.clicked.connect(QApplication.instance().quit)
 
         b = [ba, bl, bs, bq]
