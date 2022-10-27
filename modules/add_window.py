@@ -136,7 +136,7 @@ class add_window(QWidget):
         lay.addWidget(self.qb)
         lay.addSpacing(25)
 
-        self.ab.clicked.connect(self.add)
+        self.ab.clicked.connect(self.request_insertion)
         self.eb.clicked.connect(self.reset_focus)
         self.qb.clicked.connect(self.hide)
 
@@ -146,6 +146,7 @@ class add_window(QWidget):
     ####################### SIGNALS #######################
 
     # custom signal to broadcast accepted record to add to db
+    # transmits a dict of (key, value) pairs for the fields
     insertion_requested = pyqtSignal(dict)
 
 
@@ -154,7 +155,7 @@ class add_window(QWidget):
     # emits signal with field dictionary as argument,
     # resets focus to input new record
     @QtCore.pyqtSlot()
-    def add(self):
+    def request_insertion(self):
         fields = {
             'year': self.t[0].text(),
             'month': self.t[1].text(),
