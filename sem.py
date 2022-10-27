@@ -30,9 +30,8 @@ from PyQt6.QtWidgets import QApplication
 import modules.common as common
 import modules.db as db
 import modules.config as config
-import modules.main_window as mw
-import modules.add_window as aw
-import modules.list_window as lw
+
+from modules.main_window import main_window
 
 
 
@@ -67,7 +66,7 @@ def main():
         common.ErrorMsg('database error')
         sys.exit()
 
-    w = mw.main_window(version, cfg, db_conn)
+    w = main_window(version, cfg, db_conn)
     w.setWindowTitle('sem')
 
     out = app.exec()
