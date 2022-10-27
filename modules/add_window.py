@@ -23,9 +23,12 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+from PyQt6 import QtCore
+from PyQt6.QtCore import pyqtSignal, pyqtSlot
+
 from PyQt6.QtCore import QRegularExpression
 from PyQt6.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton
-from PyQt6.QtWidgets import QGridLayout, QHBoxLayout, QVBoxLayout
+from PyQt6.QtWidgets import QFormLayout, QHBoxLayout, QVBoxLayout
 from PyQt6.QtGui import QValidator, QIntValidator,\
     QDoubleValidator, QRegularExpressionValidator
 
@@ -40,86 +43,61 @@ from modules.config import config
 
 # form to add new elements to the dataframe
 class add_window(QWidget):
-    def __init__(self, conn: sqlite3.Connection):
+
+    ####################### INIT #######################
+
+    def __init__(self):
         super().__init__()
 
-        # ATTRIBUTE: database connection for adding
-        self.conn = None
-        # ATTRIBUTE: label list
-        self.l = None
-        # ATTRIBUTE: textbox list, same order as self.l
-        # mutable-dependent details not set (see update)
+        # ATTRIBUTE: textbox list
+        # mutable-dependent details set in update()
         self.t = None
-        # ATTRIBUTE: button list
-        self.b = None
+        # ATTRIBUTE: accept, edit and quit buttons
+        self.ab = None
+        self.eb = None
+        self.qb = None
 
-        self.conn = conn
-
-        self.resize(800, 700)
-
-        self.l = [
-            QLabel('Year', self),
-            QLabel('Month', self),
-            QLabel('Day', self),
-            QLabel('Type', self),
-            QLabel('Amount', self),
-            QLabel('Justification', self)
-        ]
-
-        self.t = self.init_textboxes()
-
-        # label-textbox layout
-        lay1 = QGridLayout()
-        lay1.setSpacing(10)
-        for idx, (li,ti) in enumerate(zip(self.l, self.t)):
-            lay1.addWidget(li, idx, 0)
-            lay1.addWidget(ti, idx, 1)
-
-        self.b = [
-            QPushButton('[A]dd expense', self),
-            QPushButton('[E]dit expense', self),
-            QPushButton('[Q]uit', self)
-        ]
-
-        # init connections and reset cursor to first textbox
-        self.init_connections()
+        layf = self.init_form()
         self.reset_focus()
 
-        # button layout
-        lay2 = QHBoxLayout()
-        for bi in self.b:
-            lay2.addWidget(bi)
+        layb = self.init_buttons()
 
-        # master layout
-        lay3 = QVBoxLayout()
-        lay3.addLayout(lay1)
-        lay3.addLayout(lay2)
+        lay = QVBoxLayout()
+        lay.addSpacing(50)
+        lay.addLayout(layf)
+        lay.addSpacing(100)
+        lay.addLayout(layb)
+        lay.addSpacing(50)
 
-        # show() is missing, will be loaded from the main
-        self.setLayout(lay3)
+        self.setLayout(lay)
 
 
-    # prepares the list of enhanced textboxes:
-    # year/month/day/type/amount/justification
-    def init_textboxes(self) -> list[EQLineEdit]:
+    # inits textbox layout and sets up connections
+    def init_form(self) -> QFormLayout:
+        lay = QFormLayout()
 
         # the checks here cannot protect against errors like '31
         # february': these will be intercepted later, in db.add
         yt = EQLineEdit(self)
         yt.setValidator(QIntValidator(1000, 9999))
+        lay.addRow('Year', yt)
 
         mt = EQLineEdit(self)
         mt.setValidator(QIntValidator(1, 12))
+        lay.addRow('Month', mt)
 
         dt = EQLineEdit(self)
         dt.setValidator(QIntValidator(1, 31))
+        lay.addRow('Day', dt)
 
         # tt Validator is mutable-dependent (see update())
         tt = EQLineEdit(self)
+        lay.addRow('Type', tt)
 
         at = EQLineEdit(self)
         # 2 digits after decimal point
         at.setValidator(QDoubleValidator(-10000.0, +10000.0, 2))
+        lay.addRow('Amount', at)
 
         jt = EQLineEdit(self)
         # Accepts up to 100 characters
@@ -128,44 +106,54 @@ class add_window(QWidget):
                     QRegularExpression("^.{1,100}$")
                 )
         )
-        
-        return [yt, mt, dt, tt, at, jt]
+        lay.addRow('Justification', jt)
 
+        self.t = [yt, mt, dt, tt, at, jt]
 
-    # updates dialog with the current snapshot of mutable data:
-    # + config
-    # to be called whenever reloading the dialog
-    def update(self, cfg: config):
-        self.t[3].setValidator(
-                QRegularExpressionValidator(
-                    QRegularExpression('[' + cfg.tstr + ']')
-                )
-        )
-
-        if (not self.isVisible()):
-            self.show()
-
-
-    # connects the refocusing events of the textboxes and the
-    # clicked events of the buttons
-    def init_connections(self):
+        # Sets up connections for text completion signal
         for i,ti in enumerate(self.t):
             ti.editingFinished.connect(
                 lambda x = i: self.t[(x + 1) % len(self.t)].setFocus()
             )
 
-        self.b[0].clicked.connect(self.add)
-        self.b[1].clicked.connect(self.reset_focus)
-        self.b[2].clicked.connect(self.hide)
+        return lay
 
 
-    # resets the focus at the first textbox, also initializes
-    def reset_focus(self):
-        self.t[0].setFocus()
+    # inits button layout and sets up connections
+    def init_buttons(self) -> QHBoxLayout:
+        lay = QHBoxLayout()
+        lay.addSpacing(25)
+
+        self.ab = QPushButton('[A]dd expense', self)
+        lay.addWidget(self.ab)
+        lay.addSpacing(25)
+
+        self.eb = QPushButton('[E]dit expense', self)
+        lay.addWidget(self.eb)
+        lay.addSpacing(25)
+
+        self.qb = QPushButton('[Q]uit', self)
+        lay.addWidget(self.qb)
+        lay.addSpacing(25)
+
+        self.ab.clicked.connect(self.add)
+        self.eb.clicked.connect(self.reset_focus)
+        self.qb.clicked.connect(self.hide)
+
+        return lay
 
 
-    # collects textbox values and passes a dictionary to db.add,
-    # resetting focus to add another record
+    ####################### SIGNALS #######################
+
+    # custom signal to broadcast accepted record to add to db
+    insertion_requested = pyqtSignal(dict)
+
+
+    ####################### SLOTS #######################
+
+    # emits signal with field dictionary as argument,
+    # resets focus to input new record
+    @QtCore.pyqtSlot()
     def add(self):
         fields = {
             'year': self.t[0].text(),
@@ -176,5 +164,27 @@ class add_window(QWidget):
             'justification': self.t[5].text()
         }
 
-        db.add(fields, self.conn)
+        self.insertion_requested.emit(fields)
+
         self.reset_focus()
+
+
+    # resets the focus at the first textbox, also initializes
+    @QtCore.pyqtSlot()
+    def reset_focus(self):
+        self.t[0].setFocus()
+
+
+    # updates dialog with the current snapshot of mutable data:
+    # + config
+    # to be called whenever reloading the dialog
+    @QtCore.pyqtSlot(config)
+    def update(self, cfg: config):
+        self.t[3].setValidator(
+                QRegularExpressionValidator(
+                    QRegularExpression('[' + cfg.tstr + ']')
+                )
+        )
+
+        if (not self.isVisible()):
+            self.show()

@@ -28,6 +28,7 @@ from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
 import sqlite3
 
+import modules.db as db
 from modules.config import config
 from modules.add_window import add_window
 from modules.list_window import list_window
@@ -67,15 +68,21 @@ class main_window(QWidget):
         lay1.addWidget(l2)
         lay1.addSpacing(100)
 
-        self.add_dialog = add_window(conn)
-        self.list_dialog = list_window(conn)
-        self.settings_dialog = settings_window()
+        self.add_dialog = add_window()
+        # trick: slot with 2 args, signal returns 1
+        self.add_dialog.insertion_requested.connect(
+                lambda fields: db.add(fields, conn)
+        )
 
+        self.list_dialog = list_window(conn)
+
+        self.settings_dialog = settings_window()
         self.settings_dialog.accepted_changes.connect(
                 self.update_cfg
         )
 
         ba = QPushButton('[A]dd expenses', self)
+        # trick: slot with 1 arg, signal returns 0
         ba.clicked.connect(
                 lambda: self.add_dialog.update(self.cfg)
         )
