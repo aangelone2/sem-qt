@@ -23,6 +23,9 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+from PyQt6 import QtCore
+from PyQt6.QtCore import pyqtSignal, pyqtSlot
+
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton, QApplication
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
@@ -39,6 +42,9 @@ from modules.settings_window import settings_window
 
 # main screen
 class main_window(QWidget):
+
+    ####################### INIT #######################
+
     def __init__(self, version: str,
             cfg: config, conn: sqlite3.Connection):
         super().__init__()
@@ -74,10 +80,16 @@ class main_window(QWidget):
                 lambda fields: db.add(fields, conn)
         )
 
-        self.list_dialog = list_window(conn)
+        self.list_dialog = list_window()
+        # reconnects back to the window with the queried data
+        self.list_dialog.query_requested.connect(
+                lambda s,e: self.list_dialog.update_tables(
+                    db.fetch(s, e, conn)
+                )
+        )
 
         self.settings_dialog = settings_window()
-        self.settings_dialog.accepted_changes.connect(
+        self.settings_dialog.changes_accepted.connect(
                 self.update_cfg
         )
 
@@ -120,6 +132,9 @@ class main_window(QWidget):
         self.show()
 
 
-    # accepted changes will change the local cfg
-    def update_cfg(self):
-        self.cfg = self.settings_dialog.cfg()
+    ####################### SLOTS #######################
+
+    # changes local cfg with the given values
+    @QtCore.pyqtSlot(config)
+    def update_cfg(self, cfg: config):
+        self.cfg = cfg

@@ -23,7 +23,9 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-from PyQt6.QtCore import pyqtSignal
+from PyQt6 import QtCore
+from PyQt6.QtCore import pyqtSignal, pyqtSlot
+
 from PyQt6.QtWidgets import QWidget, QPushButton,\
         QTableWidget, QTableWidgetItem
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
@@ -36,58 +38,44 @@ from modules.config import config
 
 # settings dialog
 class settings_window(QWidget):
+
+    ####################### INIT #######################
+
     def __init__(self):
         super().__init__()
 
-        # ATTRIBUTE: accept button
-        self.bacc = None
-        # ATTRIBUTE: cancel button
-        self.bcan = None
         # ATTRIBUTE: QTableWidget of config elements
         # as (key, description) pairs
         self.table = None
         # ATTRIBUTE: button, adds row at the end of self.table
-        self.badd = None
+        self.addb = None
         # ATTRIBUTE: deletes current row in self.table
-        self.bdel = None
+        self.delb = None
+        # ATTRIBUTE: accept button
+        self.accb = None
+        # ATTRIBUTE: cancel button
+        self.canb = None
 
         self.resize(400, 400)
 
         # table generated but not filled
-        self.setup_table()
+        layt = self.init_table()
 
-        layb1 = self.setup_ad_buttons()
+        layb = self.init_buttons()
 
-        lay1 = QHBoxLayout()
-        lay1.addWidget(self.table)
-        lay1.addLayout(layb1)
-
-        self.bacc = QPushButton('Accept', self)
-        self.bacc.clicked.connect(self.close)
-
-        self.bcan = QPushButton('Cancel', self)
-        self.bcan.clicked.connect(self.close)
-
-        layb2 = QHBoxLayout()
-        layb2.addSpacing(100)
-        layb2.addWidget(self.bacc)
-        layb2.addSpacing(100)
-        layb2.addWidget(self.bcan)
-        layb2.addSpacing(100)
-
-        lay2 = QVBoxLayout()
-        lay2.addLayout(lay1)
-        lay2.addSpacing(50)
-        lay2.addLayout(layb2)
-        lay2.addSpacing(20)
+        lay = QVBoxLayout()
+        lay.addLayout(layt)
+        lay.addSpacing(50)
+        lay.addLayout(layb)
+        lay.addSpacing(20)
 
         # show() is missing, will be loaded from the main
-        self.setLayout(lay2)
+        self.setLayout(lay)
 
 
-    # creates the QWidgetTable but does not fill it
+    # creates add/remove and empty QWidgetTable
     # (content is mutable-dependent, see update())
-    def setup_table(self):
+    def init_table(self) -> QHBoxLayout:
         self.table = QTableWidget(0, 2, self)
 
         self.table.horizontalHeader().hide()
@@ -96,29 +84,71 @@ class settings_window(QWidget):
         self.table = common.set_tw_behavior(self.table, 'auto')
         self.table.horizontalHeader().setStretchLastSection(True)
 
-
-    # sets up the add/delete buttons
-    def setup_ad_buttons(self) -> QVBoxLayout:
-        self.badd = QPushButton('+', self)
-        self.badd.clicked.connect(
+        self.addb = QPushButton('+', self)
+        self.addb.clicked.connect(
                 lambda: self.table.insertRow(self.table.rowCount())
         )
 
-        self.bdel = QPushButton('-', self)
-        self.bdel.clicked.connect(
+        self.delb = QPushButton('-', self)
+        self.delb.clicked.connect(
                 lambda: self.table.removeRow(self.table.currentRow())
         )
 
-        lay = QVBoxLayout()
-        lay.addWidget(self.badd)
-        lay.addWidget(self.bdel)
+        layb = QVBoxLayout()
+        layb.addWidget(self.addb)
+        layb.addWidget(self.delb)
+
+        lay = QHBoxLayout()
+        lay.addWidget(self.table)
+        lay.addLayout(layb)
 
         return lay
+
+
+    # creates the accept/cancel buttons
+    def init_buttons(self) -> QHBoxLayout:
+        self.accb = QPushButton('Accept', self)
+        self.accb.clicked.connect(self.accept_changes)
+
+        self.canb = QPushButton('Cancel', self)
+        self.canb.clicked.connect(self.hide)
+
+        lay = QHBoxLayout()
+        lay.addSpacing(100)
+        lay.addWidget(self.accb)
+        lay.addSpacing(100)
+        lay.addWidget(self.canb)
+        lay.addSpacing(100)
+
+        return lay
+
+
+    ####################### SIGNALS #######################
+
+    # custom signal to broadcast an accepted config change
+    # transmits the new config
+    changes_accepted = pyqtSignal(config)
+
+
+    ####################### SLOTS #######################
+
+    # signal acceptance of changes
+    # broadcasts config created from table data
+    @QtCore.pyqtSlot()
+    def accept_changes(self):
+        contents = {}
+        for row in range(self.table.rowCount()):
+            contents[self.table.item(row, 0).text()] = self.table.item(row, 1).text()
+
+        self.changes_accepted.emit(config(dic = contents))
+
+        self.hide()
 
 
     # updates dialog with the current snapshot of mutable data:
     # + config
     # to be called whenever reloading the dialog
+    @QtCore.pyqtSlot(config)
     def update(self, cfg: config):
         self.table.setRowCount(0)
 
@@ -138,26 +168,3 @@ class settings_window(QWidget):
 
         if (not self.isVisible()):
             self.show()
-
-
-    # return a configuration from the contents of self.table
-    # using a dictionary as intermediate step
-    def cfg(self) -> config:
-        contents = {}
-
-        for row in range(self.table.rowCount()):
-            contents[self.table.item(row, 0).text()] = self.table.item(row, 1).text()
-
-        return config(dic = contents)
-
-
-    # custom signal to broadcast accepted changes in the cfg
-    accepted_changes = pyqtSignal()
-
-
-    # hides the window, emits a signal to broadcast acceptance
-    def close(self):
-        self.hide()
-
-        if (self.sender().text() == 'Accept'):
-            self.accepted_changes.emit()

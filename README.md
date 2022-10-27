@@ -16,19 +16,17 @@ Simple Expense Manager
 + setBuddy()
 
 ### `list_window`
-+ Compartimentalize layouts/signals/slots
-+ Complete encapsulation through custom signals
 + Privatize attributes
 + Clean space under the sum `QTableView`
 + Sort on column click (?)
 
 ### `main_window`
++ Compartimentalize layouts/signals/slots
++ Complete encapsulation through custom signals
 + Fix labels
 + Move db operations to main() (?)
 
 ### `settings_window`
-+ Compartimentalize layouts/signals/slots
-+ Complete encapsulation through custom signals
 + Privatize attributes
 + Emit warning if category is present in data
 

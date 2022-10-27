@@ -23,6 +23,9 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+from PyQt6 import QtCore
+from PyQt6.QtCore import pyqtSignal, pyqtSlot
+
 from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
         QCalendarWidget, QTableWidget, QTableWidgetItem,\
@@ -31,6 +34,7 @@ from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout,\
         QSizePolicy
 
 import sqlite3
+import pandas as pd
 
 import modules.common as common
 import modules.db as db
@@ -41,7 +45,10 @@ from modules.config import config
 
 # form to display and summarize records
 class list_window(QWidget):
-    def __init__(self, conn: sqlite3.Connection):
+
+    ####################### INIT #######################
+
+    def __init__(self):
         super().__init__()
 
         # ATTRIBUTE: database connection for adding
@@ -61,8 +68,6 @@ class list_window(QWidget):
         # ATTRIBUTE: expense type list
         self.tlist = []
 
-        self.conn = conn
-
         self.resize(1800, 1000)
 
         # init calendar-button group
@@ -72,15 +77,15 @@ class list_window(QWidget):
         # mutable-dependent details not set (see update())
         layt = self.init_table_layout()
 
-        lay2 = QHBoxLayout()
-        lay2.addSpacing(100)
-        lay2.addLayout(layc)
-        lay2.addSpacing(100)
-        lay2.addLayout(layt)
-        lay2.addSpacing(100)
+        lay = QHBoxLayout()
+        lay.addSpacing(100)
+        lay.addLayout(layc)
+        lay.addSpacing(100)
+        lay.addLayout(layt)
+        lay.addSpacing(100)
 
         # show() is missing, will be loaded from the main
-        self.setLayout(lay2)
+        self.setLayout(lay)
 
 
     # inits the QVBoxLayout containing QCalendarWidgets and buttons
@@ -95,14 +100,14 @@ class list_window(QWidget):
         self.e_cal.setStyleSheet('QCalendarWidget\
                 {font-size: 18px}')
 
+        layb = QHBoxLayout()
+
         self.ub = QPushButton('Update', self)
-        self.ub.clicked.connect(self.update_tables)
+        self.ub.clicked.connect(self.request_query)
+        layb.addWidget(self.ub)
 
         self.qb = QPushButton('Quit', self)
         self.qb.clicked.connect(self.hide)
-
-        layb = QHBoxLayout()
-        layb.addWidget(self.ub)
         layb.addWidget(self.qb)
 
         label1 = QLabel('Start date [included]', self)
@@ -111,18 +116,18 @@ class list_window(QWidget):
         label2 = QLabel('End date [included]', self)
         label2.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        layc = QVBoxLayout()
-        layc.addSpacing(50)
-        layc.addWidget(label1)
-        layc.addWidget(self.s_cal)
-        layc.addSpacing(50)
-        layc.addWidget(label2)
-        layc.addWidget(self.e_cal)
-        layc.addSpacing(50)
-        layc.addLayout(layb)
-        layc.addSpacing(50)
+        lay = QVBoxLayout()
+        lay.addSpacing(50)
+        lay.addWidget(label1)
+        lay.addWidget(self.s_cal)
+        lay.addSpacing(50)
+        lay.addWidget(label2)
+        lay.addWidget(self.e_cal)
+        lay.addSpacing(50)
+        lay.addLayout(layb)
+        lay.addSpacing(50)
 
-        return layc
+        return lay
 
 
     # inits the QVBoxLayout containing the QTableView and the label
@@ -148,19 +153,39 @@ class list_window(QWidget):
 
         self.sum = common.lock_height(self.sum)
 
-        layt = QVBoxLayout()
-        layt.addWidget(self.table)
-        layt.addSpacing(50)
-        layt.addWidget(label)
-        layt.addSpacing(10)
-        layt.addWidget(self.sum)
+        lay = QVBoxLayout()
+        lay.addWidget(self.table)
+        lay.addSpacing(50)
+        lay.addWidget(label)
+        lay.addSpacing(10)
+        lay.addWidget(self.sum)
 
-        return layt
+        return lay
+
+
+    ####################### SIGNALS #######################
+
+    # custom signal to broadcast expense list request
+    # transmits the start and end date as 'yyyy-mm-dd' strings
+    query_requested = pyqtSignal(str, str)
+
+
+    ####################### SLOTS #######################
+
+    # emits signal with start and end date as arguments
+    @QtCore.pyqtSlot()
+    def request_query(self):
+        fmt = Qt.DateFormat.ISODate
+        start_date = self.s_cal.selectedDate().toString(fmt)
+        end_date = self.e_cal.selectedDate().toString(fmt)
+
+        self.query_requested.emit(start_date, end_date)
 
 
     # updates dialog with the current snapshot of mutable data:
     # + config
     # to be called whenever reloading the dialog
+    @QtCore.pyqtSlot(config)
     def update(self, cfg: config):
         self.table.setRowCount(0)
 
@@ -178,18 +203,11 @@ class list_window(QWidget):
             self.show()
 
 
-
-    # updates the record selection visualized in the upper
-    # table, as well as the sum visualized in the lower one
-    def update_tables(self):
+    # updates the content of self.table and self.sum
+    # with an externally provided dataframe
+    @QtCore.pyqtSlot(pd.DataFrame)
+    def update_tables(self, df: pd.DataFrame):
         self.table.setRowCount(0)
-
-        fmt = Qt.DateFormat.ISODate
-
-        start_date = self.s_cal.selectedDate().toString(fmt)
-        end_date = self.e_cal.selectedDate().toString(fmt)
-
-        df = db.fetch(start_date, end_date, self.conn)
 
         self.table = common.set_tw_behavior(self.table, 'auto')
         # sets last column in self.table to take all available space
