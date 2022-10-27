@@ -24,7 +24,6 @@
 
 
 from PyQt6.QtCore import Qt, QDate
-from PyQt6.QtGui import QBrush, QColor
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
         QCalendarWidget, QTableWidget, QTableWidgetItem,\
         QHeaderView
@@ -35,11 +34,7 @@ import sqlite3
 
 import modules.common as common
 import modules.db as db
-import modules.config as config
-
-# color for odd columns in the QTableView,
-# #D9D9D9 also a good choice, slightly darker
-bcolor1 = '#E6E6E6'
+from modules.config import config
 
 
 
@@ -166,7 +161,9 @@ class list_window(QWidget):
     # updates dialog with the current snapshot of mutable data:
     # + config
     # to be called whenever reloading the dialog
-    def update(self, cfg: config.config):
+    def update(self, cfg: config):
+        self.table.setRowCount(0)
+
         self.tlist = list(cfg.tstr)
 
         # create required number of columns
@@ -207,7 +204,7 @@ class list_window(QWidget):
                     itm.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
 
                 if (ic % 2 == 1):
-                    itm.setBackground(QColor(bcolor1))
+                    itm.setBackground(common.colors['lightgray'])
 
                 self.table.setItem(ir, ic, itm)
 
@@ -225,6 +222,6 @@ class list_window(QWidget):
             itm = QTableWidgetItem(str(val))
             itm.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             if (i % 2 == 1):
-                itm.setBackground(QColor(bcolor1))
+                itm.setBackground(common.colors['lightgray'])
 
             self.sum.setItem(0, i, itm)

@@ -24,17 +24,12 @@
 
 
 from PyQt6.QtCore import pyqtSignal
-from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import QWidget, QPushButton,\
         QTableWidget, QTableWidgetItem
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
 import modules.common as common
-import modules.config as config
-
-# color for odd rows in the QTableView,
-# #D9D9D9 also a good choice, slightly darker
-bcolor1 = '#E6E6E6'
+from modules.config import config
 
 
 
@@ -124,7 +119,7 @@ class settings_window(QWidget):
     # updates dialog with the current snapshot of mutable data:
     # + config
     # to be called whenever reloading the dialog
-    def update(self, cfg: config.config):
+    def update(self, cfg: config):
         self.table.setRowCount(0)
 
         for t, (l,d) in enumerate(cfg.tdict.items()):
@@ -132,11 +127,11 @@ class settings_window(QWidget):
 
             itm_l = QTableWidgetItem(l)
             if (t % 2 == 1):
-                itm_l.setBackground(QColor(bcolor1))
+                itm_l.setBackground(common.colors['lightgray'])
 
             itm_d = QTableWidgetItem(d)
             if (t % 2 == 1):
-                itm_d.setBackground(QColor(bcolor1))
+                itm_d.setBackground(common.colors['lightgray'])
                 
             self.table.setItem(t, 0, itm_l)
             self.table.setItem(t, 1, itm_d)
@@ -147,13 +142,13 @@ class settings_window(QWidget):
 
     # return a configuration from the contents of self.table
     # using a dictionary as intermediate step
-    def cfg(self) -> config.config:
+    def cfg(self) -> config:
         contents = {}
 
         for row in range(self.table.rowCount()):
             contents[self.table.item(row, 0).text()] = self.table.item(row, 1).text()
 
-        return config.config(dic = contents)
+        return config(dic = contents)
 
 
     # custom signal to broadcast accepted changes in the cfg

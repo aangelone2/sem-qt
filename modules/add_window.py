@@ -33,7 +33,7 @@ import sqlite3
 
 from modules.common import EQLineEdit
 import modules.db as db
-import modules.config as config
+from modules.config import config
 
 
 
@@ -135,7 +135,7 @@ class add_window(QWidget):
     # updates dialog with the current snapshot of mutable data:
     # + config
     # to be called whenever reloading the dialog
-    def update(self, cfg: config.config):
+    def update(self, cfg: config):
         self.t[3].setValidator(
                 QRegularExpressionValidator(
                     QRegularExpression('[' + cfg.tstr + ']')

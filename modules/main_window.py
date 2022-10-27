@@ -28,10 +28,10 @@ from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
 import sqlite3
 
-import modules.config as config
-import modules.add_window as aw
-import modules.list_window as lw
-import modules.settings_window as sw
+from modules.config import config
+from modules.add_window import add_window
+from modules.list_window import list_window
+from modules.settings_window import settings_window
 
 
 
@@ -39,7 +39,7 @@ import modules.settings_window as sw
 # main screen
 class main_window(QWidget):
     def __init__(self, version: str,
-            cfg: config.config, conn: sqlite3.Connection):
+            cfg: config, conn: sqlite3.Connection):
         super().__init__()
 
         # ATTRIBUTE: stored configuration settings
@@ -67,9 +67,9 @@ class main_window(QWidget):
         lay1.addWidget(l2)
         lay1.addSpacing(100)
 
-        self.add_dialog = aw.add_window(conn)
-        self.list_dialog = lw.list_window(conn)
-        self.settings_dialog = sw.settings_window()
+        self.add_dialog = add_window(conn)
+        self.list_dialog = list_window(conn)
+        self.settings_dialog = settings_window()
 
         self.settings_dialog.accepted_changes.connect(
                 self.update_cfg
