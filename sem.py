@@ -38,7 +38,7 @@ import modules.list_window as lw
 
 
 config_file = 'config/config'
-version = '0.3.0'
+version = '0.4.3'
 
 
 

@@ -24,9 +24,19 @@
 
 
 from PyQt6 import QtCore
-from PyQt6.QtGui import QValidator
+from PyQt6.QtGui import QColor, QValidator
 from PyQt6.QtWidgets import QWidget, QSizePolicy, QMessageBox,\
         QLineEdit, QHeaderView, QTableView
+
+
+
+
+# color palette
+colors = {
+        # useful in QTableViews to alternate lines
+        # #D9D9D9 also a good choice, slightly darker
+        'lightgray': QColor('#E6E6E6')
+}
 
 
 
