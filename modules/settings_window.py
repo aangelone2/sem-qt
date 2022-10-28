@@ -46,22 +46,22 @@ class settings_window(QWidget):
 
         # ATTRIBUTE: QTableWidget of config elements
         # as (key, description) pairs
-        self.table = None
-        # ATTRIBUTE: button, adds row at the end of self.table
-        self.addb = None
-        # ATTRIBUTE: deletes current row in self.table
-        self.delb = None
+        self.__table = None
+        # ATTRIBUTE: button, adds row at the end of self.__table
+        self.__addb = None
+        # ATTRIBUTE: deletes current row in self.__table
+        self.__delb = None
         # ATTRIBUTE: accept button
-        self.accb = None
+        self.__accb = None
         # ATTRIBUTE: cancel button
-        self.canb = None
+        self.__canb = None
 
         self.resize(400, 400)
 
         # table generated but not filled
-        layt = self.init_table()
+        layt = self.__init_table()
 
-        layb = self.init_buttons()
+        layb = self.__init_buttons()
 
         lay = QVBoxLayout()
         lay.addLayout(layt)
@@ -75,49 +75,49 @@ class settings_window(QWidget):
 
     # creates add/remove and empty QWidgetTable
     # (content is mutable-dependent, see update())
-    def init_table(self) -> QHBoxLayout:
-        self.table = QTableWidget(0, 2, self)
+    def __init_table(self) -> QHBoxLayout:
+        self.__table = QTableWidget(0, 2, self)
 
-        self.table.horizontalHeader().hide()
-        self.table.verticalHeader().hide()
+        self.__table.horizontalHeader().hide()
+        self.__table.verticalHeader().hide()
 
-        self.table = common.set_tw_behavior(self.table, 'auto')
-        self.table.horizontalHeader().setStretchLastSection(True)
+        self.__table = common.set_tw_behavior(self.__table, 'auto')
+        self.__table.horizontalHeader().setStretchLastSection(True)
 
-        self.addb = QPushButton('+', self)
-        self.addb.clicked.connect(
-                lambda: self.table.insertRow(self.table.rowCount())
+        self.__addb = QPushButton('+', self)
+        self.__addb.clicked.connect(
+                lambda: self.__table.insertRow(self.__table.rowCount())
         )
 
-        self.delb = QPushButton('-', self)
-        self.delb.clicked.connect(
-                lambda: self.table.removeRow(self.table.currentRow())
+        self.__delb = QPushButton('-', self)
+        self.__delb.clicked.connect(
+                lambda: self.__table.removeRow(self.__table.currentRow())
         )
 
         layb = QVBoxLayout()
-        layb.addWidget(self.addb)
-        layb.addWidget(self.delb)
+        layb.addWidget(self.__addb)
+        layb.addWidget(self.__delb)
 
         lay = QHBoxLayout()
-        lay.addWidget(self.table)
+        lay.addWidget(self.__table)
         lay.addLayout(layb)
 
         return lay
 
 
     # creates the accept/cancel buttons
-    def init_buttons(self) -> QHBoxLayout:
-        self.accb = QPushButton('Accept', self)
-        self.accb.clicked.connect(self.accept_changes)
+    def __init_buttons(self) -> QHBoxLayout:
+        self.__accb = QPushButton('Accept', self)
+        self.__accb.clicked.connect(self.__accept_changes)
 
-        self.canb = QPushButton('Cancel', self)
-        self.canb.clicked.connect(self.hide)
+        self.__canb = QPushButton('Cancel', self)
+        self.__canb.clicked.connect(self.hide)
 
         lay = QHBoxLayout()
         lay.addSpacing(100)
-        lay.addWidget(self.accb)
+        lay.addWidget(self.__accb)
         lay.addSpacing(100)
-        lay.addWidget(self.canb)
+        lay.addWidget(self.__canb)
         lay.addSpacing(100)
 
         return lay
@@ -135,10 +135,10 @@ class settings_window(QWidget):
     # signal acceptance of changes
     # broadcasts config created from table data
     @QtCore.pyqtSlot()
-    def accept_changes(self):
+    def __accept_changes(self):
         contents = {}
-        for row in range(self.table.rowCount()):
-            contents[self.table.item(row, 0).text()] = self.table.item(row, 1).text()
+        for row in range(self.__table.rowCount()):
+            contents[self.__table.item(row, 0).text()] = self.__table.item(row, 1).text()
 
         self.changes_accepted.emit(config(dic = contents))
 
@@ -150,10 +150,10 @@ class settings_window(QWidget):
     # to be called whenever reloading the dialog
     @QtCore.pyqtSlot(config)
     def update(self, cfg: config):
-        self.table.setRowCount(0)
+        self.__table.setRowCount(0)
 
         for t, (l,d) in enumerate(cfg.tdict.items()):
-            self.table.insertRow(t)
+            self.__table.insertRow(t)
 
             itm_l = QTableWidgetItem(l)
             if (t % 2 == 1):
@@ -163,8 +163,8 @@ class settings_window(QWidget):
             if (t % 2 == 1):
                 itm_d.setBackground(common.colors['lightgray'])
                 
-            self.table.setItem(t, 0, itm_l)
-            self.table.setItem(t, 1, itm_d)
+            self.__table.setItem(t, 0, itm_l)
+            self.__table.setItem(t, 1, itm_d)
 
         if (not self.isVisible()):
             self.show()

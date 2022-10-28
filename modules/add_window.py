@@ -51,16 +51,16 @@ class add_window(QWidget):
 
         # ATTRIBUTE: textbox list
         # mutable-dependent details set in update()
-        self.t = None
+        self.__t = None
         # ATTRIBUTE: accept, edit and quit buttons
-        self.ab = None
-        self.eb = None
-        self.qb = None
+        self.__ab = None
+        self.__eb = None
+        self.__qb = None
 
-        layf = self.init_form()
-        self.reset_focus()
+        layf = self.__init_form()
+        self.__reset_focus()
 
-        layb = self.init_buttons()
+        layb = self.__init_buttons()
 
         lay = QVBoxLayout()
         lay.addSpacing(50)
@@ -73,7 +73,7 @@ class add_window(QWidget):
 
 
     # inits textbox layout and sets up connections
-    def init_form(self) -> QFormLayout:
+    def __init_form(self) -> QFormLayout:
         lay = QFormLayout()
 
         # the checks here cannot protect against errors like '31
@@ -108,37 +108,37 @@ class add_window(QWidget):
         )
         lay.addRow('Justification', jt)
 
-        self.t = [yt, mt, dt, tt, at, jt]
+        self.__t = [yt, mt, dt, tt, at, jt]
 
         # Sets up connections for text completion signal
-        for i,ti in enumerate(self.t):
+        for i,ti in enumerate(self.__t):
             ti.editingFinished.connect(
-                lambda x = i: self.t[(x + 1) % len(self.t)].setFocus()
+                lambda x = i: self.__t[(x + 1) % len(self.__t)].setFocus()
             )
 
         return lay
 
 
     # inits button layout and sets up connections
-    def init_buttons(self) -> QHBoxLayout:
+    def __init_buttons(self) -> QHBoxLayout:
         lay = QHBoxLayout()
         lay.addSpacing(25)
 
-        self.ab = QPushButton('[A]dd expense', self)
-        lay.addWidget(self.ab)
+        self.__ab = QPushButton('[A]dd expense', self)
+        lay.addWidget(self.__ab)
         lay.addSpacing(25)
 
-        self.eb = QPushButton('[E]dit expense', self)
-        lay.addWidget(self.eb)
+        self.__eb = QPushButton('[E]dit expense', self)
+        lay.addWidget(self.__eb)
         lay.addSpacing(25)
 
-        self.qb = QPushButton('[Q]uit', self)
-        lay.addWidget(self.qb)
+        self.__qb = QPushButton('[Q]uit', self)
+        lay.addWidget(self.__qb)
         lay.addSpacing(25)
 
-        self.ab.clicked.connect(self.request_insertion)
-        self.eb.clicked.connect(self.reset_focus)
-        self.qb.clicked.connect(self.hide)
+        self.__ab.clicked.connect(self.__request_insertion)
+        self.__eb.clicked.connect(self.__reset_focus)
+        self.__qb.clicked.connect(self.hide)
 
         return lay
 
@@ -155,25 +155,25 @@ class add_window(QWidget):
     # emits signal with field dictionary as argument,
     # resets focus to input new record
     @QtCore.pyqtSlot()
-    def request_insertion(self):
+    def __request_insertion(self):
         fields = {
-            'year': self.t[0].text(),
-            'month': self.t[1].text(),
-            'day': self.t[2].text(),
-            'type': self.t[3].text(),
-            'amount': self.t[4].text(),
-            'justification': self.t[5].text()
+            'year': self.__t[0].text(),
+            'month': self.__t[1].text(),
+            'day': self.__t[2].text(),
+            'type': self.__t[3].text(),
+            'amount': self.__t[4].text(),
+            'justification': self.__t[5].text()
         }
 
         self.insertion_requested.emit(fields)
 
-        self.reset_focus()
+        self.__reset_focus()
 
 
     # resets the focus at the first textbox, also initializes
     @QtCore.pyqtSlot()
-    def reset_focus(self):
-        self.t[0].setFocus()
+    def __reset_focus(self):
+        self.__t[0].setFocus()
 
 
     # updates dialog with the current snapshot of mutable data:
@@ -181,7 +181,7 @@ class add_window(QWidget):
     # to be called whenever reloading the dialog
     @QtCore.pyqtSlot(config)
     def update(self, cfg: config):
-        self.t[3].setValidator(
+        self.__t[3].setValidator(
                 QRegularExpressionValidator(
                     QRegularExpression('[' + cfg.tstr + ']')
                 )
