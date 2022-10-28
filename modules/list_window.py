@@ -51,31 +51,29 @@ class list_window(QWidget):
     def __init__(self):
         super().__init__()
 
-        # ATTRIBUTE: database connection for adding
-        self.conn = None
         # ATTRIBUTE: QCalendarWidget for start date
-        self.s_cal = None
+        self.__s_cal = None
         # ATTRIBUTE: QCalendarWidget for end date
-        self.e_cal = None
+        self.__e_cal = None
         # ATTRIBUTE: query update button
-        self.ub = None
+        self.__ub = None
         # ATTRIBUTE: quit button
-        self.qb = None
+        self.__qb = None
         # ATTRIBUTE: record listing table
-        self.table = None
+        self.__table = None
         # ATTRIBUTE: aggregation table, columns added in update()
-        self.sum = None
+        self.__sum = None
         # ATTRIBUTE: expense type list
-        self.tlist = []
+        self.__tlist = []
 
         self.resize(1800, 1000)
 
         # init calendar-button group
-        layc = self.init_cal_layout()
+        layc = self.__init_cal_layout()
 
         # init table group
         # mutable-dependent details not set (see update())
-        layt = self.init_table_layout()
+        layt = self.__init_table_layout()
 
         lay = QHBoxLayout()
         lay.addSpacing(100)
@@ -89,26 +87,26 @@ class list_window(QWidget):
 
 
     # inits the QVBoxLayout containing QCalendarWidgets and buttons
-    def init_cal_layout(self) -> QVBoxLayout:
-        self.s_cal = QCalendarWidget(self)
-        self.s_cal = common.lock_size(self.s_cal)
-        self.s_cal.setStyleSheet('QCalendarWidget\
+    def __init_cal_layout(self) -> QVBoxLayout:
+        self.__s_cal = QCalendarWidget(self)
+        self.__s_cal = common.lock_size(self.__s_cal)
+        self.__s_cal.setStyleSheet('QCalendarWidget\
                 {font-size: 18px}')
 
-        self.e_cal = QCalendarWidget(self)
-        self.e_cal = common.lock_size(self.e_cal)
-        self.e_cal.setStyleSheet('QCalendarWidget\
+        self.__e_cal = QCalendarWidget(self)
+        self.__e_cal = common.lock_size(self.__e_cal)
+        self.__e_cal.setStyleSheet('QCalendarWidget\
                 {font-size: 18px}')
 
         layb = QHBoxLayout()
 
-        self.ub = QPushButton('Update', self)
-        self.ub.clicked.connect(self.request_query)
-        layb.addWidget(self.ub)
+        self.__ub = QPushButton('Update', self)
+        self.__ub.clicked.connect(self.__request_query)
+        layb.addWidget(self.__ub)
 
-        self.qb = QPushButton('Quit', self)
-        self.qb.clicked.connect(self.hide)
-        layb.addWidget(self.qb)
+        self.__qb = QPushButton('Quit', self)
+        self.__qb.clicked.connect(self.hide)
+        layb.addWidget(self.__qb)
 
         label1 = QLabel('Start date [included]', self)
         label1.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -119,10 +117,10 @@ class list_window(QWidget):
         lay = QVBoxLayout()
         lay.addSpacing(50)
         lay.addWidget(label1)
-        lay.addWidget(self.s_cal)
+        lay.addWidget(self.__s_cal)
         lay.addSpacing(50)
         lay.addWidget(label2)
-        lay.addWidget(self.e_cal)
+        lay.addWidget(self.__e_cal)
         lay.addSpacing(50)
         lay.addLayout(layb)
         lay.addSpacing(50)
@@ -131,34 +129,34 @@ class list_window(QWidget):
 
 
     # inits the QVBoxLayout containing the QTableView and the label
-    def init_table_layout(self) -> QVBoxLayout:
-        self.table = QTableWidget(0, 5, self)
+    def __init_table_layout(self) -> QVBoxLayout:
+        self.__table = QTableWidget(0, 5, self)
         # hide record index number in the record table
-        self.table.verticalHeader().hide()
+        self.__table.verticalHeader().hide()
 
-        self.table = common.set_tw_behavior(self.table, 'equal')
+        self.__table = common.set_tw_behavior(self.__table, 'equal')
 
         # set header names in the record table
-        self.table.setHorizontalHeaderLabels(
+        self.__table.setHorizontalHeaderLabels(
             ['ID', 'Date', 'Type', 'Amount', 'Justification']
         )
 
         label = QLabel('Total', self)
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.sum = QTableWidget(1, 0, self)
+        self.__sum = QTableWidget(1, 0, self)
         # hide record index number in the sum table
-        self.sum.verticalHeader().hide()
-        self.sum = common.set_tw_behavior(self.sum, 'equal')
+        self.__sum.verticalHeader().hide()
+        self.__sum = common.set_tw_behavior(self.__sum, 'equal')
 
-        self.sum = common.lock_height(self.sum)
+        self.__sum = common.lock_height(self.__sum)
 
         lay = QVBoxLayout()
-        lay.addWidget(self.table)
+        lay.addWidget(self.__table)
         lay.addSpacing(50)
         lay.addWidget(label)
         lay.addSpacing(10)
-        lay.addWidget(self.sum)
+        lay.addWidget(self.__sum)
 
         return lay
 
@@ -174,10 +172,10 @@ class list_window(QWidget):
 
     # emits signal with start and end date as arguments
     @QtCore.pyqtSlot()
-    def request_query(self):
+    def __request_query(self):
         fmt = Qt.DateFormat.ISODate
-        start_date = self.s_cal.selectedDate().toString(fmt)
-        end_date = self.e_cal.selectedDate().toString(fmt)
+        start_date = self.__s_cal.selectedDate().toString(fmt)
+        end_date = self.__e_cal.selectedDate().toString(fmt)
 
         self.query_requested.emit(start_date, end_date)
 
@@ -187,34 +185,34 @@ class list_window(QWidget):
     # to be called whenever reloading the dialog
     @QtCore.pyqtSlot(config)
     def update(self, cfg: config):
-        self.table.setRowCount(0)
+        self.__table.setRowCount(0)
 
-        self.tlist = list(cfg.tstr)
+        self.__tlist = list(cfg.tstr)
 
         # create required number of columns
-        self.sum.setColumnCount(0)
-        for i in range(len(self.tlist)):
-            self.sum.insertColumn(i)
+        self.__sum.setColumnCount(0)
+        for i in range(len(self.__tlist)):
+            self.__sum.insertColumn(i)
 
         # set header names in the sum table
-        self.sum.setHorizontalHeaderLabels(self.tlist)
+        self.__sum.setHorizontalHeaderLabels(self.__tlist)
 
         if (not self.isVisible()):
             self.show()
 
 
-    # updates the content of self.table and self.sum
+    # updates the content of self.__table and self.__sum
     # with an externally provided dataframe
     @QtCore.pyqtSlot(pd.DataFrame)
     def update_tables(self, df: pd.DataFrame):
-        self.table.setRowCount(0)
+        self.__table.setRowCount(0)
 
-        self.table = common.set_tw_behavior(self.table, 'auto')
-        # sets last column in self.table to take all available space
-        self.table.horizontalHeader().setStretchLastSection(True)
+        self.__table = common.set_tw_behavior(self.__table, 'auto')
+        # sets last column in self.__table to take all available space
+        self.__table.horizontalHeader().setStretchLastSection(True)
 
         for ir, row in df.iterrows():
-            self.table.insertRow(ir)
+            self.__table.insertRow(ir)
 
             for ic, (field, val) in enumerate(row.items()):
                 itm = QTableWidgetItem(str(val))
@@ -224,12 +222,12 @@ class list_window(QWidget):
                 if (ic % 2 == 1):
                     itm.setBackground(common.colors['lightgray'])
 
-                self.table.setItem(ir, ic, itm)
+                self.__table.setItem(ir, ic, itm)
 
         asum = df.groupby('type').sum()
         asum = asum['amount']
 
-        for i,h in enumerate(self.tlist):
+        for i,h in enumerate(self.__tlist):
             # if no expense with a certain key is present,
             # return 0.0 (could be done in SQL, simpler here)
             try:
@@ -242,4 +240,4 @@ class list_window(QWidget):
             if (i % 2 == 1):
                 itm.setBackground(common.colors['lightgray'])
 
-            self.sum.setItem(0, i, itm)
+            self.__sum.setItem(0, i, itm)

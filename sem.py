@@ -37,7 +37,7 @@ from modules.main_window import main_window
 
 
 config_file = 'config/config'
-version = '0.5.1'
+version = '0.5.2'
 
 
 

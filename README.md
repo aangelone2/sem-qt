@@ -12,22 +12,20 @@ Simple Expense Manager
 + Check encryption hardness
 
 ### `add_window`
-+ Privatize attributes
 + setBuddy()
 
 ### `list_window`
-+ Privatize attributes
 + Clean space under the sum `QTableView`
 + Sort on column click (?)
 
 ### `main_window`
++ Rework to tab layout
 + Compartimentalize layouts/signals/slots
 + Complete encapsulation through custom signals
 + Fix labels
 + Move db operations to main() (?)
 
 ### `settings_window`
-+ Privatize attributes
 + Emit warning if category is present in data
 
 ### Extra
