@@ -27,7 +27,7 @@ from PyQt6 import QtCore
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
 
 from PyQt6.QtCore import QRegularExpression
-from PyQt6.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton
+from PyQt6.QtWidgets import QWidget, QLineEdit, QPushButton
 from PyQt6.QtWidgets import QFormLayout, QHBoxLayout, QVBoxLayout
 from PyQt6.QtGui import QValidator, QIntValidator,\
     QDoubleValidator, QRegularExpressionValidator
@@ -35,7 +35,6 @@ from PyQt6.QtGui import QValidator, QIntValidator,\
 import sqlite3
 
 from modules.common import EQLineEdit
-import modules.db as db
 from modules.config import config
 
 
@@ -52,22 +51,26 @@ class add_window(QWidget):
         # ATTRIBUTE: textbox list
         # mutable-dependent details set in update()
         self.__t = None
-        # ATTRIBUTE: accept, edit and quit buttons
+        # ATTRIBUTE: accept button
         self.__ab = None
-        self.__eb = None
-        self.__qb = None
 
         layf = self.__init_form()
         self.__reset_focus()
 
-        layb = self.__init_buttons()
+        self.__ab = QPushButton('[A]dd expense', self)
+        self.__ab.clicked.connect(self.__request_insertion)
 
-        lay = QVBoxLayout()
-        lay.addSpacing(50)
-        lay.addLayout(layf)
-        lay.addSpacing(100)
-        lay.addLayout(layb)
-        lay.addSpacing(50)
+        lay1 = QVBoxLayout()
+        lay1.addSpacing(200)
+        lay1.addLayout(layf)
+        lay1.addSpacing(100)
+        lay1.addWidget(self.__ab)
+        lay1.addSpacing(100)
+
+        lay = QHBoxLayout()
+        lay.addSpacing(200)
+        lay.addLayout(lay1)
+        lay.addSpacing(200)
 
         self.setLayout(lay)
 
@@ -119,30 +122,6 @@ class add_window(QWidget):
         return lay
 
 
-    # inits button layout and sets up connections
-    def __init_buttons(self) -> QHBoxLayout:
-        lay = QHBoxLayout()
-        lay.addSpacing(25)
-
-        self.__ab = QPushButton('[A]dd expense', self)
-        lay.addWidget(self.__ab)
-        lay.addSpacing(25)
-
-        self.__eb = QPushButton('[E]dit expense', self)
-        lay.addWidget(self.__eb)
-        lay.addSpacing(25)
-
-        self.__qb = QPushButton('[Q]uit', self)
-        lay.addWidget(self.__qb)
-        lay.addSpacing(25)
-
-        self.__ab.clicked.connect(self.__request_insertion)
-        self.__eb.clicked.connect(self.__reset_focus)
-        self.__qb.clicked.connect(self.hide)
-
-        return lay
-
-
     ####################### SIGNALS #######################
 
     # custom signal to broadcast accepted record to add to db
@@ -186,6 +165,3 @@ class add_window(QWidget):
                     QRegularExpression('[' + cfg.tstr + ']')
                 )
         )
-
-        if (not self.isVisible()):
-            self.show()

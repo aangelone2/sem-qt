@@ -4,6 +4,11 @@ Simple Expense Manager
 
 ## To Do
 
+### General
++ Use QGroupBox
++ Use QDialogButtonBox
++ set parent for QMessageBox
+
 ### Complex
 + Switch to `MySQL` (?)
 
@@ -19,14 +24,13 @@ Simple Expense Manager
 + Sort on column click (?)
 
 ### `main_window`
-+ Rework to tab layout
-+ Compartimentalize layouts/signals/slots
-+ Complete encapsulation through custom signals
-+ Fix labels
-+ Move db operations to main() (?)
++ Complete rework to tab layout
 
 ### `settings_window`
 + Emit warning if category is present in data
++ subclass QDialog
++ set option to commit every action/at logout
++ set option to have calendar in `add_window`
 
 ### Extra
 + Graphical appearance

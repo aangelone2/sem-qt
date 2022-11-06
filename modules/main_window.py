@@ -26,7 +26,9 @@
 from PyQt6 import QtCore
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
 
-from PyQt6.QtWidgets import QWidget, QLabel, QPushButton, QApplication
+from PyQt6.QtGui import QAction
+from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
+        QTabWidget, QMainWindow, QApplication
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
 import sqlite3
@@ -41,7 +43,7 @@ from modules.settings_window import settings_window
 
 
 # main screen
-class main_window(QWidget):
+class main_window(QMainWindow):
 
     ####################### INIT #######################
 
@@ -50,91 +52,79 @@ class main_window(QWidget):
         super().__init__()
 
         # ATTRIBUTE: stored configuration settings
-        self.cfg = None
-        # ATTRIBUTE: add dialog window
-        self.add_dialog = None
-        # ATTRIBUTE: list dialog window
-        self.list_dialog = None
+        self.__cfg = None
+        # ATTRIBUTE: add form
+        self.__add_form = None
+        # ATTRIBUTE: list form
+        self.__list_form = None
         # ATTRIBUTE: settings dialog window
-        self.settings_dialog = None
+        self.__settings_dialog = None
+        # ATTRIBUTE: tab widget to handle add and list forms
+        self.__tabs = None
 
-        self.resize(700, 700)
+        self.resize(1800, 1000)
 
-        l1 = QLabel('Simple Expense Manager', self)
-        l1.setStyleSheet('QLabel {font-size: 40px}')
+        self.__cfg = cfg
 
-        l2 = QLabel('Version {}'.format(version), self)
+        self.__init_tab(conn)
+        self.setCentralWidget(self.__tab)
 
-        self.cfg = cfg
-
-        lay1 = QVBoxLayout()
-        lay1.addSpacing(100)
-        lay1.addWidget(l1)
-        lay1.addSpacing(50)
-        lay1.addWidget(l2)
-        lay1.addSpacing(100)
-
-        self.add_dialog = add_window()
-        # trick: slot with 2 args, signal returns 1
-        self.add_dialog.insertion_requested.connect(
-                lambda fields: db.add(fields, conn)
-        )
-
-        self.list_dialog = list_window()
-        # reconnects back to the window with the queried data
-        self.list_dialog.query_requested.connect(
-                lambda s,e: self.list_dialog.update_tables(
-                    db.fetch(s, e, conn)
-                )
-        )
-
-        self.settings_dialog = settings_window()
-        self.settings_dialog.changes_accepted.connect(
-                self.update_cfg
-        )
-
-        ba = QPushButton('[A]dd expenses', self)
-        # trick: slot with 1 arg, signal returns 0
-        ba.clicked.connect(
-                lambda: self.add_dialog.update(self.cfg)
-        )
-
-        bl = QPushButton('[L]ist expenses', self)
-        bl.clicked.connect(
-                lambda: self.list_dialog.update(self.cfg)
-        )
-
-        bs = QPushButton('[S]ettings', self)
-        bs.clicked.connect(
-                lambda: self.settings_dialog.update(self.cfg)
-        )
-
-        bq = QPushButton('[Q]uit', self)
-        bq.clicked.connect(QApplication.instance().quit)
-
-        b = [ba, bl, bs, bq]
-
-        lay2 = QVBoxLayout()
-        lay2.addSpacing(100)
-        for bi in b:
-            lay2.addWidget(bi)
-            lay2.addSpacing(100)
-
-        lay3 = QHBoxLayout()
-        lay3.addSpacing(100)
-        lay3.addLayout(lay1)
-        lay3.addSpacing(100)
-        lay3.addLayout(lay2)
-        lay3.addSpacing(100)
-
-        self.setLayout(lay3)
+        self.__init_menu()
 
         self.show()
 
 
+    def __init_tab(self, conn: sqlite3.Connection):
+        self.__add_form = add_window()
+        # trick: slot with 2 args, signal returns 1
+        self.__add_form.insertion_requested.connect(
+                lambda fields: db.add(fields, conn)
+        )
+        # bootstrapping
+        self.__add_form.update(self.__cfg)
+
+        self.__list_form = list_window()
+        # reconnects back to the window with the queried data
+        self.__list_form.query_requested.connect(
+                lambda s,e: self.__list_form.update_tables(
+                    db.fetch(s, e, conn)
+                )
+        )
+        # bootstrapping
+        self.__list_form.update(self.__cfg)
+
+        self.__settings_dialog = settings_window()
+        self.__settings_dialog.changes_accepted.connect(
+                self.update
+        )
+
+        self.__tab = QTabWidget(self)
+        self.__tab.addTab(self.__add_form, 'Add expenses')
+        self.__tab.addTab(self.__list_form, 'List expenses')
+
+
+    def __init_menu(self):
+        menubar = self.menuBar()
+        menu_file = menubar.addMenu('File')
+
+        act_settings = QAction('Settings...', self)
+        act_settings.triggered.connect(
+                lambda: self.__settings_dialog.update(self.__cfg)
+        )
+        menu_file.addAction(act_settings)
+
+
+
+        #bq = QPushButton('[Q]uit', self)
+        #bq.clicked.connect(QApplication.instance().quit)
+
+
     ####################### SLOTS #######################
 
-    # changes local cfg with the given values
+    # local cfg <- new values, updates forms accordingly
     @QtCore.pyqtSlot(config)
-    def update_cfg(self, cfg: config):
-        self.cfg = cfg
+    def update(self, cfg: config):
+        self.__cfg = cfg
+
+        self.__add_window.update(cfg)
+        self.__list_window.update(cfg)
