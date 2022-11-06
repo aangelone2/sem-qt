@@ -28,8 +28,7 @@ from PyQt6.QtCore import pyqtSignal, pyqtSlot
 
 from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
-        QCalendarWidget, QTableWidget, QTableWidgetItem,\
-        QHeaderView
+        QCalendarWidget, QTableWidget, QTableWidgetItem
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout,\
         QSizePolicy
 
@@ -37,7 +36,6 @@ import sqlite3
 import pandas as pd
 
 import modules.common as common
-import modules.db as db
 from modules.config import config
 
 
@@ -57,8 +55,6 @@ class list_window(QWidget):
         self.__e_cal = None
         # ATTRIBUTE: query update button
         self.__ub = None
-        # ATTRIBUTE: quit button
-        self.__qb = None
         # ATTRIBUTE: record listing table
         self.__table = None
         # ATTRIBUTE: aggregation table, columns added in update()
@@ -88,31 +84,24 @@ class list_window(QWidget):
 
     # inits the QVBoxLayout containing QCalendarWidgets and buttons
     def __init_cal_layout(self) -> QVBoxLayout:
+        label1 = QLabel('Start date [included]', self)
+        label1.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
         self.__s_cal = QCalendarWidget(self)
         self.__s_cal = common.lock_size(self.__s_cal)
         self.__s_cal.setStyleSheet('QCalendarWidget\
                 {font-size: 18px}')
+
+        label2 = QLabel('End date [included]', self)
+        label2.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.__e_cal = QCalendarWidget(self)
         self.__e_cal = common.lock_size(self.__e_cal)
         self.__e_cal.setStyleSheet('QCalendarWidget\
                 {font-size: 18px}')
 
-        layb = QHBoxLayout()
-
         self.__ub = QPushButton('Update', self)
         self.__ub.clicked.connect(self.__request_query)
-        layb.addWidget(self.__ub)
-
-        self.__qb = QPushButton('Quit', self)
-        self.__qb.clicked.connect(self.hide)
-        layb.addWidget(self.__qb)
-
-        label1 = QLabel('Start date [included]', self)
-        label1.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        label2 = QLabel('End date [included]', self)
-        label2.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         lay = QVBoxLayout()
         lay.addSpacing(50)
@@ -122,7 +111,7 @@ class list_window(QWidget):
         lay.addWidget(label2)
         lay.addWidget(self.__e_cal)
         lay.addSpacing(50)
-        lay.addLayout(layb)
+        lay.addWidget(self.__ub)
         lay.addSpacing(50)
 
         return lay
@@ -196,9 +185,6 @@ class list_window(QWidget):
 
         # set header names in the sum table
         self.__sum.setHorizontalHeaderLabels(self.__tlist)
-
-        if (not self.isVisible()):
-            self.show()
 
 
     # updates the content of self.__table and self.__sum
