@@ -62,7 +62,7 @@ class main_window(QMainWindow):
         # ATTRIBUTE: tab widget to handle add and list forms
         self.__tabs = None
 
-        self.resize(1800, 1000)
+#        self.resize(1500, 400)
 
         self.__cfg = cfg
 
@@ -99,6 +99,7 @@ class main_window(QMainWindow):
         )
 
         self.__tab = QTabWidget(self)
+        self.__tab.setTabPosition(QTabWidget.TabPosition.South)
         self.__tab.addTab(self.__add_form, 'Add expenses')
         self.__tab.addTab(self.__list_form, 'List expenses')
 

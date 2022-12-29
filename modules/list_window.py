@@ -24,7 +24,7 @@
 
 
 from PyQt6 import QtCore
-from PyQt6.QtCore import pyqtSignal, pyqtSlot
+from PyQt6.QtCore import pyqtSignal, pyqtSlot, QSize
 
 from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
@@ -62,8 +62,6 @@ class list_window(QWidget):
         # ATTRIBUTE: expense type list
         self.__tlist = []
 
-        self.resize(1800, 1000)
-
         # init calendar-button group
         layc = self.__init_cal_layout()
 
@@ -86,21 +84,22 @@ class list_window(QWidget):
     def __init_cal_layout(self) -> QVBoxLayout:
         label1 = QLabel('Start date [included]', self)
         label1.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        label1 = common.set_font_size(label1, 20)
 
         self.__s_cal = QCalendarWidget(self)
         self.__s_cal = common.lock_size(self.__s_cal)
-        self.__s_cal.setStyleSheet('QCalendarWidget\
-                {font-size: 18px}')
+        self.__s_cal = common.set_font_size(self.__s_cal, 16)
 
         label2 = QLabel('End date [included]', self)
         label2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        label2 = common.set_font_size(label2, 20)
 
         self.__e_cal = QCalendarWidget(self)
         self.__e_cal = common.lock_size(self.__e_cal)
-        self.__e_cal.setStyleSheet('QCalendarWidget\
-                {font-size: 18px}')
+        self.__e_cal = common.set_font_size(self.__e_cal, 16)
 
         self.__ub = QPushButton('Update', self)
+        self.__ub = common.set_font_size(self.__ub, 20)
         self.__ub.clicked.connect(self.__request_query)
 
         lay = QVBoxLayout()
@@ -124,21 +123,33 @@ class list_window(QWidget):
         self.__table.verticalHeader().hide()
 
         self.__table = common.set_tw_behavior(self.__table, 'equal')
+        self.__table = common.set_font_size(self.__table, 18)
 
         # set header names in the record table
         self.__table.setHorizontalHeaderLabels(
             ['ID', 'Date', 'Type', 'Amount', 'Justification']
         )
+        self.__table.horizontalHeader().setStyleSheet(
+                'QHeaderView {font-size: 20px}'
+        )
 
         label = QLabel('Total', self)
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        label = common.set_font_size(label, 20)
 
         self.__sum = QTableWidget(1, 0, self)
+        self.__sum.setMaximumHeight(58)
+
         # hide record index number in the sum table
         self.__sum.verticalHeader().hide()
         self.__sum = common.set_tw_behavior(self.__sum, 'equal')
 
         self.__sum = common.lock_height(self.__sum)
+        self.__sum = common.set_font_size(self.__sum, 18)
+
+        self.__sum.horizontalHeader().setStyleSheet(
+                'QHeaderView {font-size: 20px}'
+        )
 
         lay = QVBoxLayout()
         lay.addWidget(self.__table)
