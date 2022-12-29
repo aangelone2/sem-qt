@@ -26,14 +26,16 @@
 from PyQt6 import QtCore
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
 
-from PyQt6.QtCore import QRegularExpression
-from PyQt6.QtWidgets import QWidget, QLineEdit, QPushButton
+from PyQt6.QtCore import QDate, QRegularExpression
+from PyQt6.QtWidgets import QWidget, QLineEdit, QPushButton,\
+        QCalendarWidget
 from PyQt6.QtWidgets import QFormLayout, QHBoxLayout, QVBoxLayout
 from PyQt6.QtGui import QValidator, QIntValidator,\
     QDoubleValidator, QRegularExpressionValidator
 
 import sqlite3
 
+import modules.common as common
 from modules.common import EQLineEdit
 from modules.config import config
 
@@ -51,56 +53,52 @@ class add_window(QWidget):
         # ATTRIBUTE: textbox list
         # mutable-dependent details set in update()
         self.__t = None
+        # ATTRIBUTE: calendar widget
+        self.__cal = None
         # ATTRIBUTE: accept button
         self.__ab = None
 
         layf = self.__init_form()
         self.__reset_focus()
 
-        self.__ab = QPushButton('[A]dd expense', self)
-        self.__ab.clicked.connect(self.__request_insertion)
-
-        lay1 = QVBoxLayout()
-        lay1.addSpacing(200)
-        lay1.addLayout(layf)
-        lay1.addSpacing(100)
-        lay1.addWidget(self.__ab)
-        lay1.addSpacing(100)
+        layc = self.__init_cal_group()
 
         lay = QHBoxLayout()
         lay.addSpacing(200)
-        lay.addLayout(lay1)
-        lay.addSpacing(200)
+        lay.addLayout(layf)
+        lay.addSpacing(100)
+        lay.addLayout(layc)
+        lay.addSpacing(100)
 
         self.setLayout(lay)
 
 
     # inits textbox layout and sets up connections
-    def __init_form(self) -> QFormLayout:
-        lay = QFormLayout()
+    def __init_form(self) -> QVBoxLayout:
+        layf = QFormLayout()
 
         # the checks here cannot protect against errors like '31
         # february': these will be intercepted later, in db.add
         yt = EQLineEdit(self)
         yt.setValidator(QIntValidator(1000, 9999))
-        lay.addRow('Year', yt)
+        layf.addRow('Year', yt)
 
         mt = EQLineEdit(self)
         mt.setValidator(QIntValidator(1, 12))
-        lay.addRow('Month', mt)
+        layf.addRow('Month', mt)
 
         dt = EQLineEdit(self)
         dt.setValidator(QIntValidator(1, 31))
-        lay.addRow('Day', dt)
+        layf.addRow('Day', dt)
 
         # tt Validator is mutable-dependent (see update())
         tt = EQLineEdit(self)
-        lay.addRow('Type', tt)
+        layf.addRow('Type', tt)
 
         at = EQLineEdit(self)
         # 2 digits after decimal point
         at.setValidator(QDoubleValidator(-10000.0, +10000.0, 2))
-        lay.addRow('Amount', at)
+        layf.addRow('Amount', at)
 
         jt = EQLineEdit(self)
         # Accepts up to 100 characters
@@ -109,7 +107,7 @@ class add_window(QWidget):
                     QRegularExpression("^.{1,100}$")
                 )
         )
-        lay.addRow('Justification', jt)
+        layf.addRow('Justification', jt)
 
         self.__t = [yt, mt, dt, tt, at, jt]
 
@@ -118,6 +116,33 @@ class add_window(QWidget):
             ti.editingFinished.connect(
                 lambda x = i: self.__t[(x + 1) % len(self.__t)].setFocus()
             )
+
+        lay = QVBoxLayout()
+
+        lay.addStretch()
+        lay.addLayout(layf)
+        lay.addStretch()
+
+        return lay
+
+
+    def __init_cal_group(self) -> QVBoxLayout:
+        self.__cal = QCalendarWidget()
+        self.__cal = common.lock_size(self.__cal)
+        self.__cal.setStyleSheet('QCalendarWidget\
+                {font-size: 18px}')
+
+        self.__cal.clicked.connect(self.__update_date)
+
+        self.__ab = QPushButton('Add expense', self)
+        self.__ab.clicked.connect(self.__request_insertion)
+
+        lay = QVBoxLayout()
+        lay.addStretch()
+        lay.addWidget(self.__cal)
+        lay.addSpacing(25)
+        lay.addWidget(self.__ab)
+        lay.addStretch()
 
         return lay
 
@@ -130,6 +155,14 @@ class add_window(QWidget):
 
 
     ####################### SLOTS #######################
+
+    # fills date form entries with given date
+    @QtCore.pyqtSlot()
+    def __update_date(self, date: QDate):
+        self.__t[0].setText(date.year())
+        self.__t[1].setText(date.month())
+        self.__t[2].setText(date.day())
+
 
     # emits signal with field dictionary as argument,
     # resets focus to input new record

@@ -25,6 +25,7 @@
 
 import sys
 
+from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QApplication
 
 import modules.common as common
@@ -46,9 +47,7 @@ def main():
     app = QApplication(sys.argv)
 
     # using system default font, just changing size
-    font = app.font()
-    font.setPointSize(22)
-    app.setFont(font)
+    app.setFont(QFont('Lato', 16))
 
     # checking for configs generation errors
     try:

@@ -20,7 +20,6 @@ Simple Expense Manager
 + setBuddy()
 
 ### `list_window`
-+ Clean space under the sum `QTableView`
 + Sort on column click (?)
 
 ### `main_window`
