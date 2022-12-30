@@ -28,7 +28,8 @@ from PyQt6.QtCore import pyqtSignal, pyqtSlot, QSize
 
 from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
-        QCalendarWidget, QTableWidget, QTableWidgetItem
+        QCalendarWidget, QTableWidget, QTableWidgetItem,\
+        QGroupBox
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout,\
         QSizePolicy
 
@@ -49,6 +50,12 @@ class list_form(QWidget):
 
     Attributes
     -----------------------
+    __tab_list : QTableWidget
+        Contains the expenses with dates between the two
+        selected dates, lists all fields
+    __tab_sum : QTableWidget
+        Contains the sum of the expenses with dates between the
+        two selected dates, grouped by category
     __cal_start : QCalendarWidget
         QCalendarWidget used to select start date in queries
     __cal_end : QCalendarWidget
@@ -56,20 +63,16 @@ class list_form(QWidget):
     __but_update : QPushButton
         Updates the tables based on selected dates.
         Also refreshes expense categories
-    __tab_list : QTableWidget
-        Contains the expenses with dates between the two
-        selected dates, lists all fields
-    __tab_sum : QTableWidget
-        Contains the sum of the expenses with dates between the
-        two selected dates, grouped by category
+    __but_add : QPushButton
+        Sends request to show/hide add form
 
 
     Methods
     -----------------------
-    __init_lay_cal() -> QVBoxLayout
-        Returns the initialized calendar + button layout
     __init_lay_tab() -> QVBoxLayout
         Returns the initialized table layout, empty tables
+    __init_lay_cal_but() -> QVBoxLayout
+        Returns the initialized calendar + buttons layout
     __init_connections() -> None
         Inits connections
 
@@ -78,24 +81,37 @@ class list_form(QWidget):
     -----------------------
     query_requested(str, str)
         Broadcasts expense list request
+    add_requested()
+        Broadcasts request to show/hide add form
 
 
     Slots
     -----------------------
     __request_query(str, str)
-        emits signal with start and end date as arguments
+        fetches start and end dates
+        and emits 'query_requested' signal
+        with start and end date as arguments
 
     update_tables(pd.DataFrame)
         updates the tables from a provided dataframe
 
+    __request_add()
+        toggles show/hide caption on add button
+        and emits 'add_requested'
 
-    Application logic
+
+    Connections
     -----------------------
     __but_update.clicked
         -> __request_query()
         -> query_requested(start_date, end_date)
         -> ...
         -> update_tables(df)
+
+    __but_add.clicked
+        -> __request_add()
+        -> add_requested()
+        -> ...
     """
 
 
@@ -106,70 +122,28 @@ class list_form(QWidget):
 
         super().__init__()
 
+        self.__tab_list = None
+        self.__tab_sum = None
         self.__cal_start = None
         self.__cal_end = None
         self.__but_update = None
-        self.__tab_list = None
-        self.__tab_sum = None
+        self.__but_add = None
 
-        lay_cal = self.__init_lay_cal()
         lay_tab = self.__init_lay_tab()
+        lay_cal_but = self.__init_lay_cal_but()
+
         self.__init_connections()
 
         # generating main layout
         lay_gen = QHBoxLayout()
-        lay_gen.addSpacing(100)
-        lay_gen.addLayout(lay_cal)
-        lay_gen.addSpacing(100)
+        lay_gen.addSpacing(25)
         lay_gen.addLayout(lay_tab)
-        lay_gen.addSpacing(100)
+        lay_gen.addSpacing(75)
+        lay_gen.addLayout(lay_cal_but)
+        lay_gen.addSpacing(25)
 
         # no show(), will be loaded from the main
         self.setLayout(lay_gen)
-
-
-    def __init_lay_cal(self) -> QVBoxLayout:
-        """
-        Returns the initialized calendar + button layout
-        """
-
-        # start date label
-        lab_start = QLabel('Start date [included]', self)
-        lab_start.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        lab_start = common.set_font_size(lab_start, 20)
-
-        # start date calendar
-        self.__cal_start = QCalendarWidget(self)
-        self.__cal_start = common.lock_size(self.__cal_start)
-        self.__cal_start = common.set_font_size(self.__cal_start, 16)
-
-        # end date label
-        lab_end = QLabel('End date [included]', self)
-        lab_end.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        lab_end = common.set_font_size(lab_end, 20)
-
-        # end date calendar
-        self.__cal_end = QCalendarWidget(self)
-        self.__cal_end = common.lock_size(self.__cal_end)
-        self.__cal_end = common.set_font_size(self.__cal_end, 16)
-
-        # update button (graphical setup)
-        self.__but_update = QPushButton('Update', self)
-        self.__but_update = common.set_font_size(self.__but_update, 20)
-
-        # setting up layout
-        lay = QVBoxLayout()
-        lay.addSpacing(50)
-        lay.addWidget(lab_start)
-        lay.addWidget(self.__cal_start)
-        lay.addSpacing(50)
-        lay.addWidget(lab_end)
-        lay.addWidget(self.__cal_end)
-        lay.addSpacing(50)
-        lay.addWidget(self.__but_update)
-        lay.addSpacing(50)
-
-        return lay
 
 
     def __init_lay_tab(self) -> QVBoxLayout:
@@ -223,12 +197,69 @@ class list_form(QWidget):
         return lay
 
 
+    def __init_lay_cal_but(self) -> QVBoxLayout:
+        """
+        Returns the initialized calendar + button layout
+        """
+
+        # start date label
+        lab_start = QLabel('Start date [included]', self)
+        lab_start.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        lab_start = common.set_font_size(lab_start, 20)
+
+        # start date calendar
+        self.__cal_start = QCalendarWidget(self)
+        self.__cal_start = common.lock_size(self.__cal_start)
+        self.__cal_start = common.set_font_size(self.__cal_start, 16)
+
+        # end date label
+        lab_end = QLabel('End date [included]', self)
+        lab_end.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        lab_end = common.set_font_size(lab_end, 20)
+
+        # end date calendar
+        self.__cal_end = QCalendarWidget(self)
+        self.__cal_end = common.lock_size(self.__cal_end)
+        self.__cal_end = common.set_font_size(self.__cal_end, 16)
+
+        # update button (graphical setup)
+        self.__but_update = QPushButton('Update', self)
+        self.__but_update = common.set_font_size(self.__but_update, 20)
+
+        # setting up query details layout
+        lay_det = QVBoxLayout()
+        lay_det.addWidget(lab_start)
+        lay_det.addWidget(self.__cal_start)
+        lay_det.addSpacing(10)
+        lay_det.addWidget(lab_end)
+        lay_det.addWidget(self.__cal_end)
+        lay_det.addSpacing(10)
+        lay_det.addWidget(self.__but_update)
+
+        gbx_cal = QGroupBox('Query details')
+        gbx_cal.setLayout(lay_det)
+
+        self.__but_add = QPushButton('Show add form >>>>', self)
+        self.__but_add = common.set_font_size(self.__but_add, 20)
+
+        # general layout
+        lay = QVBoxLayout()
+        lay.addSpacing(10)
+        lay.addWidget(gbx_cal)
+        lay.addSpacing(40)
+        lay.addWidget(self.__but_add)
+        lay.addSpacing(10)
+
+        return lay
+
+
     def __init_connections(self):
         """
         Inits connections
         """
 
         self.__but_update.clicked.connect(self.__request_query)
+        self.__but_add.clicked.connect(self.__request_add)
 
 
     ####################### SIGNALS #######################
@@ -243,6 +274,12 @@ class list_form(QWidget):
         starting date for the requested query, 'yyyy-mm-dd'
     end_date : str
         ending date for the requested query, 'yyyy-mm-dd'
+    """
+
+
+    add_requested = pyqtSignal()
+    """
+    Broadcasts show/hide add form request
     """
 
 
@@ -326,3 +363,16 @@ class list_form(QWidget):
         except KeyError:
             # empty result set
             pass
+
+
+    @QtCore.pyqtSlot()
+    def __request_add(self):
+        logging.info('in list_form.__request_add')
+        logging.info('text = {}'.format(self.__but_add.text()))
+
+        if (self.__but_add.text() == 'Show add form >>>>'):
+            self.__but_add.setText('Hide add form <<<<')
+        else:
+            self.__but_add.setText('Show add form >>>>')
+
+        self.add_requested.emit()
