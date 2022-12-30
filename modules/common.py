@@ -31,19 +31,30 @@ from PyQt6.QtWidgets import QWidget, QSizePolicy, QMessageBox,\
 
 
 
-# color palette
 colors = {
-        # useful in QTableViews to alternate lines
-        # #D9D9D9 also a good choice, slightly darker
         'lightgray': QColor('#E6E6E6')
 }
+"""
+custom colors
+"""
 
 
 
 
-# given a widget, returns it with its size policy changed,
-# width is free to change while height is fixed to the default
 def lock_height(widget: QWidget) -> QWidget:
+    """
+    Changes size policy locking height at free width
+    
+    Arguments
+    -----------------------
+    widget : QWidget
+        widget whose size policy will be changed
+
+    Return value
+    -----------------------
+    Returns the modified widget.
+    """
+
     widget.setSizePolicy(
             QSizePolicy(
                 QSizePolicy.Policy.Ignored,
@@ -54,9 +65,20 @@ def lock_height(widget: QWidget) -> QWidget:
     return widget
 
 
-# given a widget, returns it with its size policy changed,
-# both width and height are fixed to the default
 def lock_size(widget: QWidget) -> QWidget:
+    """
+    Changes size policy locking both height and width
+    
+    Arguments
+    -----------------------
+    widget : QWidget
+        widget whose size policy will be changed
+
+    Return value
+    -----------------------
+    Returns the modified widget.
+    """
+
     widget.setSizePolicy(
             QSizePolicy(
                 QSizePolicy.Policy.Fixed,
@@ -69,6 +91,19 @@ def lock_size(widget: QWidget) -> QWidget:
 
 # given a widget, returns it with its font size set
 def set_font_size(widget: QWidget, size: int) -> QWidget:
+    """
+    Changes font size
+    
+    Arguments
+    -----------------------
+    widget : QWidget
+        widget whose font size will be changed
+
+    Return value
+    -----------------------
+    Returns the modified widget.
+    """
+
     widget.setStyleSheet(
             '{} {{font-size: {}px}}'.format(
                 type(widget).__name__, size
@@ -80,58 +115,24 @@ def set_font_size(widget: QWidget, size: int) -> QWidget:
 
 
 
-# wrapper to QMessageBox to generate error messages
-def ErrorMsg(msg: str):
-    QMessageBox.critical(None, 'Error', msg)
-
-
-
-
-# subclass of QLineEdit
-# + focusInEvent reimplemented to check and visualize validity
-#   of content (through color change)
-# + content validity also checked whenever content is changed
-class EQLineEdit(QLineEdit):
-
-    # reimplemented focusInEvent, checks validity of content
-    # through check_state()
-    def focusInEvent(self, event):
-        self.check_state()
-        QLineEdit.focusInEvent(self, event)
-
-
-    # validation function for input, changes color based on
-    # state (green/yellow/red for ok/possibly ok/invalid)
-    def check_state(self):
-        state = self.validator().validate(self.text(), 0)[0]
-
-        if (state == QValidator.State.Acceptable):
-            color = 'lightgreen'
-        elif (state == QValidator.State.Intermediate):
-            color = 'lightyellow'
-        else:
-            color = 'lightred'
-
-        self.setStyleSheet('background-color: ' + color)
-
-
-    def __init__(self, parent: QWidget):
-        super().__init__(parent)
-
-        # validity checked whenever content changed
-        self.textChanged[str].connect(self.check_state)
-
-
-
-
-# accepts and returns a modified QTableView and a string value
-# to set its behavior concerning field width:
-# + 'equal' sets all fields to have the same width and stretch
-#   to cover all available space
-# + 'auto' sets all fields to change their size to fit the
-#   longest item contained within them
-# In both cases, fields become non-resizable by the user
 def set_tw_behavior(tw: QTableView, behavior: str) -> QTableView:
+    """
+    Sets the behavior of column widths in a QTableView
+    Fields become non-resizable by the user
+    
+    Arguments
+    -----------------------
+    tw : QTableView
+        widget whose column size behavior will be changed
+    behavior : str
+        'equal' : equal-size, stretching fields
+        'auto'  : fields fit content
+
+    Return value
+    -----------------------
+    Returns the modified widget.
+    """
+
     if (behavior == 'equal'):
         tw.horizontalHeader().setSectionResizeMode(
                 QHeaderView.ResizeMode.Stretch
@@ -142,3 +143,59 @@ def set_tw_behavior(tw: QTableView, behavior: str) -> QTableView:
         )
 
     return tw
+
+
+
+
+# wrapper to QMessageBox to generate error messages
+def ErrorMsg(msg: str):
+    """
+    Changes font size
+    
+    Arguments
+    -----------------------
+    widget : QWidget
+        widget whose font size will be changed
+
+    Return value
+    -----------------------
+    Returns the modified widget.
+    """
+    QMessageBox.critical(None, 'Error', msg)
+
+
+
+
+#### subclass of QLineEdit
+#### + focusInEvent reimplemented to check and visualize validity
+####   of content (through color change)
+#### + content validity also checked whenever content is changed
+###class EQLineEdit(QLineEdit):
+###
+###    # reimplemented focusInEvent, checks validity of content
+###    # through check_state()
+###    def focusInEvent(self, event):
+###        self.check_state()
+###        QLineEdit.focusInEvent(self, event)
+###
+###
+###    # validation function for input, changes color based on
+###    # state (green/yellow/red for ok/possibly ok/invalid)
+###    def check_state(self):
+###        state = self.validator().validate(self.text(), 0)[0]
+###
+###        if (state == QValidator.State.Acceptable):
+###            color = 'lightgreen'
+###        elif (state == QValidator.State.Intermediate):
+###            color = 'lightyellow'
+###        else:
+###            color = 'lightred'
+###
+###        self.setStyleSheet('background-color: ' + color)
+###
+###
+###    def __init__(self, parent: QWidget):
+###        super().__init__(parent)
+###
+###        # validity checked whenever content changed
+###        self.textChanged[str].connect(self.check_state)

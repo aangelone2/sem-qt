@@ -31,19 +31,37 @@ import pandas as pd
 
 
 
-# subclass of Exception associated to errors in db connection
 class DatabaseError(Exception):
+    """
+    Subclassed exception for errors in db connection
+    """
     pass
 
 
 
 
-# establishes and returns a connection to a database
-# + path: the path of the database as a string
-# + table: the name of the table as a string
-# returns the established connection
-# throws DatabaseError if db or table are missing
 def init(path: str, table: str) -> sqlite3.Connection:
+    """
+    Establishes connection to database
+    
+
+    Arguments
+    -----------------------
+    path : str
+        path of the database
+    table : str
+        name of the table to connect to
+
+
+    Return value
+    -----------------------
+    Returns the established connection
+
+
+    Raises
+    -----------------------
+    - DatabaseError if database or table not found
+    """
 
     # procedure to verify if the database exists
     try:
@@ -62,18 +80,36 @@ def init(path: str, table: str) -> sqlite3.Connection:
             '''.format(table)
     )
 
-    # fetchall() should yield [(1,)]
+    # Last query should yield [(1,)]
     if (curs.fetchall()[0][0] != 1):
         raise DatabaseError('table not found')
 
     return conn
 
 
-# adds a record to the database
-# + fields: dictionary of strings with fields for year, month,
-#   day, type, amount and justification, in this order
-# + conn: connection to the database
 def add(fields: dict[str], conn: sqlite3.Connection):
+    """
+    Adds a record to a database through the given connection
+    
+
+    Arguments
+    -----------------------
+    fields : dict[str]
+        {field: value} dictionary of the entry to add
+        entries are [year, month, day, type, amount, just]
+    conn : sqlite3.Connection
+        connection to a database/table pair
+
+
+    Return value
+    -----------------------
+    None
+
+
+    Raises
+    -----------------------
+    - ValueError if invalid date
+    """
 
     # additional validity check on the date (e.g., checks
     # against things like '31 february')
@@ -102,12 +138,28 @@ def add(fields: dict[str], conn: sqlite3.Connection):
     conn.commit()
 
 
-# extracts data from the database
-# + start: starting date as a string, included
-# + end: ending date as a string, included
-# + conn: connection to the database
-# converts the results to a pd.DataFrame, with proper column names
-def fetch(start: str, end: str, conn: sqlite3.Connection) -> pd.DataFrame:
+def fetch(start: str, end: str,
+          conn: sqlite3.Connection) -> pd.DataFrame:
+    """
+    Queries the database and returns query results
+    
+
+    Arguments
+    -----------------------
+    start : str
+        Starting date as string, included in the query
+    end : str
+        Ending date as string, included in the query
+    conn : sqlite3.Connection
+        connection to a database/table pair
+
+
+    Return value
+    -----------------------
+    A pd.DataFrame containing the query results
+    Columns are [id, date, type, amount, justification]
+    """
+
     curs = conn.execute('''
         SELECT rowid, date, type, amount, justification
             FROM expenses

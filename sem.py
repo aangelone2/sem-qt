@@ -24,54 +24,45 @@
 
 
 import sys
+import logging
 
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QApplication
 
 import modules.common as common
 import modules.db as db
-import modules.config as config
 
 from modules.main_window import main_window
 
 
 
 
-config_file = 'config/config'
-version = '0.5.2'
+path = 'data/expenses.sqlite'
+table = 'expenses'
+version = '0.6.0'
 
 
 
 
 def main():
+    #    logging.basicConfig(level = logging.INFO)
+
     app = QApplication(sys.argv)
 
     # using system default font, just changing size
     app.setFont(QFont('Lato', 16))
 
-    # checking for configs generation errors
-    try:
-        cfg = config.config(filename = config_file)
-    except config.ConfigError:
-        common.ErrorMsg('config setup error')
-        sys.exit()
-
-    table = 'expenses'
-
     # checking for db connection errors
     try:
-        db_conn = db.init(cfg.path, table)
+        db_conn = db.init(path, table)
     except db.DatabaseError:
         common.ErrorMsg('database error')
         sys.exit()
 
-    w = main_window(version, cfg, db_conn)
+    w = main_window(db_conn)
     w.setWindowTitle('sem')
 
     out = app.exec()
-
-    # saving (eventually) modified configs
-    w.cfg.save(config_file)
 
     sys.exit(out)
 
