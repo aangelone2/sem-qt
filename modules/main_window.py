@@ -28,104 +28,86 @@ from PyQt6.QtCore import pyqtSignal, pyqtSlot
 
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
-        QTabWidget, QMainWindow, QApplication
+        QApplication
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
 import sqlite3
 
 import modules.db as db
-from modules.config import config
-from modules.add_window import add_window
-from modules.list_window import list_window
-from modules.settings_window import settings_window
+from modules.list_form import list_form
 
 
+mw_width = 1300
+mw_height = 400
 
 
 # main screen
-class main_window(QMainWindow):
+class main_window(QWidget):
+    """
+    Main program window
 
-    ####################### INIT #######################
 
-    def __init__(self, version: str,
-            cfg: config, conn: sqlite3.Connection):
+    Attributes
+    -----------------------
+    __lst_form : list_form
+        Internal list_form widget
+    __lay : QHBoxLayout
+        Horizontal layout, contains widgets
+        Will be extended/contracted to display/hide add_form
+    __conn : sqlite3.Connection
+        Connection to database-table pair
+
+
+    Methods
+    -----------------------
+    __init_connections()
+        Inits connections
+
+
+    Application logic
+    -----------------------
+    __lst_form.query_requested(start, end)
+        -> <df = fetch(start, end)>
+        -> __lst_form.update_tables(df)
+    """
+
+
+    def __init__(self, conn: sqlite3.Connection):
+        """
+        Constructor
+
+
+        Arguments
+        -----------------------
+        conn : sqlite3.Connection
+            Connection to table/database pair
+        """
+
         super().__init__()
 
-        # ATTRIBUTE: stored configuration settings
-        self.__cfg = None
-        # ATTRIBUTE: add form
-        self.__add_form = None
-        # ATTRIBUTE: list form
-        self.__list_form = None
-        # ATTRIBUTE: settings dialog window
-        self.__settings_dialog = None
-        # ATTRIBUTE: tab widget to handle add and list forms
-        self.__tabs = None
+        self.resize(mw_width, mw_height)
 
-#        self.resize(1500, 400)
+        self.__lst_form = list_form()
 
-        self.__cfg = cfg
+        self.__lay = QHBoxLayout()
+        self.__lay.addWidget(self.__lst_form)
+        self.setLayout(self.__lay)
 
-        self.__init_tab(conn)
-        self.setCentralWidget(self.__tab)
+        self.__conn = conn
 
-        self.__init_menu()
+        self.__init_connections()
 
         self.show()
 
 
-    def __init_tab(self, conn: sqlite3.Connection):
-        self.__add_form = add_window()
-        # trick: slot with 2 args, signal returns 1
-        self.__add_form.insertion_requested.connect(
-                lambda fields: db.add(fields, conn)
-        )
-        # bootstrapping
-        self.__add_form.update(self.__cfg)
+    def __init_connections(self):
+        """
+        Inits connections
+        """
 
-        self.__list_form = list_window()
         # reconnects back to the window with the queried data
-        self.__list_form.query_requested.connect(
-                lambda s,e: self.__list_form.update_tables(
-                    db.fetch(s, e, conn)
+        self.__lst_form.query_requested.connect(
+                lambda s,e: self.__lst_form.update_tables(
+                    db.fetch(s, e, self.__conn)
                 )
         )
-        # bootstrapping
-        self.__list_form.update(self.__cfg)
-
-        self.__settings_dialog = settings_window()
-        self.__settings_dialog.changes_accepted.connect(
-                self.update
-        )
-
-        self.__tab = QTabWidget(self)
-        self.__tab.setTabPosition(QTabWidget.TabPosition.South)
-        self.__tab.addTab(self.__add_form, 'Add expenses')
-        self.__tab.addTab(self.__list_form, 'List expenses')
-
-
-    def __init_menu(self):
-        menubar = self.menuBar()
-        menu_file = menubar.addMenu('File')
-
-        act_settings = QAction('Settings...', self)
-        act_settings.triggered.connect(
-                lambda: self.__settings_dialog.update(self.__cfg)
-        )
-        menu_file.addAction(act_settings)
-
-
-
-        #bq = QPushButton('[Q]uit', self)
-        #bq.clicked.connect(QApplication.instance().quit)
-
-
-    ####################### SLOTS #######################
-
-    # local cfg <- new values, updates forms accordingly
-    @QtCore.pyqtSlot(config)
-    def update(self, cfg: config):
-        self.__cfg = cfg
-
-        self.__add_window.update(cfg)
-        self.__list_window.update(cfg)
