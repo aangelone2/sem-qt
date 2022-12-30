@@ -64,7 +64,7 @@ class main_window(QWidget):
         Inits connections
 
 
-    Application logic
+    Connections
     -----------------------
     __lst_form.query_requested(start, end)
         -> <df = fetch(start, end)>
