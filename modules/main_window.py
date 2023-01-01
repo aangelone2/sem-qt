@@ -26,19 +26,20 @@
 from PyQt6 import QtCore
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
 
-from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
         QApplication
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
 import sqlite3
+import logging
 
 import modules.db as db
 from modules.list_form import list_form
 from modules.add_form import add_form
 
 
-mw_width = 1600
+mw_narrow = 1200
+mw_wide = 1600
 mw_height = 400
 
 
@@ -67,11 +68,21 @@ class main_window(QWidget):
         Inits connections
 
 
+    Slots
+    -----------------------
+    __toggle_add()
+        hides/shows the addition form
+        stretches/compresses the window as required
+
+
     Connections
     -----------------------
     __lst_form.query_requested(start, end)
         -> <df = fetch(start, end)>
         -> __lst_form.update_tables(df)
+
+    __lst_form.add_requested()
+        -> __toggle_add()
 
     __add_form.insertion_requested(fields)
         -> db.add(fields, __conn)
@@ -91,16 +102,17 @@ class main_window(QWidget):
 
         super().__init__()
 
-        self.resize(mw_width, mw_height)
+        # set to narrow size by default
+        self.resize(mw_narrow, mw_height)
 
         self.__conn = conn
 
         self.__lst_form = list_form()
         self.__add_form = add_form(self.__conn)
 
+        # no add form in the layout by default
         self.__lay = QHBoxLayout()
         self.__lay.addWidget(self.__lst_form)
-        self.__lay.addWidget(self.__add_form)
         self.setLayout(self.__lay)
 
         self.__init_connections()
@@ -120,6 +132,39 @@ class main_window(QWidget):
                 )
         )
 
+        self.__lst_form.add_requested.connect(
+                self.__toggle_add
+        )
+
         self.__add_form.insertion_requested.connect(
                 lambda fields: db.add(fields, self.__conn)
         )
+
+
+    ####################### SLOTS #######################
+
+    @QtCore.pyqtSlot()
+    def __toggle_add(self):
+        """
+        hides/shows the addition form
+        stretches/compresses the window as required
+        """
+
+        logging.info('in toggle_add')
+
+        if (self.__add_form.isVisible() is False):
+            # show add form
+            self.resize(mw_wide, mw_height)
+            self.layout().addWidget(self.__add_form)
+            self.__add_form.show()
+        else:
+            # hide add form
+            self.__add_form.hide()
+            self.layout().removeWidget(self.__add_form)
+            self.resize(mw_narrow, mw_height)
+
+        # re-centering the window horizontally
+        screen = QApplication.primaryScreen()
+        screen_geom = screen.availableGeometry()
+        x = (screen_geom.width() - self.width()) // 2
+        self.move(x, self.y())

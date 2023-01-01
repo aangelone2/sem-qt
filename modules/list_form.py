@@ -234,11 +234,14 @@ class list_form(QWidget):
         lay_det.addSpacing(20)
         lay_det.addWidget(self.__but_update)
 
+        # group box
         gbx_cal = QGroupBox('Query details')
         gbx_cal.setLayout(lay_det)
 
+        # add button
         self.__but_add = QPushButton('Show add form >>>>', self)
         self.__but_add = common.set_font_size(self.__but_add, 20)
+        self.__but_add.setCheckable(True)
 
         # general layout
         lay = QVBoxLayout()
