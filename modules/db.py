@@ -175,3 +175,23 @@ def fetch(start: str, end: str,
                     'id', 'date', 'type', 'amount', 'justification'
                 ]
            )
+
+
+def fetch_types(conn: sqlite3.Connection) -> list[str]
+    """
+    Returns a list of the expense character types
+
+
+    Arguments
+    -----------------------
+    conn : sqlite3.Connection
+        connection to a database/table pair
+
+
+    Return value
+    -----------------------
+    List of the characters of the expense types
+    """
+
+    curs = conn.execute('SELECT DISTINCT type FROM expenses ;')
+    return curs.fetchall()

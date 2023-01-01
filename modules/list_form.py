@@ -42,7 +42,6 @@ import modules.common as common
 
 
 
-# form to display and summarize records
 class list_form(QWidget):
     """
     Form to display and summarize records
@@ -142,7 +141,6 @@ class list_form(QWidget):
         lay_gen.addLayout(lay_cal_but)
         lay_gen.addSpacing(25)
 
-        # no show(), will be loaded from the main
         self.setLayout(lay_gen)
 
 
@@ -163,8 +161,8 @@ class list_form(QWidget):
         # column and font behavior
         self.__tab_list = common.set_tw_behavior(self.__tab_list, 'equal')
         self.__tab_list = common.set_font_size(self.__tab_list, 18)
-        self.__tab_list.horizontalHeader().setStyleSheet(
-                'QHeaderView {font-size: 20px}'
+        self.__tab_list.horizontalHeader() = common.set_font_size(
+            self.__tab_list.horizontalHeader(), 20
         )
 
         # label for sum table
@@ -182,8 +180,8 @@ class list_form(QWidget):
         self.__tab_sum = common.set_tw_behavior(self.__tab_sum, 'equal')
         self.__tab_sum = common.lock_height(self.__tab_sum)
         self.__tab_sum = common.set_font_size(self.__tab_sum, 18)
-        self.__tab_sum.horizontalHeader().setStyleSheet(
-                'QHeaderView {font-size: 20px}'
+        self.__tab_list.horizontalHeader() = common.set_font_size(
+            self.__tab_list.horizontalHeader(), 20
         )
 
         # setting up layout
@@ -301,7 +299,7 @@ class list_form(QWidget):
     @QtCore.pyqtSlot(pd.DataFrame)
     def update_tables(self, df: pd.DataFrame):
         """
-        updates the tables from a provided dataframe
+        Updates the tables from a provided dataframe
 
         Arguments
         -----------------------
@@ -367,6 +365,16 @@ class list_form(QWidget):
 
     @QtCore.pyqtSlot()
     def __request_add(self):
+        """
+        Updates the tables from a provided dataframe
+
+        Arguments
+        -----------------------
+        df : pd.DataFrame
+            dataframe used to fill the tables; __tab_sum will
+            only contain categories present in df
+        """
+
         logging.info('in list_form.__request_add')
         logging.info('text = {}'.format(self.__but_add.text()))
 

@@ -35,7 +35,7 @@ colors = {
         'lightgray': QColor('#E6E6E6')
 }
 """
-custom colors
+Custom colors
 """
 
 
@@ -89,7 +89,6 @@ def lock_size(widget: QWidget) -> QWidget:
     return widget
 
 
-# given a widget, returns it with its font size set
 def set_font_size(widget: QWidget, size: int) -> QWidget:
     """
     Changes font size
@@ -111,8 +110,6 @@ def set_font_size(widget: QWidget, size: int) -> QWidget:
     )
 
     return widget
-
-
 
 
 def set_tw_behavior(tw: QTableView, behavior: str) -> QTableView:
@@ -145,57 +142,62 @@ def set_tw_behavior(tw: QTableView, behavior: str) -> QTableView:
     return tw
 
 
-
-
-# wrapper to QMessageBox to generate error messages
 def ErrorMsg(msg: str):
     """
-    Changes font size
+    Wraps QMessageBox to generate an error message
     
     Arguments
     -----------------------
-    widget : QWidget
-        widget whose font size will be changed
-
-    Return value
-    -----------------------
-    Returns the modified widget.
+    msg : str
+        the message to report
     """
     QMessageBox.critical(None, 'Error', msg)
 
 
 
 
-#### subclass of QLineEdit
-#### + focusInEvent reimplemented to check and visualize validity
-####   of content (through color change)
-#### + content validity also checked whenever content is changed
-###class EQLineEdit(QLineEdit):
-###
-###    # reimplemented focusInEvent, checks validity of content
-###    # through check_state()
-###    def focusInEvent(self, event):
-###        self.check_state()
-###        QLineEdit.focusInEvent(self, event)
-###
-###
-###    # validation function for input, changes color based on
-###    # state (green/yellow/red for ok/possibly ok/invalid)
-###    def check_state(self):
-###        state = self.validator().validate(self.text(), 0)[0]
-###
-###        if (state == QValidator.State.Acceptable):
-###            color = 'lightgreen'
-###        elif (state == QValidator.State.Intermediate):
-###            color = 'lightyellow'
-###        else:
-###            color = 'lightred'
-###
-###        self.setStyleSheet('background-color: ' + color)
-###
-###
-###    def __init__(self, parent: QWidget):
-###        super().__init__(parent)
-###
-###        # validity checked whenever content changed
-###        self.textChanged[str].connect(self.check_state)
+class EQLineEdit(QLineEdit):
+    """
+    Subclass of QLineEdit
+    Enhanced QLineEdit, changes color based on content validity
+    Content is checked and color changed on content change
+
+
+    Slots
+    -----------------------
+    __check_state()
+        Changes color based on validity of content
+        (green/yellow/red for ok/possibly ok/invalid)
+
+
+    Connections
+    -----------------------
+    textChanged
+        -> __check_state()
+    """
+
+
+    def __init__(self, parent: QWidget):
+        super().__init__(parent)
+
+        # validity checked whenever content changed
+        self.textChanged[str].connect(self.__check_state)
+
+
+    @QtCore.pyqtSlot()
+    def __check_state(self):
+        """
+        Changes color based on validity of content
+        (green/yellow/red for ok/possibly ok/invalid)
+        """
+
+        state = self.validator().validate(self.text(), 0)[0]
+
+        if (state == QValidator.State.Acceptable):
+            color = 'lightgreen'
+        elif (state == QValidator.State.Intermediate):
+            color = 'lightyellow'
+        else:
+            color = 'lightred'
+
+        self.setStyleSheet('background-color: ' + color)
