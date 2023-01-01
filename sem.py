@@ -45,7 +45,7 @@ version = '0.6.0'
 
 
 def main():
-    #    logging.basicConfig(level = logging.INFO)
+    logging.basicConfig(level = logging.INFO)
 
     app = QApplication(sys.argv)
 

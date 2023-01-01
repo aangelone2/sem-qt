@@ -161,8 +161,8 @@ class list_form(QWidget):
         # column and font behavior
         self.__tab_list = common.set_tw_behavior(self.__tab_list, 'equal')
         self.__tab_list = common.set_font_size(self.__tab_list, 18)
-        self.__tab_list.horizontalHeader() = common.set_font_size(
-            self.__tab_list.horizontalHeader(), 20
+        self.__tab_list.horizontalHeader().setStyleSheet(
+                'QHeaderView {font-size: 20px}'
         )
 
         # label for sum table
@@ -180,8 +180,8 @@ class list_form(QWidget):
         self.__tab_sum = common.set_tw_behavior(self.__tab_sum, 'equal')
         self.__tab_sum = common.lock_height(self.__tab_sum)
         self.__tab_sum = common.set_font_size(self.__tab_sum, 18)
-        self.__tab_list.horizontalHeader() = common.set_font_size(
-            self.__tab_list.horizontalHeader(), 20
+        self.__tab_sum.horizontalHeader().setStyleSheet(
+                'QHeaderView {font-size: 20px}'
         )
 
         # setting up layout
@@ -228,10 +228,10 @@ class list_form(QWidget):
         lay_det = QVBoxLayout()
         lay_det.addWidget(lab_start)
         lay_det.addWidget(self.__cal_start)
-        lay_det.addSpacing(10)
+        lay_det.addSpacing(20)
         lay_det.addWidget(lab_end)
         lay_det.addWidget(self.__cal_end)
-        lay_det.addSpacing(10)
+        lay_det.addSpacing(20)
         lay_det.addWidget(self.__but_update)
 
         gbx_cal = QGroupBox('Query details')
