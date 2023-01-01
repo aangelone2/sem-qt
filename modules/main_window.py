@@ -35,9 +35,10 @@ import sqlite3
 
 import modules.db as db
 from modules.list_form import list_form
+from modules.add_form import add_form
 
 
-mw_width = 1300
+mw_width = 1600
 mw_height = 400
 
 
@@ -51,9 +52,11 @@ class main_window(QWidget):
     -----------------------
     __lst_form : list_form
         Internal list_form widget
+    __add_form : add_form
+        Internal add_form widget
     __lay : QHBoxLayout
         Horizontal layout, contains widgets
-        Will be extended/contracted to display/hide add_form
+        Extended/contracted to display/hide add_form
     __conn : sqlite3.Connection
         Connection to database-table pair
 
@@ -69,6 +72,9 @@ class main_window(QWidget):
     __lst_form.query_requested(start, end)
         -> <df = fetch(start, end)>
         -> __lst_form.update_tables(df)
+
+    __add_form.insertion_requested(fields)
+        -> db.add(fields, __conn)
     """
 
 
@@ -87,13 +93,15 @@ class main_window(QWidget):
 
         self.resize(mw_width, mw_height)
 
+        self.__conn = conn
+
         self.__lst_form = list_form()
+        self.__add_form = add_form(self.__conn)
 
         self.__lay = QHBoxLayout()
         self.__lay.addWidget(self.__lst_form)
+        self.__lay.addWidget(self.__add_form)
         self.setLayout(self.__lay)
-
-        self.__conn = conn
 
         self.__init_connections()
 
@@ -110,4 +118,8 @@ class main_window(QWidget):
                 lambda s,e: self.__lst_form.update_tables(
                     db.fetch(s, e, self.__conn)
                 )
+        )
+
+        self.__add_form.insertion_requested.connect(
+                lambda fields: db.add(fields, self.__conn)
         )

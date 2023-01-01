@@ -24,6 +24,7 @@
 
 
 import sqlite3
+import logging
 import datetime
 from urllib.request import pathname2url
 import pandas as pd
@@ -111,19 +112,9 @@ def add(fields: dict[str], conn: sqlite3.Connection):
     - ValueError if invalid date
     """
 
-    # additional validity check on the date (e.g., checks
-    # against things like '31 february')
-    try:
-        datetime.datetime(
-                year = int(fields['year']),
-                month = int(fields['month']),
-                day = int(fields['day'])
-        )
-    except ValueError:
-        print('Invalid date')
-        return
+    logging.info('in db.add')
 
-    d = fields['year'] + '-' + fields['month'] + '-' + fields['day']
+    d = fields['date']
     t = fields['type']
     a = float(fields['amount'])
     j = fields['justification']
@@ -133,6 +124,8 @@ def add(fields: dict[str], conn: sqlite3.Connection):
             (date, type, amount, justification)
             VALUES (\'{}\', \'{}\', {}, \'{}\') ;
     '''.format(d, t, a, j)
+
+    logging.info(command)
 
     conn.execute(command)
     conn.commit()
@@ -177,7 +170,7 @@ def fetch(start: str, end: str,
            )
 
 
-def fetch_types(conn: sqlite3.Connection) -> list[str]
+def fetch_types(conn: sqlite3.Connection) -> list[str]:
     """
     Returns a list of the expense character types
 
@@ -194,4 +187,9 @@ def fetch_types(conn: sqlite3.Connection) -> list[str]
     """
 
     curs = conn.execute('SELECT DISTINCT type FROM expenses ;')
-    return curs.fetchall()
+    # Returns types such as [('R',), ('E',)]
+    lst = curs.fetchall()
+    # Cleanup
+    lst = [l[0] for l in lst]
+
+    return lst

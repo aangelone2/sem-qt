@@ -1,5 +1,5 @@
 # Copyright (c) 2022 Adriano Angelone
-# 
+#
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation
 # files (the "Software"), to deal in the Software without
@@ -8,11 +8,11 @@
 # sell copies of the Software, and to permit persons to whom the
 # Software is furnished to do so, subject to the following
 # conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be
 # included in all copies or substantial portions of the
 # Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
 # KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
 # WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
@@ -24,24 +24,27 @@
 
 
 from PyQt6 import QtCore
-from PyQt6.QtCore import pyqtSignal, pyqtSlot
+from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot
 
 from PyQt6.QtCore import QDate, QRegularExpression
 from PyQt6.QtWidgets import QWidget, QLineEdit, QPushButton,\
-        QCalendarWidget
+        QCalendarWidget, QLabel, QGroupBox
 from PyQt6.QtWidgets import QHBoxLayout, QVBoxLayout
 from PyQt6.QtGui import QValidator, QIntValidator,\
         QDoubleValidator, QRegularExpressionValidator
 
 import sqlite3
+import logging
 
+import modules.db as db
 import modules.common as common
 from modules.common import EQLineEdit
 
+af_width = 400
 
 
 
-class add_window(QWidget):
+class add_form(QWidget):
     """
     Form to obtain info about new elements
 
@@ -73,7 +76,11 @@ class add_window(QWidget):
     -----------------------
     insertion_requested = pyqtSignal(dict)
         broadcasts record to add to db
-        transmits a dict of (key, value) pairs for the fields
+        transmits a dict of (key, value: str) pairs:
+        + date
+        + type
+        + amount
+        + justification
 
 
     Slots
@@ -100,10 +107,20 @@ class add_window(QWidget):
 
     __but_accept.clicked()
         -> __request_insertion
+        -> insertion_requested(fields)
     """
 
 
-    def __init__(self):
+    def __init__(self, conn : sqlite3.Connection):
+        """
+        Constructor
+
+        Arguments
+        -----------------------
+        conn
+            Connection to table/database pair
+        """
+
         super().__init__()
 
         self.__cal = None
@@ -112,7 +129,8 @@ class add_window(QWidget):
         self.__txt_justif = None
         self.__but_accept = None
 
-        self.setLayout(__init_widgets())
+        self.setMaximumWidth(af_width)
+        self.setLayout(self.__init_layout(conn))
         self.__init_connections()
 
 
@@ -138,7 +156,11 @@ class add_window(QWidget):
         # type textbox
         self.__txt_type = EQLineEdit(self)
         # getting list of valid types
-        types = common.fetch_types(conn)
+        types = db.fetch_types(conn)
+
+        logging.info('fetched types = {}'.format(types))
+        logging.info('type string = {}'.format(''.join(types)))
+
         # setup validator with gathered types
         self.__txt_type.setValidator(
                 QRegularExpressionValidator(
@@ -164,14 +186,37 @@ class add_window(QWidget):
 
         self.__but_accept = QPushButton('Add expense', self)
 
+        # new entry details
+        lay_det = QVBoxLayout()
+        lay_det.addWidget(self.__cal)
+        lay_det.addSpacing(25)
+
+        lab_type = QLabel('Type')
+        lab_type.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        lay_det.addWidget(lab_type)
+        lay_det.addSpacing(-25)
+        lay_det.addWidget(self.__txt_type)
+        lay_det.addSpacing(25)
+
+        lab_amount = QLabel('Amount')
+        lab_amount.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        lay_det.addWidget(lab_amount)
+        lay_det.addSpacing(-25)
+        lay_det.addWidget(self.__txt_amount)
+        lay_det.addSpacing(25)
+
+        lab_justif = QLabel('Justification')
+        lab_justif.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        lay_det.addWidget(lab_justif)
+        lay_det.addSpacing(-25)
+        lay_det.addWidget(self.__txt_justif)
+
+        gb = QGroupBox('Entry details')
+        gb.setLayout(lay_det)
+
+        # general layout
         lay = QVBoxLayout()
-        lay.addWidget(self.__cal)
-        lay.addSpacing(25)
-        lay.addWidget(self.__txt_type)
-        lay.addSpacing(25)
-        lay.addWidget(self.__txt_amount)
-        lay.addSpacing(25)
-        lay.addWidget(self.__txt_justif)
+        lay.addWidget(gb)
         lay.addSpacing(50)
         lay.addWidget(self.__but_accept)
 
@@ -219,8 +264,11 @@ class add_window(QWidget):
         sets focus on the calendar
         """
 
-        fmt = Qt.DateFormat.ISODate
-        date = self.__cal.selectedDate().toString(fmt)
+        logging.info('in request_insertion')
+
+        date = self.__cal.selectedDate().toString(
+                format = Qt.DateFormat.ISODate
+        )
 
         fields = {
             'date': date,
@@ -228,6 +276,8 @@ class add_window(QWidget):
             'amount': self.__txt_amount.text(),
             'justification': self.__txt_justif.text()
         }
+
+        logging.info('date = {}'.format(fields['date']))
 
         self.__cal.setFocus()
 
