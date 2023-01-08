@@ -63,8 +63,6 @@ class list_form(QWidget):
     __but_update : QPushButton
         Updates the tables based on selected dates.
         Also refreshes expense categories
-    __but_add : QPushButton
-        Sends request to show/hide add form
 
 
     Methods
@@ -81,8 +79,6 @@ class list_form(QWidget):
     -----------------------
     query_requested(str, str)
         Broadcasts expense list request
-    add_requested()
-        Broadcasts request to show/hide add form
 
 
     Slots
@@ -95,10 +91,6 @@ class list_form(QWidget):
     update_tables(pd.DataFrame)
         updates the tables from a provided dataframe
 
-    __request_add()
-        toggles show/hide caption on add button
-        and emits 'add_requested'
-
 
     Connections
     -----------------------
@@ -107,11 +99,6 @@ class list_form(QWidget):
         -> query_requested(start_date, end_date)
         -> ...
         -> update_tables(df)
-
-    __but_add.clicked
-        -> __request_add()
-        -> add_requested()
-        -> ...
     """
 
 
@@ -127,7 +114,6 @@ class list_form(QWidget):
         self.__cal_start = None
         self.__cal_end = None
         self.__but_update = None
-        self.__but_add = None
 
         lay_tab = self.__init_lay_tab()
         lay_cal_but = self.__init_lay_cal_but()
@@ -229,27 +215,20 @@ class list_form(QWidget):
         lay_det = QVBoxLayout()
         lay_det.addWidget(lab_start)
         lay_det.addWidget(self.__cal_start)
-        lay_det.addSpacing(20)
+        lay_det.addSpacing(80)
         lay_det.addWidget(lab_end)
         lay_det.addWidget(self.__cal_end)
-        lay_det.addSpacing(20)
+        lay_det.addSpacing(80)
         lay_det.addWidget(self.__but_update)
 
         # group box
         gbx_cal = QGroupBox('Query details')
         gbx_cal.setLayout(lay_det)
 
-        # add button
-        self.__but_add = QPushButton('Show add form >>>>', self)
-        self.__but_add = common.set_font_size(self.__but_add, 20)
-        self.__but_add.setCheckable(True)
-
         # general layout
         lay = QVBoxLayout()
         lay.addSpacing(10)
         lay.addWidget(gbx_cal)
-        lay.addSpacing(40)
-        lay.addWidget(self.__but_add)
         lay.addSpacing(10)
 
         return lay
@@ -261,7 +240,6 @@ class list_form(QWidget):
         """
 
         self.__but_update.clicked.connect(self.__request_query)
-        self.__but_add.clicked.connect(self.__request_add)
 
 
     ####################### SIGNALS #######################
@@ -276,12 +254,6 @@ class list_form(QWidget):
         starting date for the requested query, 'yyyy-mm-dd'
     end_date : str
         ending date for the requested query, 'yyyy-mm-dd'
-    """
-
-
-    add_requested = pyqtSignal()
-    """
-    Broadcasts show/hide add form request
     """
 
 
@@ -365,26 +337,3 @@ class list_form(QWidget):
         except KeyError:
             # empty result set
             pass
-
-
-    @QtCore.pyqtSlot()
-    def __request_add(self):
-        """
-        Updates the tables from a provided dataframe
-
-        Arguments
-        -----------------------
-        df : pd.DataFrame
-            dataframe used to fill the tables; __tab_sum will
-            only contain categories present in df
-        """
-
-        logging.info('in list_form.__request_add')
-        logging.info('text = {}'.format(self.__but_add.text()))
-
-        if (self.__but_add.text() == 'Show add form >>>>'):
-            self.__but_add.setText('Hide add form <<<<')
-        else:
-            self.__but_add.setText('Show add form >>>>')
-
-        self.add_requested.emit()
