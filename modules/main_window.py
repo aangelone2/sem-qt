@@ -5,7 +5,7 @@
 # Software.
 #
 # This file is part of sem.
-#
+# 
 # This file may be used under the terms of the GNU General
 # Public License version 3.0 as published by the Free Software
 # Foundation and appearing in the file LICENSE included in the
@@ -13,7 +13,7 @@
 # information to ensure the GNU General Public License version
 # 3.0 requirements will be met:
 # http://www.gnu.org/copyleft/gpl.html.
-#
+# 
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
 # KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
 # WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
@@ -25,10 +25,12 @@
 
 
 from PyQt6 import QtCore
-from PyQt6.QtCore import pyqtSignal, pyqtSlot
+from PyQt6.QtCore import pyqtSignal, pyqtSlot, QSize
+
+from PyQt6.QtGui import QAction, QIcon
 
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
-        QApplication
+        QApplication, QToolBar
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
 import sqlite3
@@ -52,15 +54,19 @@ class main_window(QWidget):
 
     Attributes
     -----------------------
+    __conn : sqlite3.Connection
+        Connection to database-table pair
     __lst_form : list_form
         Internal list_form widget
     __add_form : add_form
         Internal add_form widget
-    __lay : QHBoxLayout
+    __hor_lay : QHBoxLayout
         Horizontal layout, contains widgets
         Extended/contracted to display/hide add_form
-    __conn : sqlite3.Connection
-        Connection to database-table pair
+    __tb : QToolBar
+        Toolbar widget
+    __add_act : QAction
+        The action of displaying/adding the add_form
 
 
     Methods
@@ -82,11 +88,10 @@ class main_window(QWidget):
         -> <df = fetch(start, end)>
         -> __lst_form.update_tables(df)
 
-    __lst_form.add_requested()
-        -> __toggle_add()
-
     __add_form.insertion_requested(fields)
         -> db.add(fields, __conn)
+
+    __add_act.triggered() -> __toggle_add()
     """
 
 
@@ -103,22 +108,54 @@ class main_window(QWidget):
 
         super().__init__()
 
-        # set to narrow size by default
-        self.resize(mw_narrow, mw_height)
+        self.__conn = None
+        self.__lst_form = None
+        self.__add_form = None
+        self.__hor_lay = None
+        self.__tb = None
+        self.__add_act = None
 
         self.__conn = conn
 
-        self.__lst_form = list_form()
-        self.__add_form = add_form(self.__conn)
+        # set to narrow size by default
+        self.resize(mw_narrow, mw_height)
 
-        # no add form in the layout by default
-        self.__lay = QHBoxLayout()
-        self.__lay.addWidget(self.__lst_form)
-        self.setLayout(self.__lay)
+        # initializing forms and their layout
+        self.__init_forms()
+
+        # initializing toolbar
+        self.__init_toolbar()
+
+        # general layout, includes toolbar
+        lay = QVBoxLayout()
+        lay.setMenuBar(self.__tb)
+        lay.addLayout(self.__hor_lay)
+
+        self.setLayout(lay)
 
         self.__init_connections()
 
         self.show()
+
+
+    def __init_forms(self):
+        self.__lst_form = list_form()
+        self.__add_form = add_form(self.__conn)
+
+        # no add form in the layout by default
+        self.__hor_lay = QHBoxLayout()
+        self.__hor_lay.addWidget(self.__lst_form)
+
+
+    def __init_toolbar(self):
+        self.__tb = QToolBar(self)
+        self.__tb.setIconSize(QSize(30, 30))
+
+        self.__add_act = QAction(QIcon('resources/add.png'), 'Add', self)
+        self.__add_act.setCheckable(True)
+        self.__add_act.setToolTip('Hide/show add form')
+
+        self.__tb.addAction(self.__add_act)
 
 
     def __init_connections(self):
@@ -133,12 +170,14 @@ class main_window(QWidget):
                 )
         )
 
-        self.__lst_form.add_requested.connect(
-                self.__toggle_add
-        )
-
+        # addition of new data to the db
         self.__add_form.insertion_requested.connect(
                 lambda fields: db.add(fields, self.__conn)
+        )
+
+        # show/hide request for add_form
+        self.__add_act.triggered.connect(
+                self.__toggle_add
         )
 
 
@@ -156,12 +195,12 @@ class main_window(QWidget):
         if (self.__add_form.isVisible() is False):
             # show add form
             self.resize(mw_wide, mw_height)
-            self.layout().addWidget(self.__add_form)
+            self.__hor_lay.addWidget(self.__add_form)
             self.__add_form.show()
         else:
             # hide add form
             self.__add_form.hide()
-            self.layout().removeWidget(self.__add_form)
+            self.__hor_lay.removeWidget(self.__add_form)
             self.resize(mw_narrow, mw_height)
 
         # re-centering the window horizontally

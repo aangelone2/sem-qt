@@ -150,7 +150,7 @@ class add_form(QWidget):
         """
 
         # calendar
-        self.__cal = QCalendarWidget()
+        self.__cal = QCalendarWidget(self)
         self.__cal = common.lock_size(self.__cal)
         self.__cal = common.set_font_size(self.__cal, 18)
 
@@ -192,27 +192,27 @@ class add_form(QWidget):
         lay_det.addWidget(self.__cal)
         lay_det.addSpacing(25)
 
-        lab_type = QLabel('Type')
+        lab_type = QLabel('Type', self)
         lab_type.setAlignment(Qt.AlignmentFlag.AlignCenter)
         lay_det.addWidget(lab_type)
         lay_det.addSpacing(-25)
         lay_det.addWidget(self.__txt_type)
         lay_det.addSpacing(25)
 
-        lab_amount = QLabel('Amount')
+        lab_amount = QLabel('Amount', self)
         lab_amount.setAlignment(Qt.AlignmentFlag.AlignCenter)
         lay_det.addWidget(lab_amount)
         lay_det.addSpacing(-25)
         lay_det.addWidget(self.__txt_amount)
         lay_det.addSpacing(25)
 
-        lab_justif = QLabel('Justification')
+        lab_justif = QLabel('Justification', self)
         lab_justif.setAlignment(Qt.AlignmentFlag.AlignCenter)
         lay_det.addWidget(lab_justif)
         lay_det.addSpacing(-25)
         lay_det.addWidget(self.__txt_justif)
 
-        gb = QGroupBox('Entry details')
+        gb = QGroupBox('Entry details', self)
         gb.setLayout(lay_det)
 
         # general layout
