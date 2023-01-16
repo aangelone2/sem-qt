@@ -30,7 +30,7 @@ from PyQt6.QtCore import pyqtSignal, pyqtSlot, QSize
 from PyQt6.QtGui import QAction, QIcon
 
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
-        QApplication, QToolBar
+        QApplication, QToolBar, QFileDialog
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
 import sqlite3
@@ -44,6 +44,9 @@ from modules.add_form import add_form
 mw_narrow = 1200
 mw_wide = 1600
 mw_height = 400
+
+id_width = 900
+id_height = 500
 
 
 # main screen
@@ -60,17 +63,27 @@ class main_window(QWidget):
         Internal list_form widget
     __add_form : add_form
         Internal add_form widget
+    __file_dialog : QFileDialog
+        Dialog to choose file to import
     __hor_lay : QHBoxLayout
         Horizontal layout, contains widgets
         Extended/contracted to display/hide add_form
     __tb : QToolBar
         Toolbar widget
     __add_act : QAction
-        The action of displaying/adding the add_form
+        The action of displaying/hiding the add_form
+    __import_act : QAction
+        The action of displaying the import dialog
 
 
     Methods
     -----------------------
+    __init_forms()
+        Inits the forms and the layout which contains them
+
+    __init_dialogs()
+        Inits dialogs
+
     __init_connections()
         Inits connections
 
@@ -92,6 +105,8 @@ class main_window(QWidget):
         -> db.add(fields, __conn)
 
     __add_act.triggered() -> __toggle_add()
+
+    __import_add.triggered() -> self.__file_dialog.exec()
     """
 
 
@@ -111,9 +126,11 @@ class main_window(QWidget):
         self.__conn = None
         self.__lst_form = None
         self.__add_form = None
+        self.__file_dialog = None
         self.__hor_lay = None
         self.__tb = None
         self.__add_act = None
+        self.__import_act = None
 
         self.__conn = conn
 
@@ -122,6 +139,9 @@ class main_window(QWidget):
 
         # initializing forms and their layout
         self.__init_forms()
+
+        # initializing dialogs
+        self.__init_dialogs()
 
         # initializing toolbar
         self.__init_toolbar()
@@ -147,6 +167,11 @@ class main_window(QWidget):
         self.__hor_lay.addWidget(self.__lst_form)
 
 
+    def __init_dialogs(self):
+        self.__file_dialog = QFileDialog(self)
+        self.__file_dialog.resize(id_width, id_height)
+
+
     def __init_toolbar(self):
         self.__tb = QToolBar(self)
         self.__tb.setIconSize(QSize(30, 30))
@@ -155,7 +180,11 @@ class main_window(QWidget):
         self.__add_act.setCheckable(True)
         self.__add_act.setToolTip('Hide/show add form')
 
+        self.__import_act = QAction(QIcon('resources/import.png'), 'Import', self)
+        self.__import_act.setToolTip('Import external CSV file')
+
         self.__tb.addAction(self.__add_act)
+        self.__tb.addAction(self.__import_act)
 
 
     def __init_connections(self):
@@ -178,6 +207,11 @@ class main_window(QWidget):
         # show/hide request for add_form
         self.__add_act.triggered.connect(
                 self.__toggle_add
+        )
+
+        # exec import dialog
+        self.__import_act.triggered.connect(
+                self.__file_dialog.exec
         )
 
 
