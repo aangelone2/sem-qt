@@ -66,10 +66,10 @@ class add_form(QWidget):
 
     Methods
     -----------------------
-    __init_layout
+    __init_layout() -> QVboxLayout
         Returns the initialized layout with the widgets
         Sets up Validators in the EQLineEdits
-    __init_connections
+    __init_connections() -> None
         Sets up connections between widgets
 
 
