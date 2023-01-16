@@ -136,7 +136,7 @@ class list_form(QWidget):
         """
 
         # expense list table
-        self.__tab_list = QTableWidget(0, 5, self)
+        self.__tab_list = QTableWidget(self)
         # hide record index number in the record table
         self.__tab_list.verticalHeader().hide()
         # set header names in the record table
@@ -157,7 +157,7 @@ class list_form(QWidget):
         label = common.set_font_size(label, 20)
 
         # sum table
-        self.__tab_sum = QTableWidget(1, 0, self)
+        self.__tab_sum = QTableWidget(self)
         self.__tab_sum.setMaximumHeight(58)
         # hide record index number in the sum table
         self.__tab_sum.verticalHeader().hide()
