@@ -31,8 +31,7 @@ from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
         QCalendarWidget, QTableWidget, QTableWidgetItem,\
         QGroupBox
-from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout,\
-        QSizePolicy
+from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
 import sqlite3
 import pandas as pd
@@ -286,54 +285,19 @@ class list_form(QWidget):
 
         logging.info('update_tables() -> in update_tables')
 
-        # clearing expense list
-        self.__tab_list.setRowCount(0)
-
-        self.__tab_list = common.set_tw_behavior(self.__tab_list, 'auto')
-        # sets last column in self.__tab_list to take all available space
-        self.__tab_list.horizontalHeader().setStretchLastSection(True)
-
-        # filling expense table
-        for ir, row in df.iterrows():
-            self.__tab_list.insertRow(ir)
-
-            for ic, (field, val) in enumerate(row.items()):
-                itm = QTableWidgetItem(str(val))
-                if (field != 'justification'):
-                    itm.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
-
-                # greying odd rows
-                if (ir % 2 == 1):
-                    itm.setBackground(common.colors['lightgray'])
-
-                self.__tab_list.setItem(ir, ic, itm)
-
-        # clearing sum table
-        self.__tab_sum.setColumnCount(0)
+        # Filling expense table
+        self.__tab_list = common.fill_table_row(
+                self.__tab_list, df
+        )
 
         # computing sums
         asum = df.groupby('type').sum()
 
-        logging.info('{}'.format(asum))
-
+        # filling sum table
         try:
-            asum = asum['amount']
-
-            # filling sum table
-            for ic, val in enumerate(asum):
-                self.__tab_sum.insertColumn(ic)
-
-                itm = QTableWidgetItem(str(val))
-                itm.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
-
-                # greying odd columns
-                if (ic % 2 == 1):
-                    itm.setBackground(common.colors['lightgray'])
-
-                self.__tab_sum.setItem(0, ic, itm)
-
-            # setting header names to the ones in the current df
-            self.__tab_sum.setHorizontalHeaderLabels(asum.index.to_list())
+            self.__tab_sum = common.fill_table_col(
+                    self.__tab_sum, asum['amount']
+            )
         except KeyError:
             # empty result set
             pass
