@@ -23,6 +23,7 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import logging
 import pandas as pd
 
 from PyQt6 import QtCore
@@ -166,10 +167,17 @@ def fill_table_row(table: QTableWidget,
 
     # clearing table
     table.setRowCount(0)
+    table.setColumnCount(0)
 
     table = set_tw_behavior(table, 'auto')
     # sets last column (justification) to take all available space
     table.horizontalHeader().setStretchLastSection(True)
+
+    # setting up columns
+    fields = df.columns.to_list()
+    for ic, field in enumerate(fields):
+        table.insertColumn(ic)
+    table.setHorizontalHeaderLabels(fields)
 
     # filling expense table
     for ir, row in df.iterrows():
@@ -209,6 +217,8 @@ def fill_table_col(table: QTableWidget,
 
     # clearing table
     table.setColumnCount(0)
+    # adding the only row
+    table.insertRow(0)
 
     # filling sum table
     for ic, val in enumerate(ser):

@@ -39,6 +39,7 @@ import logging
 import modules.db as db
 from modules.list_form import list_form
 from modules.add_form import add_form
+from modules.import_show_dialog import import_show_dialog
 
 
 mw_narrow = 1200
@@ -63,11 +64,16 @@ class main_window(QWidget):
         Internal list_form widget
     __add_form : add_form
         Internal add_form widget
-    __file_dialog : QFileDialog
+
+    __import_select_dialog : QFileDialog
         Dialog to choose file to import
+    __import_show_dialog : import_dialog
+        Dialog to visualize file to import
+
     __hor_lay : QHBoxLayout
         Horizontal layout, contains widgets
         Extended/contracted to display/hide add_form
+
     __tb : QToolBar
         Toolbar widget
     __add_act : QAction
@@ -106,7 +112,7 @@ class main_window(QWidget):
 
     __add_act.triggered() -> __toggle_add()
 
-    __import_add.triggered() -> self.__file_dialog.exec()
+    __import_act.triggered() -> self.__import_select_dialog.exec()
     """
 
 
@@ -126,7 +132,8 @@ class main_window(QWidget):
         self.__conn = None
         self.__lst_form = None
         self.__add_form = None
-        self.__file_dialog = None
+        self.__import_select_dialog = None
+        self.__import_show_dialog = None
         self.__hor_lay = None
         self.__tb = None
         self.__add_act = None
@@ -168,8 +175,10 @@ class main_window(QWidget):
 
 
     def __init_dialogs(self):
-        self.__file_dialog = QFileDialog(self)
-        self.__file_dialog.resize(id_width, id_height)
+        self.__import_select_dialog = QFileDialog(self)
+        self.__import_select_dialog.resize(id_width, id_height)
+
+        self.__import_show_dialog = import_show_dialog()
 
 
     def __init_toolbar(self):
@@ -209,9 +218,14 @@ class main_window(QWidget):
                 self.__toggle_add
         )
 
-        # exec import dialog
+        # exec import select dialog
         self.__import_act.triggered.connect(
-                self.__file_dialog.exec
+                self.__import_select_dialog.exec
+        )
+
+        # pass selected import file to import form
+        self.__import_select_dialog.fileSelected.connect(
+                lambda f : self.__import_show_dialog.load(f)
         )
 
 

@@ -24,6 +24,7 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+import re
 import sqlite3
 import logging
 import datetime
@@ -194,3 +195,87 @@ def fetch_types(conn: sqlite3.Connection) -> list[str]:
     lst = [l[0] for l in lst]
 
     return lst
+
+
+def parse_csv(filename: str) -> pd.DataFrame:
+    """
+    Parses a CSV file containing a list of expenses,
+    returns a DataFrame containing the data if valid
+
+
+    Arguments
+    -----------------------
+    filename : str
+        name of the CSV file to parse
+        should include [date, type, amount, justification] fields
+        order may be different, other fields are ignored
+
+
+    Return value
+    -----------------------
+    pd.DataFrame containing the parsed data
+    columns are ordered as [date, type, amount, justification]
+
+
+    Raises
+    -----------------------
+    - DatabaseError if file not found or data is invalid
+    """
+
+    res = pd.DataFrame()
+
+    try:
+        df = pd.read_csv(filename, encoding = 'iso-8859-1')
+    except FileNotFoundError:
+        raise DatabaseError('CSV file not found')
+    except UnicodeDecodeError:
+        raise DatabaseError('incorrect character encoding')
+
+    # Checking date
+    if ('date' not in df.columns):
+        raise DatabaseError("missing or mislabeled 'date' field")
+    elif (df['date'].isnull().any()):
+        raise DatabaseError("null entry in 'date' field")
+    else:
+        try:
+            res['date'] = pd.to_datetime(
+                    df['date'], infer_datetime_format = True, errors = 'raise'
+            )
+            res['date'] = res['date'].dt.date
+        except ValueError:
+            raise DatabaseError("invalid entry in 'date' field")
+
+    # Checking type
+    if ('type' not in df.columns):
+        raise DatabaseError("missing or mislabeled 'type' field")
+    elif (df['type'].isnull().any()):
+        raise DatabaseError("null entry in 'type' field")
+    else:
+        # checking for identity with single uppercase letter
+        pattern = re.compile('^[A-Z]$')
+
+        if (df['type'].apply(pattern.match).isnull().any()):
+            raise DatabaseError("invalid entry in 'type' field")
+        else:
+            res['type'] = df['type']
+
+    # Checking amount
+    if ('amount' not in df.columns):
+        raise DatabaseError("missing or mislabeled 'amount' field")
+    elif (df['type'].isnull().any()):
+        raise DatabaseError("null entry in 'amount' field")
+    else:
+        try:
+            res['amount'] = df['amount'].astype(float)
+        except ValueError:
+            raise DatabaseError("invalid entry in 'amount' field")
+
+    # Checking justification
+    if ('justification' not in df.columns):
+        raise DatabaseError("missing or mislabeled 'justification' field")
+    elif (df['type'].isnull().any()):
+        raise DatabaseError("null entry in 'justification' field")
+    else:
+        res['justification'] = df['justification']
+
+    return res
