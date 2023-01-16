@@ -23,11 +23,14 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import pandas as pd
 
 from PyQt6 import QtCore
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor, QValidator
 from PyQt6.QtWidgets import QWidget, QSizePolicy, QMessageBox,\
-        QLineEdit, QHeaderView, QTableView
+        QLineEdit, QHeaderView, QTableView, QTableWidget,\
+        QTableWidgetItem
 
 
 
@@ -141,6 +144,91 @@ def set_tw_behavior(tw: QTableView, behavior: str) -> QTableView:
         )
 
     return tw
+
+
+def fill_table_row(table: QTableWidget,
+                   df: pd.DataFrame) -> QTableWidget:
+    """
+    Fills a table by row with the data passed in a dataframe
+    Colors in grey odd rows
+
+    Arguments
+    -----------------------
+    table: QTableView
+        table widget to be filled with the data
+    df : pd.DataFrame
+        dataframe containing the data
+
+    Return value
+    -----------------------
+    Returns the filled table.
+    """
+
+    # clearing table
+    table.setRowCount(0)
+
+    table = set_tw_behavior(table, 'auto')
+    # sets last column (justification) to take all available space
+    table.horizontalHeader().setStretchLastSection(True)
+
+    # filling expense table
+    for ir, row in df.iterrows():
+        table.insertRow(ir)
+
+        for ic, (field, val) in enumerate(row.items()):
+            itm = QTableWidgetItem(str(val))
+            if (field != 'justification'):
+                itm.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+
+            # greying odd rows
+            if (ir % 2 == 1):
+                itm.setBackground(colors['lightgray'])
+
+            table.setItem(ir, ic, itm)
+
+    return table
+
+
+def fill_table_col(table: QTableWidget,
+                   ser: pd.Series) -> QTableWidget:
+    """
+    Fills single-row table with the data passed in a series
+    Colors in grey odd columns
+
+    Arguments
+    -----------------------
+    table : QTableView
+        table widget to be filled with the data
+    ser : pd.Series
+        series containing the data
+
+    Return value
+    -----------------------
+    Returns the filled table.
+    """
+
+    # clearing table
+    table.setColumnCount(0)
+
+    # filling sum table
+    for ic, val in enumerate(ser):
+        table.insertColumn(ic)
+
+        itm = QTableWidgetItem(str(val))
+        itm.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        # greying odd columns
+        if (ic % 2 == 1):
+            itm.setBackground(colors['lightgray'])
+
+        table.setItem(0, ic, itm)
+
+    # setting header names to the ones in the current df
+    table.setHorizontalHeaderLabels(ser.index.to_list())
+
+    return table
+
+
 
 
 def ErrorMsg(msg: str):
