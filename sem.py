@@ -39,7 +39,7 @@ from modules.main_window import main_window
 
 path = 'data/expenses.sqlite'
 table = 'expenses'
-version = '0.9.0'
+version = '1.0.0'
 
 
 

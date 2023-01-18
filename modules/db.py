@@ -90,47 +90,46 @@ def init(path: str, table: str) -> sqlite3.Connection:
     return conn
 
 
-def add(fields: dict[str], conn: sqlite3.Connection):
+def add(conn: sqlite3.Connection,
+        dct: dict[str] = None, df: pd.DataFrame = None):
     """
     Adds a record to a database through the given connection
     
 
     Arguments
     -----------------------
-    fields : dict[str]
-        {field: value} dictionary of the entry to add
-        entries are [year, month, day, type, amount, just]
     conn : sqlite3.Connection
         connection to a database/table pair
-
-
-    Return value
-    -----------------------
-    None
-
-
-    Raises
-    -----------------------
-    - ValueError if invalid date
+    dct : dict[str]
+        {field: value} dictionary of the entry to add
+        entries are [date, type, amount, justif]
+    df : pd.DataFrame
+        allows bulk importing from dataframe
+        columns should be [date, type, amount, justif]
     """
 
     logging.info('in db.add')
+    logging.info('types = {}'.format(df.dtypes))
 
-    d = fields['date']
-    t = fields['type']
-    a = float(fields['amount'])
-    j = fields['justification']
+    def insert(d: str, t: str, a: str, j: str):
+        command = '''
+            INSERT INTO expenses
+                (date, type, amount, justification)
+                VALUES (\'{}\', \'{}\', {}, \'{}\') ;
+        '''.format(d, t, float(a), j) ;
 
-    command = '''
-        INSERT INTO expenses
-            (date, type, amount, justification)
-            VALUES (\'{}\', \'{}\', {}, \'{}\') ;
-    '''.format(d, t, a, j)
+        logging.info(command)
 
-    logging.info(command)
+        conn.execute(command)
+        conn.commit()
 
-    conn.execute(command)
-    conn.commit()
+    if (dct is not None):
+        insert(dct['date'], dct['type'],
+               dct['amount'], dct['justification'])
+    elif (df is not None):
+        for idx, row in df.iterrows():
+            insert(row['date'], row['type'],
+                   row['amount'], row['justification'])
 
 
 def fetch(start: str, end: str,
