@@ -107,12 +107,14 @@ class main_window(QWidget):
         -> <df = fetch(start, end)>
         -> __lst_form.update_tables(df)
 
-    __add_form.insertion_requested(fields)
-        -> db.add(fields, __conn)
-
-    __add_act.triggered() -> __toggle_add()
-
-    __import_act.triggered() -> self.__import_select_dialog.exec()
+    __add_form.insertion_requested(dct)
+        -> db.add(__conn, dct)
+    __add_act.triggered()
+        -> __toggle_add()
+    __import_act.triggered()
+        -> self.__import_select_dialog.exec()
+    __import_show_dialog.import_requested(df)
+        -> db.add(__conn, df)
     """
 
 
@@ -210,7 +212,7 @@ class main_window(QWidget):
 
         # addition of new data to the db
         self.__add_form.insertion_requested.connect(
-                lambda fields: db.add(fields, self.__conn)
+                lambda dct: db.add(self.__conn, dct = dct)
         )
 
         # show/hide request for add_form
@@ -226,6 +228,11 @@ class main_window(QWidget):
         # pass selected import file to import form
         self.__import_select_dialog.fileSelected.connect(
                 lambda f : self.__import_show_dialog.load(f)
+        )
+
+        # bulk importing of data into the db
+        self.__import_show_dialog.import_requested.connect(
+                lambda df: db.add(self.__conn, df = df)
         )
 
 

@@ -84,6 +84,7 @@ class import_show_dialog(QDialog):
     __buttons.accepted
         -> accept()
         -> import_requested(self.__df)
+        -> ...
     __buttons.rejected -> reject()
     """
 
