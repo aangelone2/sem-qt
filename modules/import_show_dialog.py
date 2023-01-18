@@ -25,12 +25,13 @@
 
 
 import logging
+import pandas as pd
 
 import modules.common as common
 import modules.db as db
 
 from PyQt6 import QtCore
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot
 
 from PyQt6.QtWidgets import QDialog, QTableWidget,\
         QDialogButtonBox
@@ -48,6 +49,8 @@ class import_show_dialog(QDialog):
 
     Attributes
     -----------------------
+    __df : pd.DataFrame
+        Stores the imported data
     __table : QTableWidget
         Table showing the imported data
     __buttons : QDialogButtonBox
@@ -62,6 +65,8 @@ class import_show_dialog(QDialog):
 
     Signals
     -----------------------
+    import_requested(pd.DataFrame)
+        Broadcasts the request for importing in the database
 
 
     Slots
@@ -70,11 +75,16 @@ class import_show_dialog(QDialog):
         Loads a dataframe from the given file
         and displays it in the table
 
+    accept()
+        Emits `import_requested` with the stored dataframe
+
 
     Connections
     -----------------------
-    __buttons.accepted.connect(accepted())
-    __buttons.rejected.connect(rejected())
+    __buttons.accepted
+        -> accept()
+        -> import_requested(self.__df)
+    __buttons.rejected -> reject()
     """
 
 
@@ -87,7 +97,9 @@ class import_show_dialog(QDialog):
 
         self.resize(isd_width, isd_height)
 
+        self.__df = None
         self.__table = None
+        self.__buttons = None
 
         lay = self.__init_widgets()
 
@@ -128,19 +140,53 @@ class import_show_dialog(QDialog):
         self.__buttons.rejected.connect(self.reject)
 
 
+    ####################### SIGNALS #######################
+
+    import_requested = pyqtSignal(pd.DataFrame)
+    """
+    Broadcasts import request
+
+    Arguments
+    -----------------------
+    df : pd.DataFrame
+        the dataframe to bulk-import in the database
+    """
+
+
     ####################### SLOTS #######################
 
     @QtCore.pyqtSlot()
     def load(self, filename: str):
+        """
+        Loads a CSV file from the given filename,
+        loads it in the member dataframe
+        and displays it in the table
+
+
+        Arguments
+        -----------------------
+        filename: str
+            Path of the file to parse
+        """
         self.show()
 
         try:
-            df = db.parse_csv(filename)
+            self.__df = db.parse_csv(filename)
         except db.DatabaseError:
             common.ErrorMsg('file error')
 
-        logging.info('{}'.format(df))
+        logging.info('{}'.format(self.__df))
 
         self.__table = common.fill_table_row(
-                self.__table, df
+                self.__table, self.__df
         )
+
+
+    @QtCore.pyqtSlot()
+    def accept(self):
+        """
+        Emits a signal carrying the stored dataframe
+        for importing in the database
+        """
+        self.import_requested.emit(self.__df)
+        self.hide()
