@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE ipe SYSTEM "ipe.dtd">
 <ipe version="70218" creator="Ipe 7.2.26">
-<info created="D:20230107132743" modified="D:20230113144229"/>
+<info created="D:20230107132743" modified="D:20230119015451"/>
 <ipestyle name="basic">
 <symbol name="arrow/arc(spx)">
 <path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
@@ -313,20 +313,60 @@ h
 <page>
 <layer name="alpha"/>
 <view layers="alpha" active="alpha"/>
-<path layer="alpha" matrix="0.875 0 0 0.6875 -58 154" stroke="darkorange" fill="1" pen="heavier">
-176 736 m
-176 800 l
-192 800 l
-208 784 l
-240 784 l
-240 736 l
-176 736 l
+<path layer="alpha" matrix="4.02044 0 0 4.02044 -190.453 -2078.06" stroke="black" fill="white" pen="ultrafat">
+96 688 m
+96 708 l
+104 720 l
+120 720 l
+120 688 l
+96 688 l
 </path>
-<path matrix="1 0 0 0.875 -80 16" stroke="darkorange" fill="yellow" pen="heavier">
-176 736 m
-184 768 l
-240 768 l
-232 736 l
+<path matrix="4.02044 0 0 4.02044 -190.453 -2078.06" stroke="black" fill="white" pen="ultrafat">
+104 716 m
+116 716 l
 </path>
+<path matrix="3.01533 0 0 4.02044 -73.86 -2078.06" stroke="black" fill="white" pen="ultrafat">
+100 712 m
+116 712 l
+</path>
+<path matrix="4.02044 0 0 4.02044 -190.453 -2078.06" stroke="black" fill="white" pen="ultrafat">
+100 708 m
+116 708 l
+</path>
+<path matrix="4.02044 0 0 4.02044 -190.453 -2078.06" stroke="black" fill="white" pen="ultrafat">
+100 704 m
+116 704 l
+</path>
+<path matrix="4.02044 0 0 4.02044 -190.453 -2078.06" stroke="black" fill="white" pen="ultrafat">
+100 700 m
+116 700 l
+</path>
+<path matrix="4.02044 0 0 4.02044 -190.453 -2078.06" stroke="black" fill="white" pen="ultrafat">
+100 696 m
+116 696 l
+</path>
+<path matrix="4.02044 0 0 4.02044 -190.453 -2078.06" stroke="black" fill="white" pen="ultrafat">
+100 692 m
+116 692 l
+</path>
+<group matrix="1 0 0 1 88 -28">
+<path matrix="2 0 0 2 -20 -564" fill="darkgreen">
+16 0 0 16 80 656 e
+</path>
+<path matrix="1 0 0 0.857143 44 172" fill="white">
+92 700 m
+92 644 l
+100 644 l
+100 700 l
+h
+</path>
+<path matrix="0.857143 0 0 1 57.7143 76" fill="white">
+68 676 m
+68 668 l
+124 668 l
+124 676 l
+h
+</path>
+</group>
 </page>
 </ipe>
