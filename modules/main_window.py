@@ -33,7 +33,7 @@ from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
         QApplication, QToolBar, QFileDialog
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
-import sqlite3
+from sqlite3 import Connection as connection
 import logging
 
 import modules.db as db
@@ -58,7 +58,7 @@ class main_window(QWidget):
 
     Attributes
     -----------------------
-    __conn : sqlite3.Connection
+    __conn : connection
         Connection to database-table pair
     __lst_form : list_form
         Internal list_form widget
@@ -107,8 +107,8 @@ class main_window(QWidget):
         -> <df = fetch(start, end)>
         -> __lst_form.update_tables(df)
 
-    __add_form.insertion_requested(dct)
-        -> db.add(__conn, dct)
+    __add_form.insertion_requested(df)
+        -> db.add(__conn, df)
     __add_act.triggered()
         -> __toggle_add()
     __import_act.triggered()
@@ -118,14 +118,14 @@ class main_window(QWidget):
     """
 
 
-    def __init__(self, conn: sqlite3.Connection):
+    def __init__(self, conn: connection):
         """
         Constructor
 
 
         Arguments
         -----------------------
-        conn : sqlite3.Connection
+        conn : connection
             Connection to table/database pair
         """
 
@@ -206,13 +206,13 @@ class main_window(QWidget):
         # reconnects back to the window with the queried data
         self.__lst_form.query_requested.connect(
                 lambda s,e: self.__lst_form.update_tables(
-                    db.fetch(s, e, self.__conn)
+                    db.fetch(self.__conn, s, e)
                 )
         )
 
         # addition of new data to the db
         self.__add_form.insertion_requested.connect(
-                lambda dct: db.add(self.__conn, dct = dct)
+                lambda df: db.add(self.__conn, df)
         )
 
         # show/hide request for add_form
@@ -232,7 +232,7 @@ class main_window(QWidget):
 
         # bulk importing of data into the db
         self.__import_show_dialog.import_requested.connect(
-                lambda df: db.add(self.__conn, df = df)
+                lambda df: db.add(self.__conn, df)
         )
 
 

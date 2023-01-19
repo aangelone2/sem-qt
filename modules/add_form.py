@@ -36,6 +36,7 @@ from PyQt6.QtGui import QValidator, QIntValidator,\
 
 import sqlite3
 import logging
+import pandas as pd
 
 import modules.db as db
 import modules.common as common
@@ -248,10 +249,10 @@ class add_form(QWidget):
 
     ####################### SIGNALS #######################
 
-    insertion_requested = pyqtSignal(dict)
+    insertion_requested = pyqtSignal(pd.DataFrame)
     """
         broadcasts record to add to db
-        transmits a dict of (key, value) pairs for the fields
+        transmits a pd.DataFrame containing the fields
     """
 
 
@@ -271,15 +272,14 @@ class add_form(QWidget):
                 format = Qt.DateFormat.ISODate
         )
 
-        fields = {
-            'date': date,
-            'type': self.__txt_type.text(),
-            'amount': self.__txt_amount.text(),
-            'justification': self.__txt_justif.text()
-        }
-
-        logging.info('date = {}'.format(fields['date']))
+        # single-row dataframe, still works
+        df = pd.DataFrame({
+            'date': [date],
+            'type': [self.__txt_type.text()],
+            'amount': [self.__txt_amount.text()],
+            'justification': [self.__txt_justif.text()]
+        })
 
         self.__cal.setFocus()
 
-        self.insertion_requested.emit(fields)
+        self.insertion_requested.emit(df)

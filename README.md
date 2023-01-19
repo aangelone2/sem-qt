@@ -16,6 +16,7 @@ Simple Expense Manager
 + Export database as CSV
 + Clear database
 + Sort tables on column click
++ Relay exception messages
 
 ### Customization
 + Add options form
@@ -26,11 +27,19 @@ Simple Expense Manager
 ### Bugfixes
 + Double row in sum table
 + Set number of floating point digits to 2 in tables
-+ Relay exception messages
++ Handle empty type list for new databases
 
 ### Architecture/complex features
 + Add user management (with ID/password management)
-+ Switch to `MySQL`/SQLAlchemy
+
+### Cleanup/Refactoring
++ add\_form
++ common
++ ~~db~~
++ import\_show\_dialog
++ list\_form
++ main\_window
++ logging
 
 ### Extra
 + Organize packaging
