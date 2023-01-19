@@ -2,21 +2,35 @@
 Simple Expense Manager
 
 
+
+## Program Description
+
+*Insert description here*
+
+
+
 ## To Do
 
-### General
-+ Option to add categories
-+ set option to commit every action/at logout
+### Additional features
++ Grand total of expenses in sum table ?
++ Export database as CSV
++ Clear database
++ Sort tables on column click
 
-### Complex
-+ Switch to `MySQL` (?)
+### Customization
++ Add options form
++ Add option to commit every action/at logout
++ Add option to choose font
++ Add option for logging depth
 
-### User management
-+ Add many users (with ID/password management)
-+ Check encryption hardness
+### Bugfixes
++ Double row in sum table
++ Set number of floating point digits to 2 in tables
++ Relay exception messages
 
-### Controls
-+ Sort on column click (?)
+### Architecture/complex features
++ Add user management (with ID/password management)
++ Switch to `MySQL`/SQLAlchemy
 
 ### Extra
 + Organize packaging

@@ -230,6 +230,8 @@ def parse_csv(filename: str) -> pd.DataFrame:
     except UnicodeDecodeError:
         raise DatabaseError('incorrect character encoding')
 
+    logging.info('file read')
+
     # Checking date
     if ('date' not in df.columns):
         raise DatabaseError("missing or mislabeled 'date' field")
@@ -243,6 +245,8 @@ def parse_csv(filename: str) -> pd.DataFrame:
             res['date'] = res['date'].dt.date
         except ValueError:
             raise DatabaseError("invalid entry in 'date' field")
+
+    logging.info('date checked')
 
     # Checking type
     if ('type' not in df.columns):
@@ -258,6 +262,8 @@ def parse_csv(filename: str) -> pd.DataFrame:
         else:
             res['type'] = df['type']
 
+    logging.info('type checked')
+
     # Checking amount
     if ('amount' not in df.columns):
         raise DatabaseError("missing or mislabeled 'amount' field")
@@ -269,6 +275,8 @@ def parse_csv(filename: str) -> pd.DataFrame:
         except ValueError:
             raise DatabaseError("invalid entry in 'amount' field")
 
+    logging.info('amount checked')
+
     # Checking justification
     if ('justification' not in df.columns):
         raise DatabaseError("missing or mislabeled 'justification' field")
@@ -276,5 +284,7 @@ def parse_csv(filename: str) -> pd.DataFrame:
         raise DatabaseError("null entry in 'justification' field")
     else:
         res['justification'] = df['justification']
+
+    logging.info('justification checked')
 
     return res
