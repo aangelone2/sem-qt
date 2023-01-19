@@ -38,8 +38,7 @@ from modules.main_window import main_window
 
 
 path = 'data/expenses.sqlite'
-table = 'expenses'
-version = '1.0.1'
+version = '1.0.2'
 
 
 
@@ -54,7 +53,7 @@ def main():
 
     # checking for db connection errors
     try:
-        db_conn = db.init(path, table)
+        db_conn = db.init(path)
     except db.DatabaseError:
         common.ErrorMsg('database error')
         sys.exit()

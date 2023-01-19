@@ -25,11 +25,15 @@
 
 
 import re
-import sqlite3
 import logging
 import datetime
 from urllib.request import pathname2url
+
+import sqlite3 as sql
+from sqlite3 import Connection as connection
+
 import pandas as pd
+from pandas import DataFrame as dataframe
 
 
 
@@ -43,160 +47,115 @@ class DatabaseError(Exception):
 
 
 
-def init(path: str, table: str) -> sqlite3.Connection:
+def init(path: str) -> connection:
     """
     Establishes connection to database
     
-
     Arguments
     -----------------------
     path : str
         path of the database
-    table : str
-        name of the table to connect to
-
 
     Return value
     -----------------------
     Returns the established connection
 
-
     Raises
     -----------------------
-    - DatabaseError if database or table not found
+    - DatabaseError if database or 'expenses' table not found
     """
 
     # procedure to verify if the database exists
     try:
         dburi = 'file:{}?mode=rw'.format(pathname2url(path))
-        conn = sqlite3.connect(dburi, uri = True)
-    except sqlite3.OperationalError:
+        conn = sql.connect(dburi, uri = True)
+    except sql.OperationalError:
         raise DatabaseError('database not found')
 
-    # searches in the 'sqlite_master' table for the name of the
-    # desired table, throws if not found
-    curs = conn.execute(
-            '''
-            SELECT count(name)
-                FROM sqlite_master
-                WHERE type = 'table' AND name = \'{}\' ;
-            '''.format(table)
-    )
+    # searches in the 'sqlite_master' table
+    # for the name of the desired table, throws if not found
+    command = '''SELECT name FROM sqlite_master
+        WHERE type = 'table' AND name = 'expenses' ;'''
 
-    # Last query should yield [(1,)]
-    if (curs.fetchall()[0][0] != 1):
+    # Query should yield a non-empty dataframe
+    if (pd.read_sql(command, conn).empty):
         raise DatabaseError('table not found')
 
     return conn
 
 
-def add(conn: sqlite3.Connection,
-        dct: dict[str] = None, df: pd.DataFrame = None):
-    """
-    Adds a record to a database through the given connection
-    
 
+
+def add(conn: connection, df: dataframe):
+    """
+    Adds record(s) to a database through the given connection
+    
     Arguments
     -----------------------
-    conn : sqlite3.Connection
+    conn : connection
         connection to a database/table pair
-    dct : dict[str]
-        {field: value} dictionary of the entry to add
-        entries are [date, type, amount, justif]
-    df : pd.DataFrame
-        allows bulk importing from dataframe
-        columns should be [date, type, amount, justif]
+    df : dataframe
+        data, [date, type, amount, justif] (order not relevant)
     """
 
     logging.info('in db.add')
-    logging.info('types = {}'.format(df.dtypes))
 
-    def insert(d: str, t: str, a: str, j: str):
-        command = '''
-            INSERT INTO expenses
-                (date, type, amount, justification)
-                VALUES (\'{}\', \'{}\', {}, \'{}\') ;
-        '''.format(d, t, float(a), j) ;
-
-        logging.info(command)
-
-        conn.execute(command)
-        conn.commit()
-
-    if (dct is not None):
-        insert(dct['date'], dct['type'],
-               dct['amount'], dct['justification'])
-    elif (df is not None):
-        for idx, row in df.iterrows():
-            insert(row['date'], row['type'],
-                   row['amount'], row['justification'])
+    df.to_sql('expenses', conn,
+              if_exists = 'append', index = False)
 
 
-def fetch(start: str, end: str,
-          conn: sqlite3.Connection) -> pd.DataFrame:
+
+
+def fetch(conn: connection,
+          start: str, end: str) -> dataframe:
     """
     Queries the database and returns query results
     
-
     Arguments
     -----------------------
+    conn : connection
+        connection to a database/table pair
     start : str
         Starting date as string, included in the query
     end : str
         Ending date as string, included in the query
-    conn : sqlite3.Connection
-        connection to a database/table pair
-
 
     Return value
     -----------------------
-    A pd.DataFrame containing the query results
+    A dataframe containing the query results
     Columns are [id, date, type, amount, justification]
     """
 
-    curs = conn.execute('''
-        SELECT rowid, date, type, amount, justification
-            FROM expenses
-            WHERE date BETWEEN \'{}\' AND \'{}\'
-            ORDER BY date ;
-        '''.format(start, end)
-    )
+    command = '''SELECT rowid AS id, date, type, amount, justification
+        FROM expenses WHERE date BETWEEN '{}' AND '{}'
+        ORDER BY date ;'''.format(start, end)
 
-    res_list = curs.fetchall()
-
-    return pd.DataFrame(res_list,
-                columns = [
-                    'id', 'date', 'type', 'amount', 'justification'
-                ]
-           )
+    return pd.read_sql(command, conn)
 
 
-def fetch_types(conn: sqlite3.Connection) -> list[str]:
+
+
+def fetch_types(conn: connection) -> list[str]:
     """
     Returns a list of the expense character types
 
-
     Arguments
     -----------------------
-    conn : sqlite3.Connection
+    conn : connection
         connection to a database/table pair
-
 
     Return value
     -----------------------
     List of the characters of the expense types
     """
 
-    curs = conn.execute('SELECT DISTINCT type FROM expenses ;')
-    # Returns types such as [('R',), ('E',)]
-    lst = curs.fetchall()
-    # Cleanup
-    lst = [l[0] for l in lst]
-
-    return lst
+    command = 'SELECT DISTINCT type FROM expenses ;'
+    return pd.read_sql(command, conn)['type'].to_list()
 
 
-def parse_csv(filename: str) -> pd.DataFrame:
+
+
+def parse_csv(filename: str) -> dataframe:
     """
     Parses a CSV file containing a list of expenses,
     returns a DataFrame containing the data if valid
@@ -212,7 +171,7 @@ def parse_csv(filename: str) -> pd.DataFrame:
 
     Return value
     -----------------------
-    pd.DataFrame containing the parsed data
+    dataframe containing the parsed data
     columns are ordered as [date, type, amount, justification]
 
 
@@ -221,7 +180,7 @@ def parse_csv(filename: str) -> pd.DataFrame:
     - DatabaseError if file not found or data is invalid
     """
 
-    res = pd.DataFrame()
+    res = dataframe()
 
     try:
         df = pd.read_csv(filename, encoding = 'iso-8859-1')
