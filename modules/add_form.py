@@ -1,5 +1,5 @@
 # Copyright (c) 2022 Adriano Angelone
-# 
+#
 # The above copyright notice and this permission notice shall be
 # included in all copies or substantial portions of the
 # Software.
@@ -40,7 +40,7 @@ import pandas as pd
 
 import modules.db as db
 import modules.common as common
-from modules.common import EQLineEdit
+from modules.cqwidgets import CQLineEdit
 
 af_width = 400
 
@@ -55,11 +55,11 @@ class add_form(QWidget):
     -----------------------
     __cal : QCalendarWidget
         Calendar to select the date for the expense
-    __txt_type : EQLineEdit
+    __txt_type : CQLineEdit
         Textbox for the expense type
-    __txt_amount : EQLineEdit
+    __txt_amount : CQLineEdit
         Textbox for the expense amount
-    __txt_justif : EQLineEdit
+    __txt_justif : CQLineEdit
         Textbox for the expense justification
     __but_accept : QPushButton
         Button to accept specified details
@@ -69,7 +69,7 @@ class add_form(QWidget):
     -----------------------
     __init_layout() -> QVboxLayout
         Returns the initialized layout with the widgets
-        Sets up Validators in the EQLineEdits
+        Sets up Validators in the CQLineEdits
     __init_connections() -> None
         Sets up connections between widgets
 
@@ -156,7 +156,7 @@ class add_form(QWidget):
         self.__cal = common.set_font_size(self.__cal, 18)
 
         # type textbox
-        self.__txt_type = EQLineEdit(self)
+        self.__txt_type = CQLineEdit(self)
         # getting list of valid types
         types = db.fetch_types(conn)
 
@@ -171,14 +171,14 @@ class add_form(QWidget):
         )
 
         # amount textbox
-        self.__txt_amount = EQLineEdit(self)
+        self.__txt_amount = CQLineEdit(self)
         # 2 digits after decimal point
         self.__txt_amount.setValidator(
                 QDoubleValidator(-10000.0, +10000.0, 2)
         )
 
         # justification textbox
-        self.__txt_justif = EQLineEdit(self)
+        self.__txt_justif = CQLineEdit(self)
         # Accepts up to 100 characters
         self.__txt_justif.setValidator(
                 QRegularExpressionValidator(

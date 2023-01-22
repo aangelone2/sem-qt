@@ -38,7 +38,7 @@ from modules.main_window import main_window
 
 
 path = 'data/expenses.sqlite'
-version = '1.0.2'
+version = '1.0.3'
 
 
 

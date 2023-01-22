@@ -1,5 +1,5 @@
 # Copyright (c) 2022 Adriano Angelone
-# 
+#
 # The above copyright notice and this permission notice shall be
 # included in all copies or substantial portions of the
 # Software.
@@ -160,7 +160,6 @@ def parse_csv(filename: str) -> dataframe:
     Parses a CSV file containing a list of expenses,
     returns a DataFrame containing the data if valid
 
-
     Arguments
     -----------------------
     filename : str
@@ -168,12 +167,10 @@ def parse_csv(filename: str) -> dataframe:
         should include [date, type, amount, justification] fields
         order may be different, other fields are ignored
 
-
     Return value
     -----------------------
     dataframe containing the parsed data
     columns are ordered as [date, type, amount, justification]
-
 
     Raises
     -----------------------
