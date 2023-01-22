@@ -1,5 +1,5 @@
 # Copyright (c) 2022 Adriano Angelone
-# 
+#
 # The above copyright notice and this permission notice shall be
 # included in all copies or substantial portions of the
 # Software.
@@ -29,8 +29,7 @@ from PyQt6.QtCore import pyqtSignal, pyqtSlot, QSize
 
 from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
-        QCalendarWidget, QTableWidget, QTableWidgetItem,\
-        QGroupBox
+        QCalendarWidget, QGroupBox
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
 import sqlite3
@@ -38,6 +37,7 @@ import pandas as pd
 import logging
 
 import modules.common as common
+from modules.cqwidgets import CQTableWidget
 
 
 
@@ -49,10 +49,10 @@ class list_form(QWidget):
 
     Attributes
     -----------------------
-    __tab_list : QTableWidget
+    __tab_list : CQTableWidget
         Contains the expenses with dates between the two
         selected dates, lists all fields
-    __tab_sum : QTableWidget
+    __tab_sum : CQTableWidget
         Contains the sum of the expenses with dates between the
         two selected dates, grouped by category
     __cal_start : QCalendarWidget
@@ -136,20 +136,7 @@ class list_form(QWidget):
         """
 
         # expense list table
-        self.__tab_list = QTableWidget(self)
-        # hide record index number in the record table
-        self.__tab_list.verticalHeader().hide()
-        # set header names in the record table
-        self.__tab_list.setHorizontalHeaderLabels(
-            ['ID', 'Date', 'Type', 'Amount', 'Justification']
-        )
-        
-        # column and font behavior
-        self.__tab_list = common.set_tw_behavior(self.__tab_list, 'equal')
-        self.__tab_list = common.set_font_size(self.__tab_list, 18)
-        self.__tab_list.horizontalHeader().setStyleSheet(
-                'QHeaderView {font-size: 20px}'
-        )
+        self.__tab_list = CQTableWidget(self)
 
         # label for sum table
         label = QLabel('Total', self)
@@ -157,18 +144,9 @@ class list_form(QWidget):
         label = common.set_font_size(label, 20)
 
         # sum table
-        self.__tab_sum = QTableWidget(self)
+        self.__tab_sum = CQTableWidget(self)
         self.__tab_sum.setMaximumHeight(58)
-        # hide record index number in the sum table
-        self.__tab_sum.verticalHeader().hide()
-
-        # column and font behavior
-        self.__tab_sum = common.set_tw_behavior(self.__tab_sum, 'equal')
         self.__tab_sum = common.lock_height(self.__tab_sum)
-        self.__tab_sum = common.set_font_size(self.__tab_sum, 18)
-        self.__tab_sum.horizontalHeader().setStyleSheet(
-                'QHeaderView {font-size: 20px}'
-        )
 
         # setting up layout
         lay = QVBoxLayout()
@@ -286,18 +264,15 @@ class list_form(QWidget):
         logging.info('update_tables() -> in update_tables')
 
         # Filling expense table
-        self.__tab_list = common.fill_table_row(
-                self.__tab_list, df
-        )
+        self.__tab_list.fill(df)
 
         # computing sums
         asum = df.groupby('type').sum()
 
         # filling sum table
         try:
-            self.__tab_sum = common.fill_table_col(
-                    self.__tab_sum, asum['amount']
-            )
+            ser = asum['amount']
+            self.__tab_sum.fill(ser.to_frame().T)
         except KeyError:
             # empty result set
             pass

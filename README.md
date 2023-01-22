@@ -28,6 +28,8 @@ Simple Expense Manager
 + Double row in sum table
 + Set number of floating point digits to 2 in tables
 + Handle empty type list for new databases
++ Handle new expense types
++ Check table schema at startup
 
 ### Architecture/complex features
 + Add user management (with ID/password management)
@@ -35,6 +37,7 @@ Simple Expense Manager
 ### Cleanup/Refactoring
 + add\_form
 + common
++ ~~cqwidgets~~
 + ~~db~~
 + import\_show\_dialog
 + list\_form

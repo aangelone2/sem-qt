@@ -1,5 +1,5 @@
 # Copyright (c) 2023 Adriano Angelone
-# 
+#
 # The above copyright notice and this permission notice shall be
 # included in all copies or substantial portions of the
 # Software.
@@ -33,9 +33,10 @@ import modules.db as db
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot
 
-from PyQt6.QtWidgets import QDialog, QTableWidget,\
-        QDialogButtonBox
+from PyQt6.QtWidgets import QDialog, QDialogButtonBox
 from PyQt6.QtWidgets import QVBoxLayout
+
+from modules.cqwidgets import CQTableWidget
 
 
 isd_width = 800
@@ -118,7 +119,7 @@ class import_show_dialog(QDialog):
         Returns the layout with the initialized widgets.
         """
 
-        self.__table = QTableWidget(self)
+        self.__table = CQTableWidget(self)
 
         self.__buttons = QDialogButtonBox(
                 QDialogButtonBox.StandardButton.Ok
@@ -178,9 +179,7 @@ class import_show_dialog(QDialog):
 
         logging.info('{}'.format(self.__df))
 
-        self.__table = common.fill_table_row(
-                self.__table, self.__df
-        )
+        self.__table.fill(self.__df)
 
 
     @QtCore.pyqtSlot()
