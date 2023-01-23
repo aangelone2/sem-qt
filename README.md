@@ -28,19 +28,21 @@ Simple Expense Manager
 + Handle empty type list for new databases
 + Handle new expense types
 + Check table schema at startup
++ Externalize connection in `add_form`
++ Uniform widget/layout init
 
 ### Architecture/complex features
 + Add user management (with ID/password management)
 
 ### Cleanup/Refactoring
-+ add\_form
-+ ~~common~~
-+ ~~cqwidgets~~
-+ ~~db~~
-+ import\_show\_dialog
-+ list\_form
-+ main\_window
-+ sem
++ ~~`add_form`~~
++ ~~`common`~~
++ ~~`cqwidgets`~~
++ ~~`db`~~
++ ~~`import_dialog`~~
++ ~~`list_form`~~
++ ~~`main_window`~~
++ `sem`
 
 ### Extra
 + Organize packaging

@@ -44,7 +44,7 @@ class CQLineEdit(QLineEdit):
 
     Methods
     -----------------------
-    __init__()
+    __init__(parent: QWidget)
         Constructor
 
     Slots
@@ -55,7 +55,7 @@ class CQLineEdit(QLineEdit):
 
     Connections
     -----------------------
-    textChanged
+    textChanged[text]
         -> __check_state()
     """
 
@@ -105,29 +105,29 @@ class CQTableWidget(QTableWidget):
 
     Members
     -----------------------
-    __asc_order: bool
+    __asc_order : bool
         Order of last performed sorting operation
 
     Methods
     -----------------------
-    __init__()
+    __init__(parent: QWidget)
         Constructor
     __repaint()
         Paints alternate rows and/or columns in grey
 
     Slots
     -----------------------
-    fill()
+    fill(df: dataframe)
         Fills table with the given dataframe
         Colors alternate rows/columns based on context
-    __sort()
+    __sort(ic: int)
         Sorts according to the specified column
         Order swaps after every ordering task
 
     Connections
     -----------------------
-    horizontalHeader.sectionClicked
-        -> __sort()
+    horizontalHeader.sectionClicked[ic]
+        -> __sort(ic)
     """
 
     def __init__(self, parent: QWidget):
