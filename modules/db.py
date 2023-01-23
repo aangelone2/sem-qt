@@ -235,7 +235,7 @@ def parse_csv(filename: str) -> dataframe:
 
 
 
-def dump_csv(conn: connection, filename: str):
+def save_csv(conn: connection, filename: str):
     """
     Dumps the specified database/table to a CSV file
 
