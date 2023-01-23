@@ -69,9 +69,9 @@ class add_form(QWidget):
 
     Methods
     -----------------------
-    __init__(conn: connection)
+    __init__()
         Constructor
-    __init_layout(conn: connection) -> QVboxLayout
+    __init_layout() -> QVboxLayout
         Initializes widget layout, sets up validators
     __init_connections() -> None
         Sets up connections between widgets
@@ -104,7 +104,7 @@ class add_form(QWidget):
         -> insertion_requested[data]
     """
 
-    def __init__(self, conn: connection):
+    def __init__(self):
         """
         Constructor
 
@@ -123,20 +123,15 @@ class add_form(QWidget):
         self.__but_accept = None
 
         self.setMaximumWidth(af_width)
-        self.setLayout(self.__init_layout(conn))
+        self.setLayout(self.__init_layout())
         self.__init_connections()
 
 
 
 
-    def __init_layout(self, conn: connection) -> QVBoxLayout:
+    def __init_layout(self) -> QVBoxLayout:
         """
         Initializes widget layout, sets up validators
-
-        Arguments
-        -----------------------
-        conn
-            Connection to table/database pair
 
         Return value
         -----------------------
@@ -150,13 +145,10 @@ class add_form(QWidget):
 
         # type textbox
         self.__txt_type = CQLineEdit(self)
-        # getting list of valid types
-        types = db.fetch_types(conn)
-
-        # setup validator with gathered types
+        # only one uppercase letter
         self.__txt_type.setValidator(
                 QRegularExpressionValidator(
-                    QRegularExpression('[' + ''.join(types) + ']')
+                    QRegularExpression('^[A-Z]$')
                 )
         )
 

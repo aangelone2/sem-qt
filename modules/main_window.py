@@ -174,7 +174,7 @@ class main_window(QWidget):
         """
 
         self.__lst_form = list_form()
-        self.__add_form = add_form(self.__conn)
+        self.__add_form = add_form()
 
         # no add form in the layout by default
         self.__hor_lay = QHBoxLayout()

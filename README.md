@@ -13,8 +13,6 @@ Simple Expense Manager
 
 ### Bugfixes/Checks
 + Set number of floating point digits to 2 in tables
-+ Handle empty type list for new databases
-+ Handle new expense types
 + Check table schema at startup
 
 ### Additional features
@@ -27,7 +25,6 @@ Simple Expense Manager
 + Add option to choose font
 
 ### Refactoring
-+ Externalize connection in `add_form`
 + Uniform widget/layout init
 
 ### Architecture/Complex features

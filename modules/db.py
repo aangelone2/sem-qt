@@ -132,26 +132,6 @@ def fetch(conn: connection,
 
 
 
-def fetch_types(conn: connection) -> list[str]:
-    """
-    Returns a list of the expense character types
-
-    Arguments
-    -----------------------
-    conn : connection
-        Connection to a database/table pair
-
-    Return value
-    -----------------------
-    List of the characters of the expense types
-    """
-
-    command = 'SELECT DISTINCT type FROM expenses ;'
-    return pd.read_sql(command, conn)['type'].to_list()
-
-
-
-
 def parse_csv(filename: str) -> dataframe:
     """
     Parses a CSV file containing a list of expenses,
