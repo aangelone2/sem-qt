@@ -28,7 +28,7 @@ from PyQt6 import QtCore
 from PyQt6.QtCore import pyqtSignal, pyqtSlot, QSize
 from PyQt6.QtGui import QAction, QIcon
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
-        QApplication, QToolBar
+        QApplication, QToolBar, QFileDialog, QMessageBox
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
 import sqlite3 as sql
@@ -75,6 +75,8 @@ class main_window(QWidget):
         The action of displaying the import dialog
     __export_act : QAction
         The action of saving the database to an external file
+    __clear_act : QAction
+        Prompts the user for clearing database
 
     Methods
     -----------------------
@@ -92,6 +94,10 @@ class main_window(QWidget):
     __toggle_add()
         Hides/shows the addition form
         Stretches/compresses the window as required
+    __request_export()
+        Collects filename from user and dumps database
+    __request_clearing()
+        Collects filename from user and dumps database
 
     Connections
     -----------------------
@@ -105,6 +111,10 @@ class main_window(QWidget):
         -> __toggle_add()
     __import_act.triggered()
         -> self.__import_dialog.load()
+    __export_act.triggered()
+        -> self.__request_export()
+    __clear_act.triggered()
+        -> self.__request_clearing()
     """
 
     def __init__(self, conn: connection):
@@ -128,6 +138,7 @@ class main_window(QWidget):
         self.__add_act = None
         self.__import_act = None
         self.__export_act = None
+        self.__clear_act = None
 
         self.__conn = conn
 
@@ -200,9 +211,13 @@ class main_window(QWidget):
         self.__export_act = QAction(QIcon('resources/export.png'), 'Export', self)
         self.__export_act.setToolTip('Export database to CSV file')
 
+        self.__clear_act = QAction(QIcon('resources/clear.png'), 'Clear', self)
+        self.__clear_act.setToolTip('Remove all data from the database')
+
         self.__tb.addAction(self.__add_act)
         self.__tb.addAction(self.__import_act)
         self.__tb.addAction(self.__export_act)
+        self.__tb.addAction(self.__clear_act)
 
 
 
@@ -234,9 +249,19 @@ class main_window(QWidget):
                 self.__toggle_add
         )
 
-        # exec import select dialog
+        # show import dialog
         self.__import_act.triggered.connect(
                 self.__import_dialog.load
+        )
+
+        # request exporting to CSV
+        self.__export_act.triggered.connect(
+                self.__request_export
+        )
+
+        # request database clearing
+        self.__clear_act.triggered.connect(
+                self.__request_clearing
         )
 
 
@@ -265,3 +290,48 @@ class main_window(QWidget):
         screen_geom = screen.availableGeometry()
         x = (screen_geom.width() - self.width()) // 2
         self.move(x, self.y())
+
+
+
+
+    @QtCore.pyqtSlot()
+    def __request_export(self):
+        """
+        Collects filename from user and dumps database
+        """
+
+        filename = QFileDialog.getSaveFileName(
+                self,
+                'Specify file for exporting',
+                None,
+                'CSV files (*.csv)'
+        )[0]
+
+        if (filename == ''):
+            return
+
+        db.save_csv(self.__conn, filename)
+
+
+
+
+    @QtCore.pyqtSlot()
+    def __request_clearing(self):
+        """
+        Prompts the user for clearing database
+        """
+
+        mb = QMessageBox()
+        mb.setIcon(QMessageBox.Icon.Warning)
+        mb.setText("Database clearing requested.");
+        mb.setInformativeText("Do you wish to proceed?");
+        mb.setStandardButtons(
+                QMessageBox.StandardButton.Yes
+                | QMessageBox.StandardButton.No
+        )
+        mb.setDefaultButton(QMessageBox.StandardButton.No)
+
+        ret = mb.exec()
+
+        if (ret == QMessageBox.StandardButton.Yes):
+            db.clear(self.__conn)
