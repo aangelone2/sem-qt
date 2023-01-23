@@ -23,9 +23,6 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import logging
-import pandas as pd
-
 from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import QWidget, QSizePolicy, QMessageBox
 
@@ -33,7 +30,8 @@ from PyQt6.QtWidgets import QWidget, QSizePolicy, QMessageBox
 
 
 colors = {
-        'lightgray': QColor('#E6E6E6')
+        'lightgray': QColor('#E6E6E6'),
+        'white': QColor('#FFFFFF')
 }
 """
 Custom colors
@@ -49,11 +47,11 @@ def lock_height(widget: QWidget) -> QWidget:
     Arguments
     -----------------------
     widget : QWidget
-        widget whose size policy will be changed
+        Widget whose size policy will be changed
 
     Return value
     -----------------------
-    Returns the modified widget.
+    Returns the modified widget
     """
 
     widget.setSizePolicy(
@@ -66,6 +64,8 @@ def lock_height(widget: QWidget) -> QWidget:
     return widget
 
 
+
+
 def lock_size(widget: QWidget) -> QWidget:
     """
     Changes size policy locking both height and width
@@ -73,11 +73,11 @@ def lock_size(widget: QWidget) -> QWidget:
     Arguments
     -----------------------
     widget : QWidget
-        widget whose size policy will be changed
+        Widget whose size policy will be changed
 
     Return value
     -----------------------
-    Returns the modified widget.
+    Returns the modified widget
     """
 
     widget.setSizePolicy(
@@ -90,6 +90,8 @@ def lock_size(widget: QWidget) -> QWidget:
     return widget
 
 
+
+
 def set_font_size(widget: QWidget, size: int) -> QWidget:
     """
     Changes font size
@@ -97,11 +99,11 @@ def set_font_size(widget: QWidget, size: int) -> QWidget:
     Arguments
     -----------------------
     widget : QWidget
-        widget whose font size will be changed
+        Widget whose font size will be changed
 
     Return value
     -----------------------
-    Returns the modified widget.
+    Returns the modified widget
     """
 
     widget.setStyleSheet(
@@ -113,6 +115,8 @@ def set_font_size(widget: QWidget, size: int) -> QWidget:
     return widget
 
 
+
+
 def ErrorMsg(msg: str):
     """
     Wraps QMessageBox to generate an error message
@@ -120,6 +124,6 @@ def ErrorMsg(msg: str):
     Arguments
     -----------------------
     msg : str
-        the message to report
+        Message to report
     """
     QMessageBox.critical(None, 'Error', msg)

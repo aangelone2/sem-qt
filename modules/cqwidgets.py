@@ -23,8 +23,6 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import logging
-
 import pandas as pd
 from pandas import DataFrame as dataframe
 
@@ -68,7 +66,7 @@ class CQLineEdit(QLineEdit):
         Arguments
         -----------------------
         parent : QWidget
-            parent QWidget
+            Parent QWidget
         """
 
         super().__init__(parent)
@@ -105,16 +103,31 @@ class CQTableWidget(QTableWidget):
     Custom QTableWidget
     Builtin column width behavior and filling routines
 
+    Members
+    -----------------------
+    __asc_order: bool
+        Order of last performed sorting operation
+
     Methods
     -----------------------
     __init__()
         Constructor
+    __repaint()
+        Paints alternate rows and/or columns in grey
 
     Slots
     -----------------------
     fill()
         Fills table with the given dataframe
         Colors alternate rows/columns based on context
+    __sort()
+        Sorts according to the specified column
+        Order swaps after every ordering task
+
+    Connections
+    -----------------------
+    horizontalHeader.sectionClicked
+        -> __sort()
     """
 
     def __init__(self, parent: QWidget):
@@ -124,10 +137,13 @@ class CQTableWidget(QTableWidget):
         Arguments
         -----------------------
         parent : QWidget
-            parent QWidget
+            Parent QWidget
         """
 
         super().__init__(parent)
+
+        # first ordering will be flipped (irrelevant)
+        self.__asc_order = True
 
         # hiding headers
         self.verticalHeader().hide()
@@ -143,6 +159,34 @@ class CQTableWidget(QTableWidget):
                 'QHeaderView {font-size: 20px}'
         )
 
+        # sorting on column after click
+        self.horizontalHeader().sectionClicked.connect(
+                lambda ic: self.__sort(ic)
+        )
+
+
+
+
+    def __repaint(self):
+        """
+        Paints alternate rows and/or columns in grey
+        """
+
+        rows = (self.rowCount() > 1)
+
+        # filling expense table
+        for ir in range(self.rowCount()):
+            for ic in range (self.columnCount()):
+                grey = ((ir % 2 == 1) if rows else (ic % 2 == 1))
+
+                color = (
+                        common.colors['lightgray']
+                        if grey
+                        else common.colors['white']
+                )
+
+                self.item(ir, ic).setBackground(color)
+
 
 
 
@@ -155,7 +199,7 @@ class CQTableWidget(QTableWidget):
         Arguments
         -----------------------
         df : dataframe
-            dataframe containing the data
+            Dataframe containing the data
         """
 
         # clearing table
@@ -176,13 +220,11 @@ class CQTableWidget(QTableWidget):
 
         # setting up columns
         fields = df.columns.to_list()
-        logging.info('fields = {}'.format(fields))
         self.setColumnCount(len(fields))
         self.setHorizontalHeaderLabels(fields)
 
         # filling expense table
         for ir, (idx, row) in enumerate(df.iterrows()):
-            logging.info('ir = {}'.format(ir))
             self.insertRow(ir)
 
             for ic, (field, val) in enumerate(row.items()):
@@ -190,9 +232,31 @@ class CQTableWidget(QTableWidget):
                 if (field != 'justification'):
                     itm.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
 
-                # greying odd rows/columns
-                grey = ((ir % 2 == 1) if rows else (ic % 2 == 1))
-                if (grey):
-                    itm.setBackground(common.colors['lightgray'])
-
                 self.setItem(ir, ic, itm)
+
+        self.__repaint()
+
+
+
+    @QtCore.pyqtSlot()
+    def __sort(self, ic: int):
+        """
+        Sorts according to the specified column
+        Order swaps after every ordering task
+
+        Arguments
+        -----------------------
+        ic : int
+            Column index to sort according to
+        """
+
+        self.__asc_order = not self.__asc_order
+
+        order = (
+                Qt.SortOrder.AscendingOrder
+                if self.__asc_order
+                else Qt.SortOrder.DescendingOrder
+        )
+
+        self.sortItems(ic, order)
+        self.__repaint()

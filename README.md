@@ -15,14 +15,12 @@ Simple Expense Manager
 + Grand total of expenses in sum table ?
 + Export database as CSV
 + Clear database
-+ Sort tables on column click
 + Relay exception messages
 
 ### Customization
 + Add options form
 + Add option to commit every action/at logout
 + Add option to choose font
-+ Add option for logging depth
 
 ### Bugfixes
 + Double row in sum table
@@ -36,13 +34,13 @@ Simple Expense Manager
 
 ### Cleanup/Refactoring
 + add\_form
-+ common
++ ~~common~~
 + ~~cqwidgets~~
 + ~~db~~
 + import\_show\_dialog
 + list\_form
 + main\_window
-+ logging
++ sem
 
 ### Extra
 + Organize packaging
