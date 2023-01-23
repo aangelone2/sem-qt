@@ -34,22 +34,25 @@ from PyQt6.QtWidgets import QHBoxLayout, QVBoxLayout
 from PyQt6.QtGui import QValidator, QIntValidator,\
         QDoubleValidator, QRegularExpressionValidator
 
-import sqlite3
-import logging
+import sqlite3 as sql
+from sqlite3 import Connection as connection
+
 import pandas as pd
+from pandas import DataFrame as dataframe
 
 import modules.db as db
 import modules.common as common
 from modules.cqwidgets import CQLineEdit
 
+
 af_width = 400
+
 
 
 
 class add_form(QWidget):
     """
     Form to obtain info about new elements
-
 
     Attributes
     -----------------------
@@ -64,56 +67,44 @@ class add_form(QWidget):
     __but_accept : QPushButton
         Button to accept specified details
 
-
     Methods
     -----------------------
-    __init_layout() -> QVboxLayout
-        Returns the initialized layout with the widgets
-        Sets up Validators in the CQLineEdits
+    __init__(conn: connection)
+        Constructor
+    __init_layout(conn: connection) -> QVboxLayout
+        Initializes widget layout, sets up validators
     __init_connections() -> None
         Sets up connections between widgets
 
-
     Signals
     -----------------------
-    insertion_requested = pyqtSignal(dict)
-        broadcasts record to add to db
-        transmits a dict of (key, value: str) pairs:
-        + date
-        + type
-        + amount
-        + justification
-
+    insertion_requested[dataframe]
+        Broadcasts record to add to the database
+        Transmits a dataframe containing the fields
 
     Slots
     -----------------------
     __request_insertion(self):
-        Fetches query details from widgets,
-        emits signal passing details as dictionary,
-        sets focus on the calendar
-
+        Fetches query details from widgets
+        Emits signal passing details as dictionary
+        Sets focus on the calendar
 
     Connections
     -----------------------
     __cal.selectionChanged()
         -> __txt_type.setFocus
-
     __txt_type.editingFinished()
         -> __txt_amount.setFocus
-
     __txt_amount.editingFinished()
         -> __txt_justif.setFocus
-
     __txt_justif.editingFinished()
         -> __but_accept.setFocus
-
     __but_accept.clicked()
         -> __request_insertion
-        -> insertion_requested(fields)
+        -> insertion_requested[data]
     """
 
-
-    def __init__(self, conn : sqlite3.Connection):
+    def __init__(self, conn: connection):
         """
         Constructor
 
@@ -136,7 +127,9 @@ class add_form(QWidget):
         self.__init_connections()
 
 
-    def __init_layout(self, conn: sqlite3.Connection) -> QVBoxLayout:
+
+
+    def __init_layout(self, conn: connection) -> QVBoxLayout:
         """
         Initializes widget layout, sets up validators
 
@@ -147,7 +140,7 @@ class add_form(QWidget):
 
         Return value
         -----------------------
-        Returns the layout with the initialized widgets.
+        Returns the layout with the initialized widgets
         """
 
         # calendar
@@ -159,9 +152,6 @@ class add_form(QWidget):
         self.__txt_type = CQLineEdit(self)
         # getting list of valid types
         types = db.fetch_types(conn)
-
-        logging.info('fetched types = {}'.format(types))
-        logging.info('type string = {}'.format(''.join(types)))
 
         # setup validator with gathered types
         self.__txt_type.setValidator(
@@ -225,6 +215,8 @@ class add_form(QWidget):
         return lay
 
 
+
+
     def __init_connections(self):
         """
         Inits connections
@@ -244,36 +236,36 @@ class add_form(QWidget):
                 self.__but_accept.setFocus
         )
 
-        self.__but_accept.clicked.connect(self.__request_insertion)
+        self.__but_accept.clicked.connect(
+                self.__request_insertion
+        )
 
 
-    ####################### SIGNALS #######################
 
-    insertion_requested = pyqtSignal(pd.DataFrame)
+
+    insertion_requested = pyqtSignal(dataframe)
     """
-        broadcasts record to add to db
-        transmits a pd.DataFrame containing the fields
+        Broadcasts record to add to the database
+        Transmits a dataframe containing the fields
     """
 
 
-    ####################### SLOTS #######################
+
 
     @QtCore.pyqtSlot()
     def __request_insertion(self):
         """
-        Fetches query details from widgets,
-        emits signal passing details as dictionary,
-        sets focus on the calendar
+        Fetches query details from widgets
+        Emits signal passing details as dictionary
+        Sets focus on the calendar
         """
-
-        logging.info('in request_insertion')
 
         date = self.__cal.selectedDate().toString(
                 format = Qt.DateFormat.ISODate
         )
 
         # single-row dataframe, still works
-        df = pd.DataFrame({
+        df = dataframe({
             'date': [date],
             'type': [self.__txt_type.text()],
             'amount': [self.__txt_amount.text()],

@@ -231,3 +231,39 @@ def parse_csv(filename: str) -> dataframe:
         res['justification'] = df['justification']
 
     return res
+
+
+
+
+def dump_csv(conn: connection, filename: str):
+    """
+    Dumps the specified database/table to a CSV file
+
+    Arguments
+    -----------------------
+    conn : connection
+        Connection to a database/table pair
+    filename : str
+        Filename of the output CSV file
+    """
+
+    command = 'SELECT * FROM expenses ;'
+    df = pd.read_sql(command, conn)
+    df.to_csv(filename, index = False)
+
+
+
+
+def clear(conn: connection):
+    """
+    Clears the specified database/table
+
+    Arguments
+    -----------------------
+    conn : connection
+        Connection to a database/table pair
+    """
+
+    command = 'DELETE FROM expenses ;'
+    conn.execute(command)
+    conn.commit()

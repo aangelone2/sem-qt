@@ -26,20 +26,18 @@
 
 from PyQt6 import QtCore
 from PyQt6.QtCore import pyqtSignal, pyqtSlot, QSize
-
 from PyQt6.QtGui import QAction, QIcon
-
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
-        QApplication, QToolBar, QFileDialog
+        QApplication, QToolBar
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
+import sqlite3 as sql
 from sqlite3 import Connection as connection
-import logging
 
 import modules.db as db
 from modules.list_form import list_form
 from modules.add_form import add_form
-from modules.import_show_dialog import import_show_dialog
+from modules.import_dialog import import_dialog
 
 
 mw_narrow = 1200
@@ -50,78 +48,68 @@ id_width = 900
 id_height = 500
 
 
-# main screen
+
+
 class main_window(QWidget):
     """
     Main program window
 
-
     Attributes
     -----------------------
-    __conn : connection
+    __conn: connection
         Connection to database-table pair
     __lst_form : list_form
         Internal list_form widget
     __add_form : add_form
         Internal add_form widget
-
-    __import_select_dialog : QFileDialog
-        Dialog to choose file to import
-    __import_show_dialog : import_dialog
+    __import_dialog : import_dialog
         Dialog to visualize file to import
-
     __hor_lay : QHBoxLayout
         Horizontal layout, contains widgets
         Extended/contracted to display/hide add_form
-
     __tb : QToolBar
         Toolbar widget
     __add_act : QAction
         The action of displaying/hiding the add_form
     __import_act : QAction
         The action of displaying the import dialog
-
+    __export_act : QAction
+        The action of saving the database to an external file
 
     Methods
     -----------------------
     __init_forms()
         Inits the forms and the layout which contains them
-
     __init_dialogs()
         Inits dialogs
-
+    __init_toolbar()
+        Inits toolbar and the contained actions
     __init_connections()
         Inits connections
-
 
     Slots
     -----------------------
     __toggle_add()
-        hides/shows the addition form
-        stretches/compresses the window as required
-
+        Hides/shows the addition form
+        Stretches/compresses the window as required
 
     Connections
     -----------------------
-    __lst_form.query_requested(start, end)
-        -> <df = fetch(start, end)>
-        -> __lst_form.update_tables(df)
-
-    __add_form.insertion_requested(df)
+    __lst_form.query_requested[start, end]
+        -> __lst_form.update_tables(data)
+    __add_form.insertion_requested[df]
+        -> db.add(__conn, df)
+    __import_dialog.import_requested[df]
         -> db.add(__conn, df)
     __add_act.triggered()
         -> __toggle_add()
     __import_act.triggered()
-        -> self.__import_select_dialog.exec()
-    __import_show_dialog.import_requested(df)
-        -> db.add(__conn, df)
+        -> self.__import_dialog.load()
     """
-
 
     def __init__(self, conn: connection):
         """
         Constructor
-
 
         Arguments
         -----------------------
@@ -134,12 +122,12 @@ class main_window(QWidget):
         self.__conn = None
         self.__lst_form = None
         self.__add_form = None
-        self.__import_select_dialog = None
-        self.__import_show_dialog = None
+        self.__import_dialog = None
         self.__hor_lay = None
         self.__tb = None
         self.__add_act = None
         self.__import_act = None
+        self.__export_act = None
 
         self.__conn = conn
 
@@ -167,7 +155,13 @@ class main_window(QWidget):
         self.show()
 
 
+
+
     def __init_forms(self):
+        """
+        Inits the forms and the layout which contains them
+        """
+
         self.__lst_form = list_form()
         self.__add_form = add_form(self.__conn)
 
@@ -176,14 +170,23 @@ class main_window(QWidget):
         self.__hor_lay.addWidget(self.__lst_form)
 
 
-    def __init_dialogs(self):
-        self.__import_select_dialog = QFileDialog(self)
-        self.__import_select_dialog.resize(id_width, id_height)
 
-        self.__import_show_dialog = import_show_dialog()
+
+    def __init_dialogs(self):
+        """
+        Inits dialogs
+        """
+
+        self.__import_dialog = import_dialog(self)
+
+
 
 
     def __init_toolbar(self):
+        """
+        Inits toolbar and the contained actions
+        """
+
         self.__tb = QToolBar(self)
         self.__tb.setIconSize(QSize(30, 30))
 
@@ -194,8 +197,14 @@ class main_window(QWidget):
         self.__import_act = QAction(QIcon('resources/import.png'), 'Import', self)
         self.__import_act.setToolTip('Import external CSV file')
 
+        self.__export_act = QAction(QIcon('resources/export.png'), 'Export', self)
+        self.__export_act.setToolTip('Export database to CSV file')
+
         self.__tb.addAction(self.__add_act)
         self.__tb.addAction(self.__import_act)
+        self.__tb.addAction(self.__export_act)
+
+
 
 
     def __init_connections(self):
@@ -215,6 +224,11 @@ class main_window(QWidget):
                 lambda df: db.add(self.__conn, df)
         )
 
+        # bulk insertion of imported data requested
+        self.__import_dialog.import_requested.connect(
+                lambda df: db.add(self.__conn, df)
+        )
+
         # show/hide request for add_form
         self.__add_act.triggered.connect(
                 self.__toggle_add
@@ -222,30 +236,18 @@ class main_window(QWidget):
 
         # exec import select dialog
         self.__import_act.triggered.connect(
-                self.__import_select_dialog.exec
-        )
-
-        # pass selected import file to import form
-        self.__import_select_dialog.fileSelected.connect(
-                lambda f : self.__import_show_dialog.load(f)
-        )
-
-        # bulk importing of data into the db
-        self.__import_show_dialog.import_requested.connect(
-                lambda df: db.add(self.__conn, df)
+                self.__import_dialog.load
         )
 
 
-    ####################### SLOTS #######################
+
 
     @QtCore.pyqtSlot()
     def __toggle_add(self):
         """
-        hides/shows the addition form
-        stretches/compresses the window as required
+        Hides/shows the addition form
+        Stretches/compresses the window as required
         """
-
-        logging.info('in toggle_add')
 
         if (self.__add_form.isVisible() is False):
             # show add form

@@ -32,9 +32,8 @@ from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
         QCalendarWidget, QGroupBox
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
-import sqlite3
 import pandas as pd
-import logging
+from pandas import DataFrame as dataframe
 
 import modules.common as common
 from modules.cqwidgets import CQTableWidget
@@ -45,7 +44,6 @@ from modules.cqwidgets import CQTableWidget
 class list_form(QWidget):
     """
     Form to display and summarize records
-
 
     Attributes
     -----------------------
@@ -63,9 +61,10 @@ class list_form(QWidget):
         Updates the tables based on selected dates.
         Also refreshes expense categories
 
-
     Methods
     -----------------------
+    __init__()
+        Constructor
     __init_lay_tab() -> QVBoxLayout
         Returns the initialized table layout, empty tables
     __init_lay_cal_but() -> QVBoxLayout
@@ -73,33 +72,26 @@ class list_form(QWidget):
     __init_connections() -> None
         Inits connections
 
-
     Signals
     -----------------------
-    query_requested(str, str)
+    query_requested[str, str]
         Broadcasts expense list request
-
 
     Slots
     -----------------------
-    __request_query(str, str)
-        fetches start and end dates
+    __request_query()
+        Fetches start and end dates
         and emits 'query_requested' signal
         with start and end date as arguments
-
-    update_tables(pd.DataFrame)
-        updates the tables from a provided dataframe
-
+    update_tables(dataframe)
+        Updates the tables from a provided dataframe
 
     Connections
     -----------------------
     __but_update.clicked
         -> __request_query()
         -> query_requested(start_date, end_date)
-        -> ...
-        -> update_tables(df)
     """
-
 
     def __init__(self):
         """
@@ -130,6 +122,8 @@ class list_form(QWidget):
         self.setLayout(lay_gen)
 
 
+
+
     def __init_lay_tab(self) -> QVBoxLayout:
         """
         Returns the initialized table layout, empty tables
@@ -157,6 +151,8 @@ class list_form(QWidget):
         lay.addWidget(self.__tab_sum)
 
         return lay
+
+
 
 
     def __init_lay_cal_but(self) -> QVBoxLayout:
@@ -211,15 +207,19 @@ class list_form(QWidget):
         return lay
 
 
+
+
     def __init_connections(self):
         """
         Inits connections
         """
 
-        self.__but_update.clicked.connect(self.__request_query)
+        self.__but_update.clicked.connect(
+                self.__request_query
+        )
 
 
-    ####################### SIGNALS #######################
+
 
     query_requested = pyqtSignal(str, str)
     """
@@ -228,13 +228,13 @@ class list_form(QWidget):
     Arguments
     -----------------------
     start_date : str
-        starting date for the requested query, 'yyyy-mm-dd'
+        Starting date for the requested query, 'yyyy-mm-dd'
     end_date : str
-        ending date for the requested query, 'yyyy-mm-dd'
+        Ending date for the requested query, 'yyyy-mm-dd'
     """
 
 
-    ####################### SLOTS #######################
+
 
     @QtCore.pyqtSlot()
     def __request_query(self):
@@ -249,19 +249,19 @@ class list_form(QWidget):
         self.query_requested.emit(start_date, end_date)
 
 
-    @QtCore.pyqtSlot(pd.DataFrame)
-    def update_tables(self, df: pd.DataFrame):
+
+
+    @QtCore.pyqtSlot(dataframe)
+    def update_tables(self, df: dataframe):
         """
         Updates the tables from a provided dataframe
 
         Arguments
         -----------------------
-        df : pd.DataFrame
-            dataframe used to fill the tables; __tab_sum will
-            only contain categories present in df
+        df : dataframe
+            Dataframe used to fill the tables
+            __tab_sum will only contain the categories in df
         """
-
-        logging.info('update_tables() -> in update_tables')
 
         # Filling expense table
         self.__tab_list.fill(df)
