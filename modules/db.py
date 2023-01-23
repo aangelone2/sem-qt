@@ -25,7 +25,6 @@
 
 
 import re
-import logging
 import datetime
 from urllib.request import pathname2url
 
@@ -54,7 +53,7 @@ def init(path: str) -> connection:
     Arguments
     -----------------------
     path : str
-        path of the database
+        Path of the database
 
     Return value
     -----------------------
@@ -93,12 +92,10 @@ def add(conn: connection, df: dataframe):
     Arguments
     -----------------------
     conn : connection
-        connection to a database/table pair
+        Connection to a database/table pair
     df : dataframe
-        data, [date, type, amount, justif] (order not relevant)
+        Data, [date, type, amount, justif] (order not relevant)
     """
-
-    logging.info('in db.add')
 
     df.to_sql('expenses', conn,
               if_exists = 'append', index = False)
@@ -114,7 +111,7 @@ def fetch(conn: connection,
     Arguments
     -----------------------
     conn : connection
-        connection to a database/table pair
+        Connection to a database/table pair
     start : str
         Starting date as string, included in the query
     end : str
@@ -142,7 +139,7 @@ def fetch_types(conn: connection) -> list[str]:
     Arguments
     -----------------------
     conn : connection
-        connection to a database/table pair
+        Connection to a database/table pair
 
     Return value
     -----------------------
@@ -163,14 +160,14 @@ def parse_csv(filename: str) -> dataframe:
     Arguments
     -----------------------
     filename : str
-        name of the CSV file to parse
-        should include [date, type, amount, justification] fields
-        order may be different, other fields are ignored
+        Name of the CSV file to parse
+        Should include [date, type, amount, justification] fields
+        Order may be different, other fields are ignored
 
     Return value
     -----------------------
-    dataframe containing the parsed data
-    columns are ordered as [date, type, amount, justification]
+    Dataframe containing the parsed data
+    Columns are ordered as [date, type, amount, justification]
 
     Raises
     -----------------------
@@ -186,8 +183,6 @@ def parse_csv(filename: str) -> dataframe:
     except UnicodeDecodeError:
         raise DatabaseError('incorrect character encoding')
 
-    logging.info('file read')
-
     # Checking date
     if ('date' not in df.columns):
         raise DatabaseError("missing or mislabeled 'date' field")
@@ -201,8 +196,6 @@ def parse_csv(filename: str) -> dataframe:
             res['date'] = res['date'].dt.date
         except ValueError:
             raise DatabaseError("invalid entry in 'date' field")
-
-    logging.info('date checked')
 
     # Checking type
     if ('type' not in df.columns):
@@ -218,8 +211,6 @@ def parse_csv(filename: str) -> dataframe:
         else:
             res['type'] = df['type']
 
-    logging.info('type checked')
-
     # Checking amount
     if ('amount' not in df.columns):
         raise DatabaseError("missing or mislabeled 'amount' field")
@@ -231,8 +222,6 @@ def parse_csv(filename: str) -> dataframe:
         except ValueError:
             raise DatabaseError("invalid entry in 'amount' field")
 
-    logging.info('amount checked')
-
     # Checking justification
     if ('justification' not in df.columns):
         raise DatabaseError("missing or mislabeled 'justification' field")
@@ -240,7 +229,5 @@ def parse_csv(filename: str) -> dataframe:
         raise DatabaseError("null entry in 'justification' field")
     else:
         res['justification'] = df['justification']
-
-    logging.info('justification checked')
 
     return res
