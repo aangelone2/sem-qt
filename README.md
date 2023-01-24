@@ -14,15 +14,11 @@ Simple Expense Manager
 ### Bugfixes/Checks
 + Set number of floating point digits to 2 in tables
 + Check table schema at startup
-
-### Additional features
-+ Grand total of expenses in sum table ?
 + Relay exception messages
 
-### Customization
-+ Add options form
-+ Add option to commit every action/at logout
-+ Add option to choose font
+### Additional features
++ Grand total of expenses in sum table
++ Specify/change database location
 
 ### Refactoring
 + Uniform widget/layout init

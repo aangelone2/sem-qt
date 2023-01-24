@@ -63,6 +63,8 @@ class import_dialog(QDialog):
         Constructor
     __init_widgets() -> QVBoxLayout
         Sets up widgets, returns the layout containing them
+    __init_connections()
+        Inits connections
 
     Signals
     -----------------------
@@ -121,7 +123,8 @@ class import_dialog(QDialog):
 
         self.__buttons = QDialogButtonBox(
                 QDialogButtonBox.StandardButton.Ok
-                | QDialogButtonBox.StandardButton.Cancel
+                | QDialogButtonBox.StandardButton.Cancel,
+                self
         )
 
         lay = QVBoxLayout()

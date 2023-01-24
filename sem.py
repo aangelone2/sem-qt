@@ -33,6 +33,7 @@ import modules.common as common
 import modules.db as db
 
 from modules.main_window import main_window
+from modules.login_dialog import login_dialog
 
 
 
@@ -50,6 +51,8 @@ def main():
 
     # using system default font, just changing size
     app.setFont(QFont('Lato', 16))
+
+    __login_dialog = login_dialog(None)
 
     # checking for db connection errors
     try:
