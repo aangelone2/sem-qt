@@ -40,7 +40,6 @@ from sqlite3 import Connection as connection
 import pandas as pd
 from pandas import DataFrame as dataframe
 
-import modules.db as db
 import modules.common as common
 from modules.cqwidgets import CQLineEdit
 

@@ -26,10 +26,10 @@
 
 import re
 import datetime
-from urllib.request import pathname2url
+from os.path import isfile
 
-import sqlite3 as sql
-from sqlite3 import Connection as connection
+from pysqlcipher3 import dbapi2 as sql
+from sql import Connection as connection
 
 import pandas as pd
 from pandas import DataFrame as dataframe
@@ -46,14 +46,20 @@ class DatabaseError(Exception):
 
 
 
-def init(path: str) -> connection:
+def create(folder: str, user: str, pssw: str) -> connection:
     """
-    Establishes connection to database
+    Creates encrypted database and establishes connection
     
     Arguments
     -----------------------
-    path : str
-        Path of the database
+    folder : str
+        Folder where user database are stored
+    user : str
+        Username to connect to
+        Databases will be saved as '<user>.sqlite'
+    pssw : str
+        Passphrase to access the database
+        Will be verified by the database when connecting
 
     Return value
     -----------------------
@@ -61,18 +67,74 @@ def init(path: str) -> connection:
 
     Raises
     -----------------------
-    - DatabaseError if database or 'expenses' table not found
+    - DatabaseError if database exists
     """
 
-    # procedure to verify if the database exists
-    try:
-        dburi = 'file:{}?mode=rw'.format(pathname2url(path))
-        conn = sql.connect(dburi, uri = True)
-    except sql.OperationalError:
-        raise DatabaseError('database not found')
+    # Checking if database exists
+    path = folder + user + '.sqlite'
+    if (isfile(path)):
+        raise DatabaseError('username already exists')
 
-    # searches in the 'sqlite_master' table
-    # for the name of the desired table, throws if not found
+    # Attempting connection, checking credentials
+    conn = sql.connect(path)
+    conn.execute("PRAGMA key = '{}' ;".format(pssw))
+    conn.execute('PRAGMA cypher_compatibility = 3 ;')
+
+    command = '''CREATE TABLE expenses (
+            'date' DATE NOT NULL,
+            'type' CHAR(1) NOT NULL,
+            'amount' DOUBLE PRECISION NOT NULL,
+            'justification' VARCHAR(100) NOT NULL
+    ) ;'''
+    conn.execute(command)
+    conn.commit()
+
+    return conn
+
+
+
+
+def login(folder: str, user: str, pssw: str) -> connection:
+    """
+    Establishes connection to existing database
+
+    Arguments
+    -----------------------
+    folder : str
+        Folder where user database are stored
+    user : str
+        Username to connect to
+        Databases will be saved as '<user>.sqlite'
+    pssw : str
+        Passphrase to access the database
+        Will be verified by the database when connecting
+
+    Return value
+    -----------------------
+    Returns the established connection
+
+    Raises
+    -----------------------
+    - DatabaseError if database not found
+    - DatabaseError if credentials are incorrect
+    - DatabaseError if 'expenses' table not found
+    """
+
+    # Checking if database exists
+    path = folder + user + '.sqlite'
+    if (not isfile(path)):
+        raise DatabaseError('username does not exist')
+
+    # Attempting connection, checking credentials
+    try:
+        conn = sql.connect(path)
+        conn.execute("PRAGMA key = '{}' ;".format(pssw))
+        conn.execute('PRAGMA cypher_compatibility = 3 ;')
+        conn.execute('SELECT * from sqlite_master ;')
+    except sql.DatabaseError:
+        raise DatabaseError('invalid credentials')
+
+    # Checking existence of 'expenses' table
     command = '''SELECT name FROM sqlite_master
         WHERE type = 'table' AND name = 'expenses' ;'''
 
