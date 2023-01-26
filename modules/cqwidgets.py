@@ -190,7 +190,7 @@ class CQTableWidget(QTableWidget):
 
 
 
-    @QtCore.pyqtSlot()
+    @QtCore.pyqtSlot(dataframe)
     def fill(self, df: dataframe):
         """
         Fills table with the given dataframe
@@ -238,7 +238,7 @@ class CQTableWidget(QTableWidget):
 
 
 
-    @QtCore.pyqtSlot()
+    @QtCore.pyqtSlot(int)
     def __sort(self, ic: int):
         """
         Sorts according to the specified column

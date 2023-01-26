@@ -72,7 +72,7 @@ class add_form(QWidget):
         Constructor
     __init_layout() -> QVboxLayout
         Initializes widget layout, sets up validators
-    __init_connections() -> None
+    __init_connections()
         Sets up connections between widgets
 
     Signals
@@ -83,7 +83,7 @@ class add_form(QWidget):
 
     Slots
     -----------------------
-    __request_insertion(self):
+    __request_insertion():
         Fetches query details from widgets
         Emits signal passing details as dictionary
         Sets focus on the calendar

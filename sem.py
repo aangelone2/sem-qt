@@ -27,48 +27,44 @@ import sys
 import logging
 
 from PyQt6.QtGui import QFont
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication, QMessageBox
 
-import modules.common as common
-import modules.db as db
-
-from modules.main_window import main_window
+import modules.db
 from modules.login_dialog import login_dialog
+from modules.main_window import main_window
+
+
+folder = 'data/'
+version = '1.2.0'
 
 
 
 
-path = 'data/expenses.sqlite'
-version = '1.1.1'
-
-
-
-
-def main():
+if __name__ == "__main__":
     logging.basicConfig(level = logging.INFO)
 
     app = QApplication(sys.argv)
-
-    # using system default font, just changing size
     app.setFont(QFont('Lato', 16))
 
-    __login_dialog = login_dialog(None)
+    while True:
+        (user, pssw, request) = login_dialog.get_request()
 
-    # checking for db connection errors
-    try:
-        db_conn = db.init(path)
-    except db.DatabaseError:
-        common.ErrorMsg('database error')
-        sys.exit()
+        if (request == login_dialog.request.exit):
+            app.quit()
+        else:
+            try:
+                if (request == login_dialog.request.login):
+                    conn = db.login(folder, cred[0], cred[1])
+                else:
+                    conn = db.create(folder, cred[0], cred[1])
+            except DatabaseError:
+                QMessageBox.critical(None, 'Error', msg)
+                continue
 
-    w = main_window(db_conn)
-    w.setWindowTitle('sem')
+            del user, pssw, request
+            break
 
-    out = app.exec()
+    mw = main_window(conn)
+    mw.show()
 
-    sys.exit(out)
-
-
-
-
-main()
+    sys.exit(app.exec())
