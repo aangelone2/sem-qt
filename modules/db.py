@@ -29,7 +29,7 @@ import datetime
 from os.path import isfile
 
 from pysqlcipher3 import dbapi2 as sql
-from sql import Connection as connection
+from pysqlcipher3.dbapi2 import Connection as connection
 
 import pandas as pd
 from pandas import DataFrame as dataframe

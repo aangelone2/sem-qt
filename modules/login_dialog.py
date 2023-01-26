@@ -36,7 +36,7 @@ from PyQt6.QtWidgets import QFormLayout, QVBoxLayout,\
 
 class login_dialog(QDialog):
     """
-    Form to obtain/establish login credentials
+    Dialog to obtain/establish login credentials
 
     Attributes
     -----------------------
@@ -46,7 +46,7 @@ class login_dialog(QDialog):
         Textbox for the password
     __but_login : QPushButton
         Login button
-    __but_create : QPushButton
+    __but_signup : QPushButton
         Signup button
     __but_exit : QPushButton
         Exit button
@@ -59,6 +59,8 @@ class login_dialog(QDialog):
         Sets up widgets, returns the layout containing them
     __init_connections()
         Inits connections
+    __sweep() -> tuple[str]
+        Extracts and clears textbox content
 
     Signals
     -----------------------
@@ -73,23 +75,31 @@ class login_dialog(QDialog):
     -----------------------
     __but_login.clicked
         -> login_requested.emit[user, passw]
-    __but_create.clicked
+    __but_signup.clicked
         -> signup_requested.emit[user, passw]
     __but_exit.clicked
         -> exit_requested.emit
     """
 
-    def __init__(self, parent: QWidget):
+    class request():
+        login = 1
+        signup = 2
+        exit = 3
+
+
+
+
+    def __init__(self):
         """
         Constructor
         """
 
-        super().__init__(parent)
+        super().__init__()
 
         self.__txt_user = None
         self.__txt_pssw = None
         self.__but_login = None
-        self.__but_create = None
+        self.__but_signup = None
         self.__but_exit = None
 
         lay = self.__init_widgets()
@@ -97,8 +107,6 @@ class login_dialog(QDialog):
         self.__init_connections()
 
         self.setLayout(lay)
-
-        self.show()
 
 
 
@@ -120,14 +128,14 @@ class login_dialog(QDialog):
         layf.addRow('Password', self.__txt_pssw)
 
         self.__but_login = QPushButton('Login', self)
-        self.__but_create = QPushButton('Create', self)
+        self.__but_signup = QPushButton('Create', self)
         self.__but_exit = QPushButton('Exit', self)
 
         layb = QHBoxLayout()
         layb.addSpacing(10)
         layb.addWidget(self.__but_login)
         layb.addSpacing(10)
-        layb.addWidget(self.__but_create)
+        layb.addWidget(self.__but_signup)
         layb.addSpacing(10)
         layb.addWidget(self.__but_exit)
         layb.addSpacing(10)
@@ -148,54 +156,42 @@ class login_dialog(QDialog):
         """
 
         self.__but_login.clicked.connect(
-                lambda: self.login_requested.emit(
-                    self.__txt_user.text(),
-                    self.__txt_pssw.text(),
-                )
+                lambda: self.done(self.request.login)
         )
-        self.__but_create.clicked.connect(
-                lambda: self.signup_requested.emit(
-                    self.__txt_user.text(),
-                    self.__txt_pssw.text(),
-                )
+        self.__but_signup.clicked.connect(
+                lambda: self.done(self.request.signup)
         )
         self.__but_exit.clicked.connect(
-                lambda: self.exit_requested.emit()
+                lambda: self.done(self.request.exit)
         )
 
 
 
 
-    login_requested = pyqtSignal(str, str)
-    """
-    Broadcasts login request
+    def __sweep(self) -> tuple[str]:
+        """
+        Extracts and clears textbox content
 
-    Arguments
-    -----------------------
-    user : str
-        Username for login
-    pssw : str
-        Password for login
-    """
+        Arguments
+        -----------------------
+        Returns a (user,pssw) tuple
+        """
 
+        u = self.__txt_user.text()
+        self.__txt_user.setText('')
 
+        p = self.__txt_pssw.text()
+        self.__txt_pssw.setText('')
 
-
-    signup_requested = pyqtSignal(str, str)
-    """
-    Broadcasts signup request
-
-    Arguments
-    -----------------------
-    user : str
-        Username for signup
-    pssw : str
-        Password for signup
-    """
+        return (u,p)
 
 
 
-    exit_requested = pyqtSignal()
-    """
-    Broadcasts exit request
-    """
+
+    @staticmethod
+    def get_request() -> tuple[str, str, int]:
+        dialog = login_dialog()
+        request = dialog.exec()
+
+        (u,p) = dialog.__sweep()
+        return (u, p, request)

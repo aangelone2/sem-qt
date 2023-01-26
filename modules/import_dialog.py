@@ -178,14 +178,14 @@ class import_dialog(QDialog):
         if (filename == ''):
             return
 
-        self.show()
-
         try:
             self.__df = db.parse_csv(filename)
         except db.DatabaseError:
             common.ErrorMsg('file error')
+            return
 
         self.__table.fill(self.__df)
+        self.show()
 
 
 

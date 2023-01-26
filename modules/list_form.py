@@ -69,7 +69,7 @@ class list_form(QWidget):
         Returns the initialized table layout, empty tables
     __init_lay_cal_but() -> QVBoxLayout
         Returns the initialized calendar + buttons layout
-    __init_connections() -> None
+    __init_connections()
         Inits connections
 
     Signals
@@ -83,7 +83,7 @@ class list_form(QWidget):
         Fetches start and end dates
         and emits 'query_requested' signal
         with start and end date as arguments
-    update_tables(dataframe)
+    update_tables(df: dataframe)
         Updates the tables from a provided dataframe
 
     Connections
