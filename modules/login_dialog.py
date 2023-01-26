@@ -122,6 +122,7 @@ class login_dialog(QDialog):
 
         self.__txt_user = QLineEdit(self)
         self.__txt_pssw = QLineEdit(self)
+        self.__txt_pssw.setEchoMode(QLineEdit.EchoMode.Password)
 
         layf = QFormLayout()
         layf.addRow('Username', self.__txt_user)

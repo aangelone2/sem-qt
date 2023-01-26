@@ -29,7 +29,11 @@ import logging
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QApplication, QMessageBox
 
-import modules.db
+from pysqlcipher3 import dbapi2 as sql
+from pysqlcipher3.dbapi2 import Connection as connection
+
+import modules.db as db
+
 from modules.login_dialog import login_dialog
 from modules.main_window import main_window
 
@@ -39,32 +43,40 @@ version = '1.2.0'
 
 
 
-
-if __name__ == "__main__":
-    logging.basicConfig(level = logging.INFO)
-
-    app = QApplication(sys.argv)
-    app.setFont(QFont('Lato', 16))
-
+def get_connection() -> connection:
     while True:
         (user, pssw, request) = login_dialog.get_request()
 
         if (request == login_dialog.request.exit):
-            app.quit()
+            return None
         else:
             try:
                 if (request == login_dialog.request.login):
-                    conn = db.login(folder, cred[0], cred[1])
+                    conn = db.login(folder, user, pssw)
                 else:
-                    conn = db.create(folder, cred[0], cred[1])
-            except DatabaseError:
-                QMessageBox.critical(None, 'Error', msg)
+                    conn = db.create(folder, user, pssw)
+            except db.DatabaseError:
+                QMessageBox.critical(None, 'Error', 'Operation failed')
                 continue
 
             del user, pssw, request
-            break
+            return conn
 
-    mw = main_window(conn)
-    mw.show()
+
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level = logging.INFO)
+
+    app = QApplication([])
+    app.setFont(QFont('Lato', 16))
+
+    conn = get_connection()
+
+    if (conn is not None):
+        mw = main_window(conn)
+        mw.show()
+    else:
+        sys.exit(0)
 
     sys.exit(app.exec())
