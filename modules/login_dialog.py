@@ -25,7 +25,8 @@
 
 
 from PyQt6 import QtCore
-from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import Qt
+
 from PyQt6.QtWidgets import QWidget, QDialog, QLineEdit,\
         QPushButton
 from PyQt6.QtWidgets import QFormLayout, QVBoxLayout,\
@@ -62,14 +63,10 @@ class login_dialog(QDialog):
     __sweep() -> tuple[str]
         Extracts and clears textbox content
 
-    Signals
+    Static methods
     -----------------------
-    login_requested[str, str]
-        Broadcasts login request
-    signup_requested[str, str]
-        Broadcasts signup request
-    exit_requested
-        Broadcasts exit request
+    get_request() -> tuple[str, str, int]:
+        Instantiates a login_dialog and returns user input
 
     Connections
     -----------------------
@@ -173,7 +170,7 @@ class login_dialog(QDialog):
         """
         Extracts and clears textbox content
 
-        Arguments
+        Return value
         -----------------------
         Returns a (user,pssw) tuple
         """
@@ -191,6 +188,14 @@ class login_dialog(QDialog):
 
     @staticmethod
     def get_request() -> tuple[str, str, int]:
+        """
+        Instantiates a login_dialog and returns user input
+
+        Return value
+        -----------------------
+        Returns a (user, pssw, login_dialog.result) tuple
+        """
+
         dialog = login_dialog()
         request = dialog.exec()
 

@@ -25,14 +25,14 @@
 
 
 from PyQt6 import QtCore
-from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot, QDate,\
+        QRegularExpression
+from PyQt6.QtGui import QValidator, QIntValidator,\
+        QDoubleValidator, QRegularExpressionValidator
 
-from PyQt6.QtCore import QDate, QRegularExpression
 from PyQt6.QtWidgets import QWidget, QLineEdit, QPushButton,\
         QCalendarWidget, QLabel, QGroupBox
 from PyQt6.QtWidgets import QHBoxLayout, QVBoxLayout
-from PyQt6.QtGui import QValidator, QIntValidator,\
-        QDoubleValidator, QRegularExpressionValidator
 
 import sqlite3 as sql
 from sqlite3 import Connection as connection

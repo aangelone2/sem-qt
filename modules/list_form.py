@@ -25,9 +25,8 @@
 
 
 from PyQt6 import QtCore
-from PyQt6.QtCore import pyqtSignal, pyqtSlot, QSize
+from PyQt6.QtCore import pyqtSignal, pyqtSlot, Qt, QSize, QDate
 
-from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
         QCalendarWidget, QGroupBox
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout

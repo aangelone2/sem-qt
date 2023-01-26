@@ -27,6 +27,7 @@
 from PyQt6 import QtCore
 from PyQt6.QtCore import pyqtSignal, pyqtSlot, QSize
 from PyQt6.QtGui import QAction, QIcon
+
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
         QApplication, QToolBar, QFileDialog, QMessageBox
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
