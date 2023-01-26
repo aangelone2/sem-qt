@@ -24,6 +24,7 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from PyQt6.QtGui import QColor
+
 from PyQt6.QtWidgets import QWidget, QSizePolicy, QMessageBox
 
 

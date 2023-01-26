@@ -29,6 +29,7 @@ from pandas import DataFrame as dataframe
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor, QValidator
+
 from PyQt6.QtWidgets import QWidget, QLineEdit, QTableWidget,\
         QHeaderView, QTableView, QTableWidgetItem
 
