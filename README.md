@@ -16,11 +16,11 @@ Simple Expense Manager
 + Set number of floating point digits to 2 in tables
 + Check table schema at startup
 + Relay exception messages
++ Close connection on exit/exceptions
 
 ### Additional features
 + Add logout button, show username
 + Remove users ?
-+ Grand total of expenses in sum table
 + Specify/change database location
 
 ### Refactoring

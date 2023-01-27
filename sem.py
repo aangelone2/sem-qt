@@ -39,7 +39,7 @@ from modules.main_window import main_window
 
 
 folder = 'data/'
-version = '1.2.0'
+version = '1.2.1'
 
 
 

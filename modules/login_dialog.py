@@ -71,11 +71,11 @@ class login_dialog(QDialog):
     Connections
     -----------------------
     __but_login.clicked
-        -> login_requested.emit[user, passw]
+        -> self.done[int]
     __but_signup.clicked
-        -> signup_requested.emit[user, passw]
+        -> self.done[int]
     __but_exit.clicked
-        -> exit_requested.emit
+        -> self.done[int]
     """
 
     class request():
