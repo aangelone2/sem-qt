@@ -181,8 +181,8 @@ class import_dialog(QDialog):
 
         try:
             self.__df = db.parse_csv(filename)
-        except db.DatabaseError:
-            common.ErrorMsg('file error')
+        except db.DatabaseError as err:
+            common.ErrorMsg('File error : {}'.format(err))
             return
 
         self.__table.fill(self.__df, col = False)

@@ -13,18 +13,17 @@ Simple Expense Manager
 
 ### Bugfixes/Checks
 + Testsuites
-+ Set number of floating point digits to 2 in tables
 + Check table schema at startup
-+ Relay exception messages
 
 ### Additional features
-+ Remove databases
 + Spacings in toolbar
 + Create icon
 + Exit button (close connection)
++ Delete selected expenses ?
 
 ### Refactoring
 + Uniform widget/layout init
++ Reorganize module hierarchy
 
 ### Extra
 + Organize packaging

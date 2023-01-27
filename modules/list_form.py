@@ -72,6 +72,8 @@ class list_form(QWidget):
         Inits connections
     clear_tables()
         Clears all content
+    update_tables(dataframe)
+        Updates the tables from a provided dataframe
 
     Signals
     -----------------------
@@ -84,8 +86,6 @@ class list_form(QWidget):
         Fetches start and end dates
         and emits 'query_requested' signal
         with start and end date as arguments
-    update_tables(df: dataframe)
-        Updates the tables from a provided dataframe
 
     Connections
     -----------------------
@@ -233,6 +233,32 @@ class list_form(QWidget):
 
 
 
+    def update_tables(self, df: dataframe):
+        """
+        Updates the tables from a provided dataframe
+
+        Arguments
+        -----------------------
+        df : dataframe
+            Dataframe used to fill the tables
+            __tab_sum will only contain the categories in df
+        """
+
+        # Filling expense table
+        self.__tab_list.fill(df, col = False)
+
+        # filling sum table
+        try:
+            ser = df.groupby('type')['amount'].sum()
+            ser['Total'] = ser.sum()
+            self.__tab_sum.fill(ser.to_frame().T, col = True)
+        except KeyError:
+            # empty result set
+            pass
+
+
+
+
     query_requested = pyqtSignal(str, str)
     """
     Broadcasts expense list request
@@ -259,30 +285,3 @@ class list_form(QWidget):
         end_date = self.__cal_end.selectedDate().toString(fmt)
 
         self.query_requested.emit(start_date, end_date)
-
-
-
-
-    @QtCore.pyqtSlot(dataframe)
-    def update_tables(self, df: dataframe):
-        """
-        Updates the tables from a provided dataframe
-
-        Arguments
-        -----------------------
-        df : dataframe
-            Dataframe used to fill the tables
-            __tab_sum will only contain the categories in df
-        """
-
-        # Filling expense table
-        self.__tab_list.fill(df, col = False)
-
-        # filling sum table
-        try:
-            ser = df.groupby('type')['amount'].sum()
-            ser['Total'] = ser.sum()
-            self.__tab_sum.fill(ser.to_frame().T, col = True)
-        except KeyError:
-            # empty result set
-            pass

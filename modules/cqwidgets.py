@@ -235,7 +235,14 @@ class CQTableWidget(QTableWidget):
             self.insertRow(ir)
 
             for ic, (field, val) in enumerate(row.items()):
-                itm = QTableWidgetItem(str(val))
+                # 2 digits after point (money)
+                try:
+                    float(val)
+                    val = '{:.2f}'.format(val)
+                except:
+                    val = str(val)
+
+                itm = QTableWidgetItem(val)
                 if (field != 'justification'):
                     itm.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
 

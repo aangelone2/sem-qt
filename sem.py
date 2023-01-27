@@ -32,7 +32,7 @@ from PyQt6.QtGui import QFont
 from modules.main_window import main_window
 
 
-version = '1.3.0'
+version = '1.3.1'
 
 
 
