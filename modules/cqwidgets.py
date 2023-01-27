@@ -117,12 +117,12 @@ class CQTableWidget(QTableWidget):
         Paints alternate rows and/or columns in grey
     clear()
         Clears all contents and resets table
-
-    Slots
-    -----------------------
     fill(df: dataframe, col: bool)
         Fills table with the given dataframe
         Colors alternate rows/columns based on context
+
+    Slots
+    -----------------------
     __sort(ic: int)
         Sorts according to the specified column
         Order swaps after every ordering task
@@ -200,7 +200,6 @@ class CQTableWidget(QTableWidget):
 
 
 
-    @QtCore.pyqtSlot(dataframe)
     def fill(self, df: dataframe, col: bool):
         """
         Fills table with the given dataframe
@@ -243,6 +242,7 @@ class CQTableWidget(QTableWidget):
                 self.setItem(ir, ic, itm)
 
         self.__repaint()
+
 
 
 
