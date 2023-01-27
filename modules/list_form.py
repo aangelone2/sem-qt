@@ -132,7 +132,7 @@ class list_form(QWidget):
         self.__tab_list = CQTableWidget(self)
 
         # label for sum table
-        label = QLabel('Total', self)
+        label = QLabel('Summary', self)
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         label = common.set_font_size(label, 20)
 
@@ -268,6 +268,7 @@ class list_form(QWidget):
         # filling sum table
         try:
             ser = df.groupby('type')['amount'].sum()
+            ser['Total'] = ser.sum()
             self.__tab_sum.fill(ser.to_frame().T, col = True)
         except KeyError:
             # empty result set
