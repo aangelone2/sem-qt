@@ -19,9 +19,7 @@ Simple Expense Manager
 + Close connection on exit/exceptions
 
 ### Additional features
-+ Add logout button, show username
 + Remove users ?
-+ Specify/change database location
 
 ### Refactoring
 + Uniform widget/layout init

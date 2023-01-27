@@ -115,6 +115,8 @@ class CQTableWidget(QTableWidget):
         Constructor
     __repaint()
         Paints alternate rows and/or columns in grey
+    clear()
+        Clears all contents and resets table
 
     Slots
     -----------------------
@@ -191,6 +193,13 @@ class CQTableWidget(QTableWidget):
 
 
 
+    def clear(self):
+        self.setRowCount(0)
+        self.setColumnCount(0)
+
+
+
+
     @QtCore.pyqtSlot(dataframe)
     def fill(self, df: dataframe, col: bool):
         """
@@ -206,9 +215,7 @@ class CQTableWidget(QTableWidget):
             creating equal-width columns
         """
 
-        # clearing table
-        self.setRowCount(0)
-        self.setColumnCount(0)
+        self.clear()
 
         if (not col):
             # autosize columns

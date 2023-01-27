@@ -26,41 +26,13 @@
 import sys
 import logging
 
+from PyQt6.QtWidgets import QApplication
 from PyQt6.QtGui import QFont
-from PyQt6.QtWidgets import QApplication, QMessageBox
 
-from pysqlcipher3 import dbapi2 as sql
-from pysqlcipher3.dbapi2 import Connection as connection
-
-import modules.db as db
-
-from modules.login_dialog import login_dialog
 from modules.main_window import main_window
 
 
-folder = 'data/'
 version = '1.2.1'
-
-
-
-def get_connection() -> connection:
-    while True:
-        (user, pssw, request) = login_dialog.get_request()
-
-        if (request == login_dialog.request.exit):
-            return None
-        else:
-            try:
-                if (request == login_dialog.request.login):
-                    conn = db.login(folder, user, pssw)
-                else:
-                    conn = db.create(folder, user, pssw)
-            except db.DatabaseError:
-                QMessageBox.critical(None, 'Error', 'Operation failed')
-                continue
-
-            del user, pssw, request
-            return conn
 
 
 
@@ -71,12 +43,7 @@ if __name__ == "__main__":
     app = QApplication([])
     app.setFont(QFont('Lato', 16))
 
-    conn = get_connection()
-
-    if (conn is not None):
-        mw = main_window(conn)
-        mw.show()
-    else:
-        sys.exit(0)
+    mw = main_window()
+    mw.show()
 
     sys.exit(app.exec())
