@@ -29,7 +29,7 @@ import logging
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtGui import QFont
 
-from modules.main_window import main_window
+from modules.windows.main_window import main_window
 
 
 version = '1.3.2'

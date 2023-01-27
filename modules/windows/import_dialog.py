@@ -36,7 +36,8 @@ from PyQt6.QtWidgets import QVBoxLayout
 
 import modules.common as common
 import modules.db as db
-from modules.cqwidgets import CQTableWidget
+
+from modules.CQWidgets.CQTableWidget import CQTableWidget
 
 
 isd_width = 800
