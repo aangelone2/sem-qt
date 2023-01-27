@@ -185,7 +185,7 @@ class import_dialog(QDialog):
             common.ErrorMsg('file error')
             return
 
-        self.__table.fill(self.__df)
+        self.__table.fill(self.__df, col = False)
         self.show()
 
 

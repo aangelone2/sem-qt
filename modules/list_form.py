@@ -263,12 +263,12 @@ class list_form(QWidget):
         """
 
         # Filling expense table
-        self.__tab_list.fill(df)
+        self.__tab_list.fill(df, col = False)
 
         # filling sum table
         try:
             ser = df.groupby('type')['amount'].sum()
-            self.__tab_sum.fill(ser.to_frame().T)
+            self.__tab_sum.fill(ser.to_frame().T, col = True)
         except KeyError:
             # empty result set
             pass
