@@ -118,7 +118,7 @@ class CQTableWidget(QTableWidget):
 
     Slots
     -----------------------
-    fill(df: dataframe)
+    fill(df: dataframe, col: bool)
         Fills table with the given dataframe
         Colors alternate rows/columns based on context
     __sort(ic: int)
@@ -192,7 +192,7 @@ class CQTableWidget(QTableWidget):
 
 
     @QtCore.pyqtSlot(dataframe)
-    def fill(self, df: dataframe):
+    def fill(self, df: dataframe, col: bool):
         """
         Fills table with the given dataframe
         Colors alternate rows/columns based on context
@@ -201,16 +201,16 @@ class CQTableWidget(QTableWidget):
         -----------------------
         df : dataframe
             Dataframe containing the data
+        col : bool
+            If true, considers table as single-row,
+            creating equal-width columns
         """
 
         # clearing table
         self.setRowCount(0)
         self.setColumnCount(0)
 
-        # row/column filling
-        rows = (df.shape[0] > 1)
-
-        if (rows):
+        if (not col):
             # autosize columns
             self.horizontalHeader().setSectionResizeMode(
                     QHeaderView.ResizeMode.ResizeToContents

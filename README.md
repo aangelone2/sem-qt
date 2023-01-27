@@ -12,7 +12,7 @@ Simple Expense Manager
 ## To Do
 
 ### Bugfixes/Checks
-+ General debug/testsuites
++ Testsuites
 + Set number of floating point digits to 2 in tables
 + Check table schema at startup
 + Relay exception messages
