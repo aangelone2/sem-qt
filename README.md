@@ -12,12 +12,10 @@ Simple Expense Manager
 ## To Do
 
 ### Bugfixes/Checks
-+ Testsuites
++ Testsuite
 + Check table schema at startup
 
 ### Additional features
-+ Spacings in toolbar
-+ Create icon
 + Exit button (close connection)
 + Delete selected expenses ?
 

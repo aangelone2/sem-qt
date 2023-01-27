@@ -28,7 +28,6 @@ from pandas import DataFrame as dataframe
 
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QColor, QValidator
 
 from PyQt6.QtWidgets import QWidget, QLineEdit, QTableWidget,\
         QHeaderView, QTableView, QTableWidgetItem
@@ -52,7 +51,6 @@ class CQLineEdit(QLineEdit):
     -----------------------
     __check_state()
         Changes color based on validity of content
-        (green/yellow/red for ok/possibly ok/invalid)
 
     Connections
     -----------------------
@@ -82,19 +80,12 @@ class CQLineEdit(QLineEdit):
     def __check_state(self):
         """
         Changes color based on validity of content
-        (green/yellow/red for ok/possibly ok/invalid)
         """
 
-        state = self.validator().validate(self.text(), 0)[0]
-
-        if (state == QValidator.State.Acceptable):
-            color = 'lightgreen'
-        elif (state == QValidator.State.Intermediate):
-            color = 'lightyellow'
+        if (self.hasAcceptableInput()):
+            self.setStyleSheet('background-color: #7ce97c')
         else:
-            color = 'lightred'
-
-        self.setStyleSheet('background-color: ' + color)
+            self.setStyleSheet('background-color: #ff6666')
 
 
 
