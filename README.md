@@ -21,7 +21,6 @@ Simple Expense Manager
 
 ### Refactoring
 + Uniform widget/layout init
-+ Reorganize module hierarchy
 
 ### Extra
 + Organize packaging

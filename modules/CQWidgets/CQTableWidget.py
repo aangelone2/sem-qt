@@ -29,63 +29,10 @@ from pandas import DataFrame as dataframe
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt
 
-from PyQt6.QtWidgets import QWidget, QLineEdit, QTableWidget,\
+from PyQt6.QtWidgets import QWidget, QTableWidget,\
         QHeaderView, QTableView, QTableWidgetItem
 
 import modules.common as common
-
-
-
-
-class CQLineEdit(QLineEdit):
-    """
-    Custom QLineEdit, changes color based on content validity
-    Content is checked and color changed on content change
-
-    Methods
-    -----------------------
-    __init__(parent: QWidget)
-        Constructor
-
-    Slots
-    -----------------------
-    __check_state()
-        Changes color based on validity of content
-
-    Connections
-    -----------------------
-    textChanged[text]
-        -> __check_state()
-    """
-
-    def __init__(self, parent: QWidget):
-        """
-        Constructor
-
-        Arguments
-        -----------------------
-        parent : QWidget
-            Parent QWidget
-        """
-
-        super().__init__(parent)
-
-        # validity checked whenever content changed
-        self.textChanged[str].connect(self.__check_state)
-
-
-
-
-    @QtCore.pyqtSlot()
-    def __check_state(self):
-        """
-        Changes color based on validity of content
-        """
-
-        if (self.hasAcceptableInput()):
-            self.setStyleSheet('background-color: #7ce97c')
-        else:
-            self.setStyleSheet('background-color: #ff6666')
 
 
 

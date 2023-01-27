@@ -41,7 +41,7 @@ import pandas as pd
 from pandas import DataFrame as dataframe
 
 import modules.common as common
-from modules.cqwidgets import CQLineEdit
+from modules.CQWidgets.CQLineEdit import CQLineEdit
 
 
 af_width = 400

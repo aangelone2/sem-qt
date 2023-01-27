@@ -35,7 +35,8 @@ import pandas as pd
 from pandas import DataFrame as dataframe
 
 import modules.common as common
-from modules.cqwidgets import CQTableWidget
+
+from modules.CQWidgets.CQTableWidget import CQTableWidget
 
 
 

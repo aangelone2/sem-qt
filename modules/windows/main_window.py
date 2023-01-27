@@ -37,9 +37,10 @@ import pandas as pd
 from pandas import DataFrame as dataframe
 
 import modules.db as db
-from modules.list_form import list_form
-from modules.add_form import add_form
-from modules.import_dialog import import_dialog
+
+from modules.windows.list_form import list_form
+from modules.windows.add_form import add_form
+from modules.windows.import_dialog import import_dialog
 
 
 mw_narrow = 1200
