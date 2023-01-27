@@ -33,15 +33,13 @@ from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
         QInputDialog, QLineEdit
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
-import sqlite3 as sql
-from sqlite3 import Connection as connection
+import pandas as pd
+from pandas import DataFrame as dataframe
 
 import modules.db as db
 from modules.list_form import list_form
 from modules.add_form import add_form
 from modules.import_dialog import import_dialog
-
-import logging
 
 
 mw_narrow = 1200
@@ -73,6 +71,10 @@ class main_window(QWidget):
         Extended/contracted to display/hide add_form
     __tb : QToolBar
         Toolbar widget
+    __create_act : QAction
+        The action of creating a new database
+    __login_act : QAction
+        The action of logging in to a new database
     __add_act : QAction
         The action of displaying/hiding the add_form
     __import_act : QAction
@@ -95,34 +97,55 @@ class main_window(QWidget):
     __init_toolbar()
         Inits toolbar and the contained actions
     __init_connections()
-        Inits connections
+        Inits form and dialog connections
+    __init_tb_connections()
+        Inits connections of toolbar actions
 
     Slots
     -----------------------
+    __request_add(dataframe)
+        Attempts addition of new data to the db
+    __request_listing(str, str):
+        Updates self.__lst_form with expenses
+        comprised between the two given dates
+    __request_create()
+        Attempts creation of encrypted database,
+        sets self.__conn to the resulting connection
+    __request_login()
+        Attempts login to encrypted database,
+        sets self.__conn to the resulting connection
     __toggle_add()
         Hides/shows the addition form
         Stretches/compresses the window as required
     __request_export()
         Collects filename from user and dumps database
+    __logout_db()
+        Logs out from current database and clears tables
     __request_clearing()
         Collects filename from user and dumps database
 
     Connections
     -----------------------
     __lst_form.query_requested[start, end]
-        -> __lst_form.update_tables(data)
+        -> __request_listing(start, end)
     __add_form.insertion_requested[df]
-        -> db.add(__conn, df)
+        -> __request_add(df)
     __import_dialog.import_requested[df]
-        -> db.add(__conn, df)
-    __add_act.triggered()
+        -> __request_add(df)
+    __create_act.triggered
+        -> __request_create()
+    __login_act.triggered
+        -> __request_login()
+    __add_act.triggered
         -> __toggle_add()
-    __import_act.triggered()
-        -> self.__import_dialog.load()
-    __export_act.triggered()
-        -> self.__request_export()
-    __clear_act.triggered()
-        -> self.__request_clearing()
+    __import_act.triggered
+        -> __import_dialog.load()
+    __export_act.triggered
+        -> __request_export()
+    __logout_act.triggered
+        -> __logout_db()
+    __clear_act.triggered
+        -> __request_clearing()
     """
 
     def __init__(self):
@@ -138,6 +161,8 @@ class main_window(QWidget):
         self.__import_dialog = None
         self.__hor_lay = None
         self.__tb = None
+        self.__create_act = None
+        self.__login_act = None
         self.__add_act = None
         self.__import_act = None
         self.__export_act = None
@@ -238,24 +263,22 @@ class main_window(QWidget):
 
     def __init_connections(self):
         """
-        Inits connections
+        Inits form and dialog connections
         """
 
         # reconnects back to the window with the queried data
         self.__lst_form.query_requested.connect(
-                lambda s,e: self.__lst_form.update_tables(
-                    db.fetch(self.__conn, s, e)
-                )
+                lambda s,e: self.__request_listing(s,e)
         )
 
         # addition of new data to the db
         self.__add_form.insertion_requested.connect(
-                lambda df: db.add(self.__conn, df)
+                lambda df: self.__request_add(df)
         )
 
         # bulk insertion of imported data requested
         self.__import_dialog.import_requested.connect(
-                lambda df: db.add(self.__conn, df)
+                lambda df: self.__request_add(df)
         )
 
 
@@ -305,6 +328,56 @@ class main_window(QWidget):
 
 
     @QtCore.pyqtSlot()
+    def __request_add(self, df: dataframe):
+        """
+        Attempts addition of new data to the db
+
+        Arguments
+
+        -----------------------
+        df : dataframe
+            Data to add to the database
+        """
+
+        try:
+            db.add(self.__conn, df)
+        except db.DatabaseError as err:
+            QMessageBox.critical(
+                None, 'Error', 'Operation failed : {}'.format(err)
+            )
+            return
+
+
+
+
+    @QtCore.pyqtSlot()
+    def __request_listing(self, start: str, end: str):
+        """
+        Updates self.__lst_form with expenses
+        comprised between the two given dates
+
+        Arguments
+
+        -----------------------
+        start : str
+            Starting date (included)
+        end : str
+            Final date (included)
+        """
+
+        try:
+            df = db.fetch(self.__conn, start, end)
+            self.__lst_form.update_tables(df)
+        except db.DatabaseError as err:
+            QMessageBox.critical(
+                None, 'Error', 'Operation failed : {}'.format(err)
+            )
+            return
+
+
+
+
+    @QtCore.pyqtSlot()
     def __request_create(self):
         """
         Attempts creation of encrypted database,
@@ -326,12 +399,12 @@ class main_window(QWidget):
                 QLineEdit.EchoMode.Password
         )[0]
 
-        logging.info('pssw = {}'.format(pssw))
-
         try:
             self.__conn = db.create(filename, pssw)
-        except db.DatabaseError:
-            QMessageBox.critical(None, 'Error', 'Operation failed')
+        except db.DatabaseError as err:
+            QMessageBox.critical(
+                None, 'Error', 'Operation failed : {}'.format(err)
+            )
             return
 
 
@@ -361,8 +434,10 @@ class main_window(QWidget):
 
         try:
             self.__conn = db.login(filename, pssw)
-        except db.DatabaseError:
-            QMessageBox.critical(None, 'Error', 'Operation failed')
+        except db.DatabaseError as err:
+            QMessageBox.critical(
+                None, 'Error', 'Operation failed : {}'.format(err)
+            )
             return
 
 
@@ -413,8 +488,10 @@ class main_window(QWidget):
 
         try:
             db.save_csv(self.__conn, filename)
-        except db.DatabaseError:
-            QMessageBox.critical(None, 'Error', 'Operation failed')
+        except db.DatabaseError as err:
+            QMessageBox.critical(
+                None, 'Error', 'Operation failed : {}'.format(err)
+            )
             return
 
 
@@ -459,6 +536,8 @@ class main_window(QWidget):
         try:
             if (ret == QMessageBox.StandardButton.Yes):
                 db.clear(self.__conn)
-        except db.DatabaseError:
-            QMessageBox.critical(None, 'Error', 'Operation failed')
+        except db.DatabaseError as err:
+            QMessageBox.critical(
+                None, 'Error', 'Operation failed : {}'.format(err)
+            )
             return
