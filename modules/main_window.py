@@ -316,6 +316,9 @@ class main_window(QWidget):
                 'Select name for new database',
         )[0]
 
+        if (filename == ''):
+            return
+
         pssw = QInputDialog.getText(
                 self,
                 'Password input',
@@ -345,6 +348,9 @@ class main_window(QWidget):
                 self,
                 'Select database to access'
         )[0]
+
+        if (filename == ''):
+            return
 
         pssw = QInputDialog.getText(
                 self,
@@ -405,7 +411,11 @@ class main_window(QWidget):
         if (filename == ''):
             return
 
-        db.save_csv(self.__conn, filename)
+        try:
+            db.save_csv(self.__conn, filename)
+        except db.DatabaseError:
+            QMessageBox.critical(None, 'Error', 'Operation failed')
+            return
 
 
 
@@ -416,11 +426,14 @@ class main_window(QWidget):
         Logs out from current database and clears tables
         """
 
+        if (self.__conn is None):
+            QMessageBox.critical(None, 'Error', 'Operation failed')
+            return
+
         self.__lst_form.clear_tables()
 
         self.__conn.close()
         self.__conn = None
-
 
 
 
@@ -443,5 +456,9 @@ class main_window(QWidget):
 
         ret = mb.exec()
 
-        if (ret == QMessageBox.StandardButton.Yes):
-            db.clear(self.__conn)
+        try:
+            if (ret == QMessageBox.StandardButton.Yes):
+                db.clear(self.__conn)
+        except db.DatabaseError:
+            QMessageBox.critical(None, 'Error', 'Operation failed')
+            return

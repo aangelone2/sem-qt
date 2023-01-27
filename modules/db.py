@@ -151,6 +151,9 @@ def add(conn: connection, df: dataframe):
         Data, [date, type, amount, justif] (order not relevant)
     """
 
+    if (conn is None):
+        raise DatabaseError('uninitialized connection')
+
     df.to_sql('expenses', conn,
               if_exists = 'append', index = False)
 
@@ -176,6 +179,9 @@ def fetch(conn: connection,
     A dataframe containing the query results
     Columns are [id, date, type, amount, justification]
     """
+
+    if (conn is None):
+        raise DatabaseError('uninitialized connection')
 
     command = '''SELECT rowid AS id, date, type, amount, justification
         FROM expenses WHERE date BETWEEN '{}' AND '{}'
@@ -281,6 +287,9 @@ def save_csv(conn: connection, filename: str):
         Filename of the output CSV file
     """
 
+    if (conn is None):
+        raise DatabaseError('uninitialized connection')
+
     command = 'SELECT * FROM expenses ;'
     df = pd.read_sql(command, conn)
     df.to_csv(filename, index = False)
@@ -297,6 +306,9 @@ def clear(conn: connection):
     conn : connection
         Connection to a database/table pair
     """
+
+    if (conn is None):
+        raise DatabaseError('uninitialized connection')
 
     command = 'DELETE FROM expenses ;'
     conn.execute(command)

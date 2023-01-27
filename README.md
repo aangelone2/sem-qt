@@ -16,10 +16,12 @@ Simple Expense Manager
 + Set number of floating point digits to 2 in tables
 + Check table schema at startup
 + Relay exception messages
-+ Close connection on exit/exceptions
 
 ### Additional features
-+ Remove users ?
++ Remove databases
++ Spacings in toolbar
++ Create icon
++ Exit button (close connection)
 
 ### Refactoring
 + Uniform widget/layout init
