@@ -245,18 +245,22 @@ class main_window(QWidget):
         self.__export_act.setToolTip('Export database to CSV file')
 
         self.__logout_act = QAction(QIcon('resources/logout.png'), 'Logout', self)
-        self.__logout_act.setToolTip('Logs out current user')
+        self.__logout_act.setToolTip('Logout')
 
         self.__clear_act = QAction(QIcon('resources/clear.png'), 'Clear', self)
         self.__clear_act.setToolTip('Remove all data from the database')
 
         self.__tb.addAction(self.__create_act)
         self.__tb.addAction(self.__login_act)
+        self.__tb.addSeparator()
         self.__tb.addAction(self.__add_act)
         self.__tb.addAction(self.__import_act)
+        self.__tb.addSeparator()
         self.__tb.addAction(self.__export_act)
-        self.__tb.addAction(self.__logout_act)
+        self.__tb.addSeparator()
         self.__tb.addAction(self.__clear_act)
+        self.__tb.addSeparator()
+        self.__tb.addAction(self.__logout_act)
 
 
 

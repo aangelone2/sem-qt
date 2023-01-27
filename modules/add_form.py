@@ -31,7 +31,7 @@ from PyQt6.QtGui import QValidator, QIntValidator,\
         QDoubleValidator, QRegularExpressionValidator
 
 from PyQt6.QtWidgets import QWidget, QLineEdit, QPushButton,\
-        QCalendarWidget, QLabel, QGroupBox
+        QCalendarWidget, QLabel, QGroupBox, QMessageBox
 from PyQt6.QtWidgets import QHBoxLayout, QVBoxLayout
 
 import sqlite3 as sql
@@ -254,6 +254,15 @@ class add_form(QWidget):
         date = self.__cal.selectedDate().toString(
                 format = Qt.DateFormat.ISODate
         )
+
+        if (not self.__txt_type.hasAcceptableInput()
+            or not self.__txt_amount.hasAcceptableInput()
+            or not self.__txt_justif.hasAcceptableInput()
+        ):
+            QMessageBox.critical(
+                None, 'Error', 'Invalid expense data'
+            )
+            return
 
         # single-row dataframe, still works
         df = dataframe({
