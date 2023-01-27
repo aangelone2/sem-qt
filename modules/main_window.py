@@ -29,7 +29,8 @@ from PyQt6.QtCore import pyqtSignal, pyqtSlot, QSize
 from PyQt6.QtGui import QAction, QIcon
 
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
-        QApplication, QToolBar, QFileDialog, QMessageBox
+        QApplication, QToolBar, QFileDialog, QMessageBox,\
+        QInputDialog, QLineEdit
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
 import sqlite3 as sql
@@ -39,6 +40,8 @@ import modules.db as db
 from modules.list_form import list_form
 from modules.add_form import add_form
 from modules.import_dialog import import_dialog
+
+import logging
 
 
 mw_narrow = 1200
@@ -76,11 +79,15 @@ class main_window(QWidget):
         The action of displaying the import dialog
     __export_act : QAction
         The action of saving the database to an external file
+    __logout_act : QAction
+        Prompts the user for logout
     __clear_act : QAction
         Prompts the user for clearing database
 
     Methods
     -----------------------
+    __init__()
+        Constructor
     __init_forms()
         Inits the forms and the layout which contains them
     __init_dialogs()
@@ -118,14 +125,9 @@ class main_window(QWidget):
         -> self.__request_clearing()
     """
 
-    def __init__(self, conn: connection):
+    def __init__(self):
         """
         Constructor
-
-        Arguments
-        -----------------------
-        conn : connection
-            Connection to table/database pair
         """
 
         super().__init__()
@@ -140,8 +142,6 @@ class main_window(QWidget):
         self.__import_act = None
         self.__export_act = None
         self.__clear_act = None
-
-        self.__conn = conn
 
         # set to narrow size by default
         self.resize(mw_narrow, mw_height)
@@ -163,6 +163,7 @@ class main_window(QWidget):
         self.setLayout(lay)
 
         self.__init_connections()
+        self.__init_tb_connections()
 
         self.show()
 
@@ -202,6 +203,12 @@ class main_window(QWidget):
         self.__tb = QToolBar(self)
         self.__tb.setIconSize(QSize(30, 30))
 
+        self.__create_act = QAction(QIcon('resources/create.png'), 'Create', self)
+        self.__create_act.setToolTip('Create new database')
+
+        self.__login_act = QAction(QIcon('resources/login.png'), 'Login', self)
+        self.__login_act.setToolTip('Login to existing database')
+
         self.__add_act = QAction(QIcon('resources/add.png'), 'Add', self)
         self.__add_act.setCheckable(True)
         self.__add_act.setToolTip('Hide/show add form')
@@ -212,12 +219,18 @@ class main_window(QWidget):
         self.__export_act = QAction(QIcon('resources/export.png'), 'Export', self)
         self.__export_act.setToolTip('Export database to CSV file')
 
+        self.__logout_act = QAction(QIcon('resources/logout.png'), 'Logout', self)
+        self.__logout_act.setToolTip('Logs out current user')
+
         self.__clear_act = QAction(QIcon('resources/clear.png'), 'Clear', self)
         self.__clear_act.setToolTip('Remove all data from the database')
 
+        self.__tb.addAction(self.__create_act)
+        self.__tb.addAction(self.__login_act)
         self.__tb.addAction(self.__add_act)
         self.__tb.addAction(self.__import_act)
         self.__tb.addAction(self.__export_act)
+        self.__tb.addAction(self.__logout_act)
         self.__tb.addAction(self.__clear_act)
 
 
@@ -245,6 +258,24 @@ class main_window(QWidget):
                 lambda df: db.add(self.__conn, df)
         )
 
+
+
+
+    def __init_tb_connections(self):
+        """
+        Inits connections of toolbar actions
+        """
+
+        # create action
+        self.__create_act.triggered.connect(
+                self.__request_create
+        )
+
+        # login action
+        self.__login_act.triggered.connect(
+                self.__request_login
+        )
+
         # show/hide request for add_form
         self.__add_act.triggered.connect(
                 self.__toggle_add
@@ -260,10 +291,73 @@ class main_window(QWidget):
                 self.__request_export
         )
 
+        # logout from current database
+        self.__logout_act.triggered.connect(
+                self.__logout_db
+        )
+
         # request database clearing
         self.__clear_act.triggered.connect(
                 self.__request_clearing
         )
+
+
+
+
+    @QtCore.pyqtSlot()
+    def __request_create(self):
+        """
+        Attempts creation of encrypted database,
+        sets self.__conn to the resulting connection
+        """
+
+        filename = QFileDialog.getSaveFileName(
+                self,
+                'Select name for new database',
+        )[0]
+
+        pssw = QInputDialog.getText(
+                self,
+                'Password input',
+                'Select a password',
+                QLineEdit.EchoMode.Password
+        )[0]
+
+        logging.info('pssw = {}'.format(pssw))
+
+        try:
+            self.__conn = db.create(filename, pssw)
+        except db.DatabaseError:
+            QMessageBox.critical(None, 'Error', 'Operation failed')
+            return
+
+
+
+
+    @QtCore.pyqtSlot()
+    def __request_login(self):
+        """
+        Attempts login to encrypted database,
+        sets self.__conn to the resulting connection
+        """
+
+        filename = QFileDialog.getOpenFileName(
+                self,
+                'Select database to access'
+        )[0]
+
+        pssw = QInputDialog.getText(
+                self,
+                'Password input',
+                'Input the password',
+                QLineEdit.EchoMode.Password
+        )[0]
+
+        try:
+            self.__conn = db.login(filename, pssw)
+        except db.DatabaseError:
+            QMessageBox.critical(None, 'Error', 'Operation failed')
+            return
 
 
 
@@ -312,6 +406,21 @@ class main_window(QWidget):
             return
 
         db.save_csv(self.__conn, filename)
+
+
+
+
+    @QtCore.pyqtSlot()
+    def __logout_db(self):
+        """
+        Logs out from current database and clears tables
+        """
+
+        self.__lst_form.clear_tables()
+
+        self.__conn.close()
+        self.__conn = None
+
 
 
 

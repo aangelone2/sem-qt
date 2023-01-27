@@ -70,6 +70,8 @@ class list_form(QWidget):
         Returns the initialized calendar + buttons layout
     __init_connections()
         Inits connections
+    clear_tables()
+        Clears all content
 
     Signals
     -----------------------
@@ -216,6 +218,17 @@ class list_form(QWidget):
         self.__but_update.clicked.connect(
                 self.__request_query
         )
+
+
+
+
+    def clear_tables(self):
+        """
+        Clears all content
+        """
+
+        self.__tab_list.clear()
+        self.__tab_sum.clear()
 
 
 

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE ipe SYSTEM "ipe.dtd">
 <ipe version="70218" creator="Ipe 7.2.26">
-<info created="D:20230107132743" modified="D:20230123145539"/>
+<info created="D:20230107132743" modified="D:20230127021654"/>
 <ipestyle name="basic">
 <symbol name="arrow/arc(spx)">
 <path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
@@ -313,42 +313,22 @@ h
 <page>
 <layer name="alpha"/>
 <view layers="alpha" active="alpha"/>
-<path layer="alpha" stroke="black" fill="white" pen="fat">
-368 704 m
-388 720 l
-408 800 l
-384 784 l
+<path layer="alpha" fill="red">
+34 0 0 34 96 702 e
 </path>
-<path stroke="black" fill="gray" pen="fat">
-288 784 m
-312 800 l
-316 784 l
+<path matrix="1 0 0 1 0 4" fill="white">
+80 720 m
+72 712 l
+112 676 l
+120 684 l
+80 720 l
 </path>
-<path stroke="black" fill="lightgray" pen="fat">
-312 800 m
-408 800 l
-384 784 l
-316 784 l
-312 800 l
-</path>
-<path stroke="black" fill="white" pen="fat">
-288 784 m
-304 704 l
-368 704 l
-384 784 l
-288 784 l
-</path>
-<path matrix="0.629475 0 0 0.629475 33.815 290.921" stroke="red" pen="ultrafat" arrow="normal/normal">
-480 752 m
-32.0013 0 0 -32.0013 480.286 720 508 704 a
-</path>
-<path matrix="0.629475 0 0 0.629475 33.815 290.921" stroke="red" pen="ultrafat" arrow="normal/normal">
-504 700 m
-30 0 0 -30 480 718 456 700 a
-</path>
-<path matrix="-0.53955 0 0 0.629475 592.225 290.921" stroke="red" pen="ultrafat" rarrow="normal/normal">
-480 752 m
-32.0013 0 0 -32.0013 480.286 720 508 704 a
+<path matrix="-1 0 0 1 192 4" fill="white">
+80 720 m
+72 712 l
+112 676 l
+120 684 l
+80 720 l
 </path>
 </page>
 </ipe>

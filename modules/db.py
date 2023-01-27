@@ -46,17 +46,14 @@ class DatabaseError(Exception):
 
 
 
-def create(folder: str, user: str, pssw: str) -> connection:
+def create(filename: str, pssw: str) -> connection:
     """
     Creates encrypted database and establishes connection
     
     Arguments
     -----------------------
-    folder : str
-        Folder where user database are stored
-    user : str
-        Username to connect to
-        Databases will be saved as '<user>.sqlite'
+    filename : str
+        Path of the database to connect to
     pssw : str
         Passphrase to access the database
         Will be verified by the database when connecting
@@ -71,12 +68,11 @@ def create(folder: str, user: str, pssw: str) -> connection:
     """
 
     # Checking if database exists
-    path = folder + user + '.sqlite'
-    if (isfile(path)):
+    if (isfile(filename)):
         raise DatabaseError('username already exists')
 
     # Attempting connection, checking credentials
-    conn = sql.connect(path)
+    conn = sql.connect(filename)
     conn.execute("PRAGMA key = '{}' ;".format(pssw))
     conn.execute('PRAGMA cypher_compatibility = 3 ;')
 
@@ -94,17 +90,14 @@ def create(folder: str, user: str, pssw: str) -> connection:
 
 
 
-def login(folder: str, user: str, pssw: str) -> connection:
+def login(filename: str, pssw: str) -> connection:
     """
     Establishes connection to existing database
 
     Arguments
     -----------------------
-    folder : str
-        Folder where user database are stored
-    user : str
-        Username to connect to
-        Databases will be saved as '<user>.sqlite'
+    filename : str
+        Path of the database to connect to
     pssw : str
         Passphrase to access the database
         Will be verified by the database when connecting
@@ -121,13 +114,12 @@ def login(folder: str, user: str, pssw: str) -> connection:
     """
 
     # Checking if database exists
-    path = folder + user + '.sqlite'
-    if (not isfile(path)):
+    if (not isfile(filename)):
         raise DatabaseError('username does not exist')
 
     # Attempting connection, checking credentials
     try:
-        conn = sql.connect(path)
+        conn = sql.connect(filename)
         conn.execute("PRAGMA key = '{}' ;".format(pssw))
         conn.execute('PRAGMA cypher_compatibility = 3 ;')
         conn.execute('SELECT * from sqlite_master ;')
