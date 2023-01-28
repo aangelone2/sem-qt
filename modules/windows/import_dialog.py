@@ -103,11 +103,9 @@ class import_dialog(QDialog):
 
         self.resize(isd_width, isd_height)
 
-        lay = self.__init_widgets()
+        self.setLayout(self.__init_widgets())
 
         self.__init_connections()
-
-        self.setLayout(lay)
 
 
 

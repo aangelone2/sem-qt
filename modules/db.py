@@ -134,6 +134,20 @@ def login(filename: str, pssw: str) -> connection:
     if (pd.read_sql(command, conn).empty):
         raise DatabaseError('table not found')
 
+    names = ['date', 'name', 'amount', 'justification']
+    types = ['DATE', 'CHAR(1)', 'DOUBLE PRECISION', 'VARCHAR(100)']
+    notnulls = [1, 1, 1, 1]
+
+    # Checking columns of 'expenses' table
+    command = '''PRAGMA TABLE_INFO('expenses') ;'''
+
+    columns = pd.read_sql(command, conn)
+
+    if (columns['name'].to_list() != names
+        or columns['type'].to_list() != types
+        or columns['notnull'].to_list() != notnulls):
+        raise DatabaseError('corrupted table')
+
     return conn
 
 
