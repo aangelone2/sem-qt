@@ -26,7 +26,6 @@
 
 import re
 import datetime
-from os.path import isfile
 
 from pysqlcipher3 import dbapi2 as sql
 from pysqlcipher3.dbapi2 import Connection as connection
@@ -66,10 +65,6 @@ def create(filename: str, pssw: str) -> connection:
     -----------------------
     - DatabaseError if database exists
     """
-
-    # Checking if database exists
-    if (isfile(filename)):
-        raise DatabaseError('username already exists')
 
     # Attempting connection, checking credentials
     conn = sql.connect(filename)
@@ -113,10 +108,6 @@ def login(filename: str, pssw: str) -> connection:
     - DatabaseError if 'expenses' table not found
     """
 
-    # Checking if database exists
-    if (not isfile(filename)):
-        raise DatabaseError('username does not exist')
-
     # Attempting connection, checking credentials
     try:
         conn = sql.connect(filename)
@@ -127,21 +118,33 @@ def login(filename: str, pssw: str) -> connection:
         raise DatabaseError('invalid credentials')
 
     # Checking existence of 'expenses' table
-    command = '''SELECT name FROM sqlite_master
-        WHERE type = 'table' AND name = 'expenses' ;'''
+    command = '''
+        SELECT name
+        FROM sqlite_master
+        WHERE type = 'table'
+            AND name = 'expenses' ;
+        '''
 
-    # Query should yield a non-empty dataframe
-    if (pd.read_sql(command, conn).empty):
+    # Query should yield a non-empty list
+    # Cannot use pd.read_sql(), problems with pysqlcipher3
+    if (not conn.execute(command).fetchall()):
         raise DatabaseError('table not found')
-
-    names = ['date', 'name', 'amount', 'justification']
-    types = ['DATE', 'CHAR(1)', 'DOUBLE PRECISION', 'VARCHAR(100)']
-    notnulls = [1, 1, 1, 1]
 
     # Checking columns of 'expenses' table
     command = '''PRAGMA TABLE_INFO('expenses') ;'''
 
-    columns = pd.read_sql(command, conn)
+    # Cannot use pd.read_sql(), problems with pysqlcipher3
+    columns = dataframe(
+            conn.execute(command).fetchall(),
+            columns = [
+                'cid', 'name', 'type',
+                'notnull', 'dflt_value', 'pk'
+            ]
+    )
+
+    names = ['date', 'type', 'amount', 'justification']
+    types = ['DATE', 'CHAR(1)', 'DOUBLE PRECISION', 'VARCHAR(100)']
+    notnulls = [1, 1, 1, 1]
 
     if (columns['name'].to_list() != names
         or columns['type'].to_list() != types
@@ -168,8 +171,21 @@ def add(conn: connection, df: dataframe):
     if (conn is None):
         raise DatabaseError('uninitialized connection')
 
-    df.to_sql('expenses', conn,
-              if_exists = 'append', index = False)
+    # Cannot use pd.to_sql(), problems with pysqlcipher3
+    for ir, r in df.iterrows():
+        command = '''
+            INSERT INTO expenses
+            (date, type, amount, justification)
+            VALUES
+            ('{}', '{}', {}, '{}') ;
+        '''.format(
+                r['date'], r['type'],
+                r['amount'], r['justification']
+        )
+
+        conn.execute(command)
+
+    conn.commit()
 
 
 
@@ -197,11 +213,21 @@ def fetch(conn: connection,
     if (conn is None):
         raise DatabaseError('uninitialized connection')
 
-    command = '''SELECT rowid AS id, date, type, amount, justification
-        FROM expenses WHERE date BETWEEN '{}' AND '{}'
-        ORDER BY date ;'''.format(start, end)
+    command = '''
+        SELECT rowid AS id, date, type, amount, justification
+        FROM expenses
+        WHERE date BETWEEN '{}' AND '{}'
+        ORDER BY date ;
+    '''.format(start, end)
 
-    return pd.read_sql(command, conn)
+    # Cannot use pd.read_sql(), problems with pysqlcipher3
+    return dataframe(
+            conn.execute(command).fetchall(),
+            columns = [
+                'id', 'date', 'type',
+                'amount', 'justification'
+            ]
+    )
 
 
 
@@ -305,8 +331,16 @@ def save_csv(conn: connection, filename: str):
         raise DatabaseError('uninitialized connection')
 
     command = 'SELECT * FROM expenses ;'
-    df = pd.read_sql(command, conn)
-    df.to_csv(filename, index = False)
+
+    # Cannot use pd.read_sql(), problems with pysqlcipher3
+    dataframe(
+            conn.execute(command).fetchall(),
+            columns = [
+                'date', 'type', 'amount', 'justification'
+            ]
+    ).to_csv(
+            filename, index = False
+    )
 
 
 
@@ -326,4 +360,5 @@ def clear(conn: connection):
 
     command = 'DELETE FROM expenses ;'
     conn.execute(command)
+
     conn.commit()

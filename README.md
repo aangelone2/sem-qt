@@ -13,7 +13,6 @@ Simple Expense Manager
 
 ### Bugfixes/Checks
 + Testsuite
-+ Avoid pandas + sqlcipher3
 
 ### Additional features
 + Exit button (close connection)

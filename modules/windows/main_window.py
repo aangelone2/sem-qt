@@ -23,6 +23,7 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from os.path import isfile
 
 from PyQt6 import QtCore
 from PyQt6.QtCore import pyqtSignal, pyqtSlot, QSize
@@ -395,6 +396,13 @@ class main_window(QWidget):
         )[0]
 
         if (filename == ''):
+            return
+
+        # Checking if database exists
+        if (isfile(filename)):
+            QMessageBox.critical(
+                None, 'Error', 'Operation failed : database exists'
+            )
             return
 
         pssw = QInputDialog.getText(
