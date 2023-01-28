@@ -13,14 +13,11 @@ Simple Expense Manager
 
 ### Bugfixes/Checks
 + Testsuite
-+ Check table schema at startup
++ Avoid pandas + sqlcipher3
 
 ### Additional features
 + Exit button (close connection)
 + Delete selected expenses ?
-
-### Refactoring
-+ Uniform widget/layout init
 
 ### Extra
 + Organize packaging

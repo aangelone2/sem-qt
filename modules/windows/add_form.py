@@ -70,7 +70,7 @@ class add_form(QWidget):
     -----------------------
     __init__()
         Constructor
-    __init_layout() -> QVboxLayout
+    __init_widgets() -> QVboxLayout
         Initializes widget layout, sets up validators
     __init_connections()
         Sets up connections between widgets
@@ -122,13 +122,15 @@ class add_form(QWidget):
         self.__but_accept = None
 
         self.setMaximumWidth(af_width)
-        self.setLayout(self.__init_layout())
+
+        self.setLayout(self.__init_widgets())
+
         self.__init_connections()
 
 
 
 
-    def __init_layout(self) -> QVBoxLayout:
+    def __init_widgets(self) -> QVBoxLayout:
         """
         Initializes widget layout, sets up validators
 

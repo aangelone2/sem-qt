@@ -111,8 +111,6 @@ class list_form(QWidget):
         lay_tab = self.__init_lay_tab()
         lay_cal_but = self.__init_lay_cal_but()
 
-        self.__init_connections()
-
         # generating main layout
         lay_gen = QHBoxLayout()
         lay_gen.addSpacing(25)
@@ -122,6 +120,8 @@ class list_form(QWidget):
         lay_gen.addSpacing(25)
 
         self.setLayout(lay_gen)
+
+        self.__init_connections()
 
 
 
