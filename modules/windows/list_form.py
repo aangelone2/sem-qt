@@ -75,6 +75,8 @@ class list_form(QWidget):
         Clears all content
     update_tables(dataframe)
         Updates the tables from a provided dataframe
+    selected_rowids() -> list[int]:
+        Returns list of rowids of selected rows in __tab_list
 
     Signals
     -----------------------
@@ -246,16 +248,41 @@ class list_form(QWidget):
         """
 
         # Filling expense table
-        self.__tab_list.fill(df, col = False)
+        self.__tab_list.fill(
+                df,
+                col = False,
+                floats = [3]
+        )
 
         # filling sum table
         try:
             ser = df.groupby('type')['amount'].sum()
             ser['Total'] = ser.sum()
-            self.__tab_sum.fill(ser.to_frame().T, col = True)
+
+            self.__tab_sum.fill(
+                    ser.to_frame().T,
+                    col = True,
+                    floats = None,
+                    last_bold = True
+            )
         except KeyError:
             # empty result set
             pass
+
+
+
+
+    def selected_rowids(self) -> list[int]:
+        """
+        Returns list of selected rows in __tab_list
+        """
+
+        rows = self.__tab_list.selected_rows()
+        return [
+                int(self.__tab_list.item(r,0).text())
+                for r
+                in rows
+        ]
 
 
 

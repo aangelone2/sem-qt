@@ -184,7 +184,12 @@ class import_dialog(QDialog):
             common.ErrorMsg('File error : {}'.format(err))
             return
 
-        self.__table.fill(self.__df, col = False)
+        self.__table.fill(
+                self.__df,
+                col = False,
+                floats = [2]
+        )
+
         self.show()
 
 

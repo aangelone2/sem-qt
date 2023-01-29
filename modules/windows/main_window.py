@@ -62,31 +62,31 @@ class main_window(QWidget):
     -----------------------
     __conn: connection
         Connection to database-table pair
-    __lst_form : list_form
+    __form_lst : list_form
         Internal list_form widget
-    __add_form : add_form
+    __form_add : add_form
         Internal add_form widget
-    __import_dialog : import_dialog
+    __dialog_import : import_dialog
         Dialog to visualize file to import
-    __hor_lay : QHBoxLayout
+    __lay_hor : QHBoxLayout
         Horizontal layout, contains widgets
         Extended/contracted to display/hide add_form
     __tb : QToolBar
         Toolbar widget
-    __create_act : QAction
+    __act_create : QAction
         The action of creating a new database
-    __login_act : QAction
+    __act_login : QAction
         The action of logging in to a new database
-    __add_act : QAction
+    __act_add : QAction
         The action of displaying/hiding the add_form
-    __import_act : QAction
+    __act_import : QAction
         The action of displaying the import dialog
-    __export_act : QAction
+    __act_export : QAction
         The action of saving the database to an external file
-    __logout_act : QAction
-        Prompts the user for logout
-    __clear_act : QAction
-        Prompts the user for clearing database
+    __act_delete : QAction
+        Deletes selected rows
+    __act_logout : QAction
+        Logs the user out
 
     Methods
     -----------------------
@@ -108,7 +108,7 @@ class main_window(QWidget):
     __request_add(dataframe)
         Attempts addition of new data to the db
     __request_listing(str, str):
-        Updates self.__lst_form with expenses
+        Updates self.__form_lst with expenses
         comprised between the two given dates
     __request_create()
         Attempts creation of encrypted database,
@@ -121,33 +121,33 @@ class main_window(QWidget):
         Stretches/compresses the window as required
     __request_export()
         Collects filename from user and dumps database
+    __request_deletion()
+        Requests deletion of selected rows, updates display
     __logout_db()
         Logs out from current database and clears tables
-    __request_clearing()
-        Collects filename from user and dumps database
 
     Connections
     -----------------------
-    __lst_form.query_requested[start, end]
+    __form_lst.query_requested[start, end]
         -> __request_listing(start, end)
-    __add_form.insertion_requested[df]
+    __form_add.insertion_requested[df]
         -> __request_add(df)
-    __import_dialog.import_requested[df]
+    __dialog_import.import_requested[df]
         -> __request_add(df)
-    __create_act.triggered
+    __act_create.triggered
         -> __request_create()
-    __login_act.triggered
+    __act_login.triggered
         -> __request_login()
-    __add_act.triggered
+    __act_add.triggered
         -> __toggle_add()
-    __import_act.triggered
-        -> __import_dialog.load()
-    __export_act.triggered
+    __act_import.triggered
+        -> __dialog_import.load()
+    __act_export.triggered
         -> __request_export()
-    __logout_act.triggered
+    __act_delete.triggered
+        -> __request_deletion()
+    __act_logout.triggered
         -> __logout_db()
-    __clear_act.triggered
-        -> __request_clearing()
     """
 
     def __init__(self):
@@ -158,17 +158,18 @@ class main_window(QWidget):
         super().__init__()
 
         self.__conn = None
-        self.__lst_form = None
-        self.__add_form = None
-        self.__import_dialog = None
-        self.__hor_lay = None
+        self.__form_lst = None
+        self.__form_add = None
+        self.__dialog_import = None
+        self.__lay_hor = None
         self.__tb = None
-        self.__create_act = None
-        self.__login_act = None
-        self.__add_act = None
-        self.__import_act = None
-        self.__export_act = None
-        self.__clear_act = None
+        self.__act_create = None
+        self.__act_login = None
+        self.__act_add = None
+        self.__act_import = None
+        self.__act_export = None
+        self.__act_delete = None
+        self.__act_logout = None
 
         # set to narrow size by default
         self.resize(mw_narrow, mw_height)
@@ -185,7 +186,7 @@ class main_window(QWidget):
         # general layout, includes toolbar
         lay = QVBoxLayout()
         lay.setMenuBar(self.__tb)
-        lay.addLayout(self.__hor_lay)
+        lay.addLayout(self.__lay_hor)
 
         self.setLayout(lay)
 
@@ -202,12 +203,12 @@ class main_window(QWidget):
         Inits the forms and the layout which contains them
         """
 
-        self.__lst_form = list_form()
-        self.__add_form = add_form()
+        self.__form_lst = list_form()
+        self.__form_add = add_form()
 
         # no add form in the layout by default
-        self.__hor_lay = QHBoxLayout()
-        self.__hor_lay.addWidget(self.__lst_form)
+        self.__lay_hor = QHBoxLayout()
+        self.__lay_hor.addWidget(self.__form_lst)
 
 
 
@@ -217,7 +218,7 @@ class main_window(QWidget):
         Inits dialogs
         """
 
-        self.__import_dialog = import_dialog(self)
+        self.__dialog_import = import_dialog(self)
 
 
 
@@ -230,39 +231,39 @@ class main_window(QWidget):
         self.__tb = QToolBar(self)
         self.__tb.setIconSize(QSize(30, 30))
 
-        self.__create_act = QAction(QIcon('resources/create.png'), 'Create', self)
-        self.__create_act.setToolTip('Create new database')
+        self.__act_create = QAction(QIcon('resources/create.png'), 'Create', self)
+        self.__act_create.setToolTip('Create new database')
 
-        self.__login_act = QAction(QIcon('resources/login.png'), 'Login', self)
-        self.__login_act.setToolTip('Login to existing database')
+        self.__act_login = QAction(QIcon('resources/login.png'), 'Login', self)
+        self.__act_login.setToolTip('Login to existing database')
 
-        self.__add_act = QAction(QIcon('resources/add.png'), 'Add', self)
-        self.__add_act.setCheckable(True)
-        self.__add_act.setToolTip('Hide/show add form')
+        self.__act_add = QAction(QIcon('resources/add.png'), 'Add', self)
+        self.__act_add.setCheckable(True)
+        self.__act_add.setToolTip('Hide/show add form')
 
-        self.__import_act = QAction(QIcon('resources/import.png'), 'Import', self)
-        self.__import_act.setToolTip('Import external CSV file')
+        self.__act_import = QAction(QIcon('resources/import.png'), 'Import', self)
+        self.__act_import.setToolTip('Import external CSV file')
 
-        self.__export_act = QAction(QIcon('resources/export.png'), 'Export', self)
-        self.__export_act.setToolTip('Export database to CSV file')
+        self.__act_export = QAction(QIcon('resources/export.png'), 'Export', self)
+        self.__act_export.setToolTip('Export database to CSV file')
 
-        self.__logout_act = QAction(QIcon('resources/logout.png'), 'Logout', self)
-        self.__logout_act.setToolTip('Logout')
+        self.__act_delete = QAction(QIcon('resources/delete.png'), 'Delete', self)
+        self.__act_delete.setToolTip('Deletes selected expenses from database')
 
-        self.__clear_act = QAction(QIcon('resources/clear.png'), 'Clear', self)
-        self.__clear_act.setToolTip('Remove all data from the database')
+        self.__act_logout = QAction(QIcon('resources/logout.png'), 'Logout', self)
+        self.__act_logout.setToolTip('Logout')
 
-        self.__tb.addAction(self.__create_act)
-        self.__tb.addAction(self.__login_act)
+        self.__tb.addAction(self.__act_create)
+        self.__tb.addAction(self.__act_login)
         self.__tb.addSeparator()
-        self.__tb.addAction(self.__add_act)
-        self.__tb.addAction(self.__import_act)
+        self.__tb.addAction(self.__act_add)
+        self.__tb.addAction(self.__act_import)
         self.__tb.addSeparator()
-        self.__tb.addAction(self.__export_act)
+        self.__tb.addAction(self.__act_export)
         self.__tb.addSeparator()
-        self.__tb.addAction(self.__clear_act)
+        self.__tb.addAction(self.__act_delete)
         self.__tb.addSeparator()
-        self.__tb.addAction(self.__logout_act)
+        self.__tb.addAction(self.__act_logout)
 
 
 
@@ -273,17 +274,17 @@ class main_window(QWidget):
         """
 
         # reconnects back to the window with the queried data
-        self.__lst_form.query_requested.connect(
+        self.__form_lst.query_requested.connect(
                 lambda s,e: self.__request_listing(s,e)
         )
 
         # addition of new data to the db
-        self.__add_form.insertion_requested.connect(
+        self.__form_add.insertion_requested.connect(
                 lambda df: self.__request_add(df)
         )
 
         # bulk insertion of imported data requested
-        self.__import_dialog.import_requested.connect(
+        self.__dialog_import.import_requested.connect(
                 lambda df: self.__request_add(df)
         )
 
@@ -296,38 +297,38 @@ class main_window(QWidget):
         """
 
         # create action
-        self.__create_act.triggered.connect(
+        self.__act_create.triggered.connect(
                 self.__request_create
         )
 
         # login action
-        self.__login_act.triggered.connect(
+        self.__act_login.triggered.connect(
                 self.__request_login
         )
 
         # show/hide request for add_form
-        self.__add_act.triggered.connect(
+        self.__act_add.triggered.connect(
                 self.__toggle_add
         )
 
         # show import dialog
-        self.__import_act.triggered.connect(
-                self.__import_dialog.load
+        self.__act_import.triggered.connect(
+                self.__dialog_import.load
         )
 
         # request exporting to CSV
-        self.__export_act.triggered.connect(
+        self.__act_export.triggered.connect(
                 self.__request_export
         )
 
-        # logout from current database
-        self.__logout_act.triggered.connect(
-                self.__logout_db
+        # request selected expenses deletion
+        self.__act_delete.triggered.connect(
+                self.__request_deletion
         )
 
-        # request database clearing
-        self.__clear_act.triggered.connect(
-                self.__request_clearing
+        # logout from current database
+        self.__act_logout.triggered.connect(
+                self.__logout_db
         )
 
 
@@ -359,7 +360,7 @@ class main_window(QWidget):
     @QtCore.pyqtSlot()
     def __request_listing(self, start: str, end: str):
         """
-        Updates self.__lst_form with expenses
+        Updates self.__form_lst with expenses
         comprised between the two given dates
 
         Arguments
@@ -373,7 +374,7 @@ class main_window(QWidget):
 
         try:
             df = db.fetch(self.__conn, start, end)
-            self.__lst_form.update_tables(df)
+            self.__form_lst.update_tables(df)
         except db.DatabaseError as err:
             QMessageBox.critical(
                 None, 'Error', 'Operation failed : {}'.format(err)
@@ -463,15 +464,15 @@ class main_window(QWidget):
         Stretches/compresses the window as required
         """
 
-        if (self.__add_form.isVisible() is False):
+        if (self.__form_add.isVisible() is False):
             # show add form
             self.resize(mw_wide, mw_height)
-            self.__hor_lay.addWidget(self.__add_form)
-            self.__add_form.show()
+            self.__lay_hor.addWidget(self.__form_add)
+            self.__form_add.show()
         else:
             # hide add form
-            self.__add_form.hide()
-            self.__hor_lay.removeWidget(self.__add_form)
+            self.__form_add.hide()
+            self.__lay_hor.removeWidget(self.__form_add)
             self.resize(mw_narrow, mw_height)
 
         # re-centering the window horizontally
@@ -511,6 +512,18 @@ class main_window(QWidget):
 
 
     @QtCore.pyqtSlot()
+    def __request_deletion(self):
+        """
+        Requests deletion of selected rows, updates display
+        """
+
+        rowids = self.__form_lst.selected_rowids()
+        db.delete(self.__conn, rowids)
+
+
+
+
+    @QtCore.pyqtSlot()
     def __logout_db(self):
         """
         Logs out from current database and clears tables
@@ -520,37 +533,7 @@ class main_window(QWidget):
             QMessageBox.critical(None, 'Error', 'Operation failed')
             return
 
-        self.__lst_form.clear_tables()
+        self.__form_lst.clear_tables()
 
         self.__conn.close()
         self.__conn = None
-
-
-
-
-    @QtCore.pyqtSlot()
-    def __request_clearing(self):
-        """
-        Prompts the user for clearing database
-        """
-
-        mb = QMessageBox()
-        mb.setIcon(QMessageBox.Icon.Warning)
-        mb.setText("Database clearing requested.");
-        mb.setInformativeText("Do you wish to proceed?");
-        mb.setStandardButtons(
-                QMessageBox.StandardButton.Yes
-                | QMessageBox.StandardButton.No
-        )
-        mb.setDefaultButton(QMessageBox.StandardButton.No)
-
-        ret = mb.exec()
-
-        try:
-            if (ret == QMessageBox.StandardButton.Yes):
-                db.clear(self.__conn)
-        except db.DatabaseError as err:
-            QMessageBox.critical(
-                None, 'Error', 'Operation failed : {}'.format(err)
-            )
-            return

@@ -28,9 +28,11 @@ from pandas import DataFrame as dataframe
 
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QFont
 
 from PyQt6.QtWidgets import QWidget, QTableWidget,\
-        QHeaderView, QTableView, QTableWidgetItem
+        QHeaderView, QTableView, QTableWidgetItem,\
+        QAbstractItemView
 
 import modules.common as common
 
@@ -58,6 +60,8 @@ class CQTableWidget(QTableWidget):
     fill(df: dataframe, col: bool)
         Fills table with the given dataframe
         Colors alternate rows/columns based on context
+    selected_rows() -> list[int]
+        Returns list of indices of currently selected rows
 
     Slots
     -----------------------
@@ -105,6 +109,10 @@ class CQTableWidget(QTableWidget):
                 lambda ic: self.__sort(ic)
         )
 
+        # highlight entire rows on selection
+        self.setSelectionBehavior(
+                QAbstractItemView.SelectionBehavior.SelectRows
+        )
 
 
 
@@ -138,7 +146,11 @@ class CQTableWidget(QTableWidget):
 
 
 
-    def fill(self, df: dataframe, col: bool):
+    def fill(self,
+             df: dataframe,
+             col: bool,
+             floats: list[int] = None,
+             last_bold: bool = False):
         """
         Fills table with the given dataframe
         Colors alternate rows/columns based on context
@@ -150,7 +162,16 @@ class CQTableWidget(QTableWidget):
         col : bool
             If true, considers table as single-row,
             creating equal-width columns
+        floats: list[int]
+            List of column indices where numbers are
+            to be considered floats ({.02f})
+            If None (default), all columns as floats
+        last_bold: bool
+            If True, the last column is written in bold
         """
+
+        if (floats is None):
+            floats = list(range(df.shape[1]))
 
         self.clear()
 
@@ -173,20 +194,36 @@ class CQTableWidget(QTableWidget):
             self.insertRow(ir)
 
             for ic, (field, val) in enumerate(row.items()):
-                # 2 digits after point (money)
-                try:
-                    float(val)
+                if (ic in floats):
+                    # 2 digits after point (money)
                     val = '{:.2f}'.format(val)
-                except:
+                else:
                     val = str(val)
 
                 itm = QTableWidgetItem(val)
                 if (field != 'justification'):
                     itm.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
 
+                if (last_bold and ic == (df.shape[1] - 1)):
+                    font = QFont()
+                    font.setBold(True)
+                    itm.setFont(font)
+
                 self.setItem(ir, ic, itm)
 
         self.__repaint()
+
+
+
+
+    def selected_rows(self) -> list[int]:
+        """
+        Returns list of indices of currently selected rows
+        """
+
+        return [s.row()
+                for s
+                in self.selectionModel().selectedRows()]
 
 
 

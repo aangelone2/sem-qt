@@ -16,10 +16,9 @@ Simple Expense Manager
 
 ### Additional features
 + Exit button (close connection)
-+ Delete selected expenses ?
 
 ### Extra
-+ Organize packaging
++ Organize setup
 + Add description to README
 + Add screenshots/GIFs/videos
 + Add documentation
