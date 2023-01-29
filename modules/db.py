@@ -294,7 +294,7 @@ def parse_csv(filename: str) -> dataframe:
     # Checking amount
     if ('amount' not in df.columns):
         raise DatabaseError("missing or mislabeled 'amount' field")
-    elif (df['type'].isnull().any()):
+    elif (df['amount'].isnull().any()):
         raise DatabaseError("null entry in 'amount' field")
     else:
         try:
@@ -305,7 +305,7 @@ def parse_csv(filename: str) -> dataframe:
     # Checking justification
     if ('justification' not in df.columns):
         raise DatabaseError("missing or mislabeled 'justification' field")
-    elif (df['type'].isnull().any()):
+    elif (df['justification'].isnull().any()):
         raise DatabaseError("null entry in 'justification' field")
     else:
         res['justification'] = df['justification']
@@ -345,20 +345,28 @@ def save_csv(conn: connection, filename: str):
 
 
 
-def clear(conn: connection):
+def delete(conn: connection, rowids: list[int]):
     """
-    Clears the specified database/table
+    Deletes specified rows from database
 
     Arguments
     -----------------------
     conn : connection
         Connection to a database/table pair
+    rowids : list[int]
+        List of values of 'rowid' for lines to delete
     """
 
     if (conn is None):
         raise DatabaseError('uninitialized connection')
 
-    command = 'DELETE FROM expenses ;'
-    conn.execute(command)
+    for rowid in rowids:
+        command = '''
+            DELETE
+            FROM expenses
+            WHERE rowid = {} ;
+        '''.format(rowid)
+
+        conn.execute(command)
 
     conn.commit()
