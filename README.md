@@ -1,12 +1,18 @@
 # sem
-`sem` (Simple Expense Manager) is a basic utility for the
-management of domestic expenses.
+`sem` (Simple Expense Manager) is a simple Python utility for
+the management of domestic expenses.
 
-Current features allow:
+A streamlined Qt graphical interface allows straightforward
+management of multi-user data stored in encrypted SQLite
+databases and transfered via Pandas dataframes.
 
-- Multiple-user, secure management via `SQLite` databases
-  password-encrypted via the
-  [SQLCipher][https://www.zetetic.net/sqlcipher/] library
+
+
+## Current capabilities
+
+- Multiple-user, secure management via SQLite databases
+  password-encrypted using the
+  [SQLCipher](https://www.zetetic.net/sqlcipher/) library
 - Manual addition of single expenses or bulk importing from CSV
   files
 - Reviewing and summarizing of expenses by date and type
@@ -20,9 +26,12 @@ Current features allow:
 The following external libraries are imported in `sem`, and
 required for its operation:
 
-- PyQt6 (GUI toolkit, [link][https://www.riverbankcomputing.com/software/pyqt/])
-- SQLCipher (encrypted database management, [link][https://www.zetetic.net/sqlcipher/])
-- Pandas (data manipulation and transfer, [link][https://pandas.pydata.org/])
+- [PyQt6](https://www.riverbankcomputing.com/software/pyqt/)
+  (GUI toolkit)
+- [SQLCipher](https://www.zetetic.net/sqlcipher/) (encrypted
+  database management)
+- [Pandas](https://pandas.pydata.org/) (data manipulation and
+  transfer)
 
 
 
@@ -45,22 +54,29 @@ The main executable is launched as
 
 ## Security
 
-To guarantee secure access to multiple users without the need
-for an administrator-level user to set up database(s) and
-permissions, `sem` distributes the data of different users into
-separate databases, each password-encrypted at the moment of
-its creation. This solution allows the maximum level of
-protection to each users' data, as well as ease of backup and
-data transfer while maintaining encryption.
+`sem` has been designed to allow multiple users to store their
+data side-by-side on the same machine, requiring protection of
+each user's data from other users' direct access. At the same
+time, the design philosophy of `sem` is to aim for the maximum
+possible data security: as such, the designation of
+administrator-level users, with access and permission
+granting/revoking rights to other users' data, is actively
+avoided.
 
-Furthermore, each passwords is directly forwarded to its
-databases, encrypted via `SQLCipher`, at the moment of login.
-As such, each database stores its own password, eliminating the
-need for password storage at the level of the program itself.
-The `SQLCipher` library, with the (default) settings employed
-in `sem`, employs strong encryption and key hashing
-algorithms (more information
-[here][https://www.zetetic.net/sqlcipher/design/]). These,
+To comply with both these design principles, `sem` distributes
+the data of different users into separate databases, each
+password-encrypted at the moment of its creation. This solution
+allows the maximum level of protection to each user's data, as
+well as ease of backup and data transfer while maintaining
+encryption.
+
+Furthermore, each password is directly forwarded to its
+database at the moment of login. As such, each database stores
+its own password, eliminating the need for password storage at
+the level of the program itself. The *SQLCipher* library, with
+the (default) settings employed in `sem`, employs strong
+encryption and key hashing algorithms (more information
+[here](https://www.zetetic.net/sqlcipher/design/)). These,
 together with industry-standard practices (e.g., large number
 of hash iterations, password salting) allow safe storage of
 user credentials and data.
@@ -72,5 +88,5 @@ It is important to note that, due to these design choices,
 
 ## To Do
 
-- [ ] Streamline packaging
 - [ ] Add documentation (underway)
+- [ ] Streamline packaging
