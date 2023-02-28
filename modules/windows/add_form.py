@@ -25,12 +25,11 @@
 
 
 from PyQt6 import QtCore
-from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot, QDate,\
-        QRegularExpression
+from PyQt6.QtCore import Qt, QRegularExpression, pyqtSignal
 from PyQt6.QtGui import QValidator, QIntValidator,\
         QDoubleValidator, QRegularExpressionValidator
 
-from PyQt6.QtWidgets import QWidget, QLineEdit, QPushButton,\
+from PyQt6.QtWidgets import QWidget, QPushButton,\
         QCalendarWidget, QLabel, QGroupBox, QMessageBox
 from PyQt6.QtWidgets import QHBoxLayout, QVBoxLayout
 
@@ -66,10 +65,13 @@ class add_form(QWidget):
     __but_accept : QPushButton
         Button to accept specified details
 
-    Methods
+    Public methods
     -----------------------
     __init__()
         Constructor
+
+    Private methods
+    -----------------------
     __init_widgets() -> QVboxLayout
         Initializes widget layout, sets up validators
     __init_connections()
@@ -81,7 +83,7 @@ class add_form(QWidget):
         Broadcasts record to add to the database
         Transmits a dataframe containing the fields
 
-    Slots
+    Private slots
     -----------------------
     __request_insertion():
         Fetches query details from widgets

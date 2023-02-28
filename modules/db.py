@@ -71,13 +71,16 @@ def create(filename: str, pssw: str) -> connection:
     conn.execute("PRAGMA key = '{}' ;".format(pssw))
     conn.execute('PRAGMA cypher_compatibility = 3 ;')
 
-    command = '''CREATE TABLE expenses (
+    command = '''
+        CREATE TABLE expenses (
             'date' DATE NOT NULL,
             'type' CHAR(1) NOT NULL,
             'amount' DOUBLE PRECISION NOT NULL,
             'justification' VARCHAR(100) NOT NULL
-    ) ;'''
+        ) ;
+    '''
     conn.execute(command)
+    conn.execute('CREATE INDEX date_index ON expenses(date) ;')
     conn.commit()
 
     return conn
@@ -131,7 +134,7 @@ def login(filename: str, pssw: str) -> connection:
         raise DatabaseError('table not found')
 
     # Checking columns of 'expenses' table
-    command = '''PRAGMA TABLE_INFO('expenses') ;'''
+    command = "PRAGMA TABLE_INFO('expenses') ;"
 
     # Cannot use pd.read_sql(), problems with pysqlcipher3
     columns = dataframe(

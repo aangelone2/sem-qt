@@ -30,13 +30,13 @@ from PyQt6.QtWidgets import QWidget, QSizePolicy, QMessageBox
 
 
 
-colors = {
-        'lightgray': QColor('#E6E6E6'),
-        'white': QColor('#FFFFFF')
-}
-"""
-Custom colors
-"""
+class colors:
+    """
+    Custom colors
+    """
+
+    lightgray = QColor('#E6E6E6')
+    white = QColor('#FFFFFF')
 
 
 

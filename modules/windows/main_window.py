@@ -26,11 +26,11 @@
 from os.path import isfile
 
 from PyQt6 import QtCore
-from PyQt6.QtCore import pyqtSignal, pyqtSlot, QSize
+from PyQt6.QtCore import QSize
 from PyQt6.QtGui import QAction, QIcon
 
-from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
-        QApplication, QToolBar, QFileDialog, QMessageBox,\
+from PyQt6.QtWidgets import QWidget, QApplication,\
+        QToolBar, QFileDialog, QMessageBox,\
         QInputDialog, QLineEdit
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
@@ -88,10 +88,13 @@ class main_window(QWidget):
     __act_logout : QAction
         Logs the user out
 
-    Methods
+    Public methods
     -----------------------
     __init__()
         Constructor
+
+    Private methods
+    -----------------------
     __init_forms()
         Inits the forms and the layout which contains them
     __init_dialogs()
@@ -103,7 +106,7 @@ class main_window(QWidget):
     __init_tb_connections()
         Inits connections of toolbar actions
 
-    Slots
+    Private slots
     -----------------------
     __request_add(dataframe)
         Attempts addition of new data to the db
@@ -173,6 +176,8 @@ class main_window(QWidget):
 
         # set to narrow size by default
         self.resize(mw_narrow, mw_height)
+        # setting window title
+        self.setWindowTitle('Simple Expense Manager')
 
         # initializing forms and their layout
         self.__init_forms()

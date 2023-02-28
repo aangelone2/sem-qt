@@ -49,12 +49,10 @@ class CQTableWidget(QTableWidget):
     __asc_order : bool
         Order of last performed sorting operation
 
-    Methods
+    Public methods
     -----------------------
     __init__(parent: QWidget)
         Constructor
-    __repaint()
-        Paints alternate rows and/or columns in grey
     clear()
         Clears all contents and resets table
     fill(df: dataframe, col: bool)
@@ -63,7 +61,12 @@ class CQTableWidget(QTableWidget):
     selected_rows() -> list[int]
         Returns list of indices of currently selected rows
 
-    Slots
+    Private methods
+    -----------------------
+    __repaint()
+        Paints alternate rows and/or columns in grey
+
+    Private slots
     -----------------------
     __sort(ic: int)
         Sorts according to the specified column
@@ -129,9 +132,9 @@ class CQTableWidget(QTableWidget):
                 grey = ((ir % 2 == 1) if rows else (ic % 2 == 1))
 
                 color = (
-                        common.colors['lightgray']
+                        common.colors.lightgray
                         if grey
-                        else common.colors['white']
+                        else common.colors.white
                 )
 
                 self.item(ir, ic).setBackground(color)
