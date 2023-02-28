@@ -28,7 +28,7 @@ import pandas as pd
 from pandas import DataFrame as dataframe
 
 from PyQt6 import QtCore
-from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import Qt, pyqtSignal
 
 from PyQt6.QtWidgets import QWidget, QDialog,\
         QDialogButtonBox, QFileDialog
@@ -59,10 +59,13 @@ class import_dialog(QDialog):
     __buttons : QDialogButtonBox
         Ok/Cancel buttons
 
-    Methods
+    Public methods
     -----------------------
     __init__(parent: QWidget)
         Constructor
+
+    Private methods
+    -----------------------
     __init_widgets() -> QVBoxLayout
         Sets up widgets, returns the layout containing them
     __init_connections()
@@ -73,7 +76,7 @@ class import_dialog(QDialog):
     import_requested[dataframe]
         Broadcasts the request for importing in the database
 
-    Slots
+    Public slots
     -----------------------
     load()
         Allows the user to select a CSV file,

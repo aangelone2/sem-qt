@@ -35,12 +35,12 @@ class CQLineEdit(QLineEdit):
     Custom QLineEdit, changes color based on content validity
     Content is checked and color changed on content change
 
-    Methods
+    Public methods
     -----------------------
     __init__(parent: QWidget)
         Constructor
 
-    Slots
+    Private slots
     -----------------------
     __check_state()
         Changes color based on validity of content

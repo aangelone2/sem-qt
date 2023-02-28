@@ -25,7 +25,7 @@
 
 
 from PyQt6 import QtCore
-from PyQt6.QtCore import pyqtSignal, pyqtSlot, Qt, QSize, QDate
+from PyQt6.QtCore import Qt, QSize, pyqtSignal
 
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
         QCalendarWidget, QGroupBox
@@ -61,16 +61,10 @@ class list_form(QWidget):
         Updates the tables based on selected dates.
         Also refreshes expense categories
 
-    Methods
+    Public methods
     -----------------------
     __init__()
         Constructor
-    __init_lay_tab() -> QVBoxLayout
-        Returns the initialized table layout, empty tables
-    __init_lay_cal_but() -> QVBoxLayout
-        Returns the initialized calendar + buttons layout
-    __init_connections()
-        Inits connections
     clear_tables()
         Clears all content
     update_tables(dataframe)
@@ -78,12 +72,21 @@ class list_form(QWidget):
     selected_rowids() -> list[int]:
         Returns list of rowids of selected rows in __tab_list
 
+    Private methods
+    -----------------------
+    __init_lay_tab() -> QVBoxLayout
+        Returns the initialized table layout, empty tables
+    __init_lay_cal_but() -> QVBoxLayout
+        Returns the initialized calendar + buttons layout
+    __init_connections()
+        Inits connections
+
     Signals
     -----------------------
     query_requested[str, str]
         Broadcasts expense list request
 
-    Slots
+    Private slots
     -----------------------
     __request_query()
         Fetches start and end dates
