@@ -24,7 +24,6 @@
 
 
 import sys
-import logging
 
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtGui import QFont
@@ -32,14 +31,12 @@ from PyQt6.QtGui import QFont
 from modules.windows.main_window import main_window
 
 
-version = '1.3.6'
+version = '1.3.7'
 
 
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level = logging.INFO)
-
     app = QApplication([])
     app.setFont(QFont('Lato', 16))
 
