@@ -198,8 +198,6 @@ class main_window(QWidget):
         self.__init_connections()
         self.__init_tb_connections()
 
-        self.show()
-
 
 
 
