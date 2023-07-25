@@ -30,12 +30,8 @@ from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 from PyQt6.QtSql import QSqlTableModel
 
-from modules.Common import lockHeight, lockSize
+from modules.Common import lockSize
 from modules.CQTableView import CQTableView
-
-
-
-SUM_TABLE_HEIGHT = 50
 
 
 
@@ -55,9 +51,10 @@ class ListForm(QWidget):
         QCalendarWidget used to select start date in queries
     __calEnd : QCalendarWidget
         QCalendarWidget used to select end date in queries
-    __butUpdate : QPushButton
-        Updates the tables based on selected dates.
-        Also refreshes expense categories
+    __butApply : QPushButton
+        Applies the selected data filter
+    __butClear : QPushButton
+        Clears all data filters
 
     Public methods
     -----------------------
@@ -68,30 +65,36 @@ class ListForm(QWidget):
 
     Private methods
     -----------------------
-    __initLayTab() -> QVBoxLayout
-        Returns the initialized table layout, empty tables
-    __initLayCalBut() -> QVBoxLayout
-        Returns the initialized calendar + buttons layout
+    __initWidgets() -> QHBoxLayout
+        Returns the initialized and arranged widgets
     __initConnections()
         Inits connections
 
     Signals
     -----------------------
-    queryRequested[str, str]
-        Broadcasts expense list request
+    filterRequested[list[str]]
+        Broadcasts request to update date filter
+    clearingRequested[]
+        Broadcasts request to clear date filter
 
     Private slots
     -----------------------
-    __requestQuery()
+    __requestFilter()
         Fetches start and end dates
-        and emits 'queryRequested' signal
+        and emits 'filterRequested' signal
         with start and end date as arguments
+    __requestClearing()
+        Emits 'clearingRequested' signal
+        requesting clearing of date filters
 
     Connections
     -----------------------
-    __butUpdate.clicked
-        -> __requestQuery()
-        -> queryRequested(start_date, end_date)
+    __butApply.clicked
+        -> __requestFilter()
+        -> filterRequested([start_date, end_date])
+    __butClear.clicked
+        -> __requestClearing()
+        -> clearingRequested()
     """
 
     def __init__(self, parent: QWidget):
@@ -110,20 +113,11 @@ class ListForm(QWidget):
         self.__tabSum = None
         self.__calStart = None
         self.__calEnd = None
-        self.__butUpdate = None
+        self.__butApply = None
+        self.__butClear = None
 
-        layTab = self.__initLayTab()
-        layCalBut = self.__initLayCalBut()
-
-        # generating main layout
-        layGen = QHBoxLayout()
-        layGen.addSpacing(25)
-        layGen.addLayout(layTab)
-        layGen.addSpacing(75)
-        layGen.addLayout(layCalBut)
-        layGen.addSpacing(25)
-
-        self.setLayout(layGen)
+        lay = self.__initWidgets()
+        self.setLayout(lay)
 
         self.__initConnections()
 
@@ -143,39 +137,25 @@ class ListForm(QWidget):
 
 
 
-    def __initLayTab(self) -> QVBoxLayout:
+    def __initWidgets(self) -> QHBoxLayout:
         """
-        Returns the initialized table layout, empty tables
+        Returns the initialized and arranged widgets
         """
 
         # expense list table
         self.__tabList = CQTableView(True, self)
 
-        # label for sum table
-        label = QLabel('Summary', self)
-        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
         # sum table
-        self.__tabSum = CQTableView(False, self)
-        self.__tabSum.setMaximumHeight(SUM_TABLE_HEIGHT)
-        self.__tabSum = lockHeight(self.__tabSum)
+        self.__tabSum = CQTableView(True, self)
+        self.__tabSum.setMaximumHeight(120)
+        self.__tabSum = lockSize(self.__tabSum)
 
-        # setting up layout
-        lay = QVBoxLayout()
-        lay.addWidget(self.__tabList)
-        lay.addSpacing(50)
-        lay.addWidget(label)
-        lay.addSpacing(10)
-        lay.addWidget(self.__tabSum)
+        laySum = QVBoxLayout()
+        laySum.addWidget(self.__tabSum)
 
-        return lay
-
-
-
-    def __initLayCalBut(self) -> QVBoxLayout:
-        """
-        Returns the initialized calendar + button layout
-        """
+        # sum group box
+        gbxSum = QGroupBox('Expense summary')
+        gbxSum.setLayout(laySum)
 
         # start date label
         labStart = QLabel('Start date [included]', self)
@@ -196,25 +176,35 @@ class ListForm(QWidget):
         # update button (graphical setup)
         self.__butUpdate = QPushButton('Update', self)
 
-        # setting up query details layout
-        layDet = QVBoxLayout()
-        layDet.addWidget(labStart)
-        layDet.addWidget(self.__calStart)
-        layDet.addSpacing(80)
-        layDet.addWidget(labEnd)
-        layDet.addWidget(self.__calEnd)
-        layDet.addSpacing(80)
-        layDet.addWidget(self.__butUpdate)
+        # clear button (graphical setup)
+        self.__butClear = QPushButton('Clear', self)
 
-        # group box
-        gbxCal = QGroupBox('Query details')
-        gbxCal.setLayout(layDet)
+        # button layout
+        layButtons = QHBoxLayout()
+        layButtons.addWidget(self.__butUpdate)
+        layButtons.addWidget(self.__butClear)
 
-        # general layout
-        lay = QVBoxLayout()
-        lay.addSpacing(10)
-        lay.addWidget(gbxCal)
-        lay.addSpacing(10)
+        # control layout
+        layControls = QVBoxLayout()
+        layControls.addWidget(labStart)
+        layControls.addWidget(self.__calStart)
+        layControls.addWidget(labEnd)
+        layControls.addWidget(self.__calEnd)
+        layControls.addLayout(layButtons)
+
+        # control group box
+        gbxControl = QGroupBox('Filter by date')
+        gbxControl.setLayout(layControls)
+
+        # control-sum layout
+        layControlSum = QVBoxLayout()
+        layControlSum.addWidget(gbxSum)
+        layControlSum.addWidget(gbxControl)
+
+        # overall layout
+        lay = QHBoxLayout()
+        lay.addWidget(self.__tabList)
+        lay.addLayout(layControlSum)
 
         return lay
 
@@ -226,33 +216,56 @@ class ListForm(QWidget):
         """
 
         self.__butUpdate.clicked.connect(
-                self.__requestQuery
+                self.__requestFilter
+        )
+
+        self.__butClear.clicked.connect(
+                self.__requestClearing
         )
 
 
 
-    queryRequested = pyqtSignal(str, str)
+    filterRequested = pyqtSignal(list)
     """
-    Broadcasts expense list request
+    Broadcasts request to update date filter
 
     Arguments
     -----------------------
-    startDate : str
-        Starting date for the requested query, 'yyyy-mm-dd'
-    endDate : str
-        Ending date for the requested query, 'yyyy-mm-dd'
+    dates : list[str]
+        [startDate, endDate], 'yyyy-mm-dd'
+        may be None
+    """
+
+
+
+    clearingRequested = pyqtSignal()
+    """
+    Broadcasts request to clear date filter
     """
 
 
 
     @QtCore.pyqtSlot()
-    def __requestQuery(self):
+    def __requestFilter(self):
         """
-        Emits signal with start and end date as arguments
+        Fetches start and end dates
+        and emits 'filterRequested' signal
+        with start and end date as arguments
         """
 
         fmt = Qt.DateFormat.ISODate
         startDate = self.__calStart.selectedDate().toString(fmt)
         endDate = self.__calEnd.selectedDate().toString(fmt)
 
-        self.queryRequested.emit(startDate, endDate)
+        self.filterRequested.emit([startDate, endDate])
+
+
+
+    @QtCore.pyqtSlot()
+    def __requestClearing(self):
+        """
+        Emits 'filterRequested' signal with `None` argument,
+        requesting clearing of date filters
+        """
+
+        self.clearingRequested.emit()

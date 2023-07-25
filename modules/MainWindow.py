@@ -90,12 +90,16 @@ class MainWindow(QMainWindow):
 
     Connections
     -----------------------
-    __formLst.queryRequested[start, end]
-        -> __models.updateModel(start, end)
+    __formLst.filterRequested(dates)
+        -> __models.applyDateFilter(dates)
+    __formLst.clearingRequested()
+        -> __models.applyDateFilter(None)
     __actCreate.triggered
         -> __requestCreate()
     __actOpen.triggered
         -> __requestOpen()
+    __actImport.triggered
+        -> __requestImport()
     __actExport.triggered
         -> __requestExport()
     """
@@ -111,6 +115,7 @@ class MainWindow(QMainWindow):
         self.__formLst = None
         self.__actCreate = None
         self.__actOpen = None
+        self.__actImport = None
         self.__actExport = None
 
         # set to narrow size by default
@@ -167,8 +172,12 @@ class MainWindow(QMainWindow):
         Inits form and dialog connections
         """
 
-        self.__formLst.queryRequested.connect(
-                lambda s,e: self.__models.updateModel(s,e)
+        self.__formLst.filterRequested.connect(
+                lambda dates: self.__models.applyDateFilter(dates)
+        )
+
+        self.__formLst.clearingRequested.connect(
+                lambda: self.__models.applyDateFilter(None)
         )
 
 

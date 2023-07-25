@@ -66,7 +66,7 @@ class ModelWrapper():
         Creates and inits connection to existing DB
     initModel()
         Initializes list model
-    updateModel(str, str)
+    updateModel(list[str])
         Apply filter to models with the specified dates
     importCSV(str)
         Appends the contents of a CSV file to the database
@@ -213,6 +213,10 @@ class ModelWrapper():
     def initModel(self):
         """
         Initializes list model
+
+        Raises
+        -----------------------
+        - DatabaseError if invalid Connection
         """
 
         if (self.__conn is None):
@@ -242,21 +246,35 @@ class ModelWrapper():
 
 
 
-    def updateModel(self, startDate: str, endDate: str):
+    def applyDateFilter(self, dates: list[str]):
         """
-        Apply filter to models with the specified dates
+        Apply data filter to the model
 
         Arguments
         -----------------------
-        startDate : str
-            Minimum date for the filter, included
-        endDate : str
-            Maximum date for the filter, included
+        dates : list[str]
+            - [startDate, endDate], both included
+            - `None` removes all filters
+
+        Raises
+        -----------------------
+        - DatabaseError if invalid Connection
+        - DatabaseError if invalid date range
         """
 
-        self.listModel.setFilter(
-                f"date BETWEEN '{startDate}' AND '{endDate}'"
-        )
+        if (self.__conn is None):
+            raise DatabaseError('Uninitialized connection')
+
+        if (dates is None):
+            self.listModel.setFilter('')
+        else:
+            if (len(dates) != 2):
+                raise DatabaseError('Invalid date interval')
+
+            self.listModel.setFilter(
+                    f"date BETWEEN '{dates[0]}' AND '{dates[1]}'"
+            )
+
         self.listModel.select()
 
 
