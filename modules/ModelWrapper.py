@@ -132,18 +132,26 @@ class ModelWrapper():
         self.__conn.setDatabaseName(filename)
 
         # misc errors in connection opening
-        if (not self.__conn.open()):
+        chk = self.__conn.open()
+        if (not chk):
             raise DatabaseError(self.__conn.lastError().text())
 
         query = QSqlQuery()
 
         # creating and indexing 'expenses' table
+        # checks here because SQLite is "dynamically" typed
         command = '''
             CREATE TABLE expenses (
-                'date' DATE NOT NULL,
-                'type' CHAR(1) NOT NULL,
-                'amount' DOUBLE PRECISION NOT NULL,
-                'justification' VARCHAR(100) NOT NULL
+                id INTEGER PRIMARY KEY AUTOINCREMENT
+                    CHECK (TYPEOF(id) == ('integer')),
+                date DATE NOT NULL
+                    CHECK (DATE(date) IS date),
+                type CHAR(1) NOT NULL
+                    CHECK (LENGTH(type) == 1),
+                amount DOUBLE PRECISION NOT NULL
+                    CHECK (TYPEOF(amount) IN ('integer', 'real')),
+                justification VARCHAR(100) NOT NULL
+                    CHECK (LENGTH(justification) <= 100)
             ) ;
         '''
         query.exec(command)
@@ -171,7 +179,8 @@ class ModelWrapper():
         """
 
         # checking if db already exists
-        if (not os.path.isfile(filename)):
+        chk = os.path.isfile(filename)
+        if (not chk):
             raise DatabaseError('Database does not exists')
 
         # Closing connection if currently active
@@ -184,13 +193,14 @@ class ModelWrapper():
         self.__conn.setDatabaseName(filename)
 
         # misc errors in connection opening
-        if (not self.__conn.open()):
+        chk = self.__conn.open()
+        if (not chk):
             raise DatabaseError(self.__conn.lastError().text())
 
         query = QSqlQuery()
 
         # checking for existence of 'expenses' table
-        if (self.__conn.tables() != ['expenses']):
+        if ('expenses' not in self.__conn.tables()):
             raise DatabaseError('Invalid database schema')
 
         # checking for validity of schema of 'expense' table
@@ -206,9 +216,10 @@ class ModelWrapper():
             notnulls.append(query.value(nn))
 
         # checking against expected output
-        if (names != ['date', 'type', 'amount', 'justification']
-            or types != ['DATE', 'CHAR(1)', 'DOUBLE PRECISION', 'VARCHAR(100)']
-            or notnulls != [1, 1, 1, 1]):
+        # (apparently for SQLite3 primary keys are not not-null...)
+        if (names != ['id', 'date', 'type', 'amount', 'justification']
+            or types != ['INTEGER', 'DATE', 'CHAR(1)', 'DOUBLE PRECISION', 'VARCHAR(100)']
+            or notnulls != [0, 1, 1, 1, 1]):
             raise DatabaseError('Corrupted table')
         
         query.finish()
@@ -237,7 +248,7 @@ class ModelWrapper():
 
         # setting edit strategy
         self.listModel.setEditStrategy(
-                QSqlTableModel.EditStrategy.OnRowChange
+                QSqlTableModel.EditStrategy.OnFieldChange
         )
 
         self.listModel.select()
@@ -328,11 +339,6 @@ class ModelWrapper():
         if (self.__conn is None):
             raise DatabaseError('Uninitialized connection')
 
-        # setting batch edit strategy
-        self.listModel.setEditStrategy(
-                QSqlTableModel.EditStrategy.OnManualSubmit
-        )
-
         # handreading of csv file required
         # (QSqlQuery cannot pass .mode commands,
         # and record() is not iterable)
@@ -340,27 +346,37 @@ class ModelWrapper():
             reader = csv.reader(csvfile, quotechar = '"')
 
             for ir, row in enumerate(reader):
-                rows = self.listModel.rowCount()
-                # inserting a row at the end of the model
-                if (not self.listModel.insertRows(rows, 1)):
+                # empty record will contain info on the table schema
+                record = self.listModel.record()
+
+                # if 1st field is left unspecified, auto-assign
+                # (id, primary key, autoincrement integer)
+                # setting NULL does not work, found this solution
+                if (row[0] == ''):
+                    record.remove(0)
+                else:
+                    record.setValue(0, row[0])
+
+                # setting other fields
+                for ic, col in enumerate(row[1:]):
+                    record.setValue(ic, col)
+
+                # inserting at last position
+                chk = self.listModel.insertRecord(-1, record)
+                if (not chk):
                     raise DatabaseError(
-                            f'Error in inserting row {ir}'
+                            f'Error in inserting record {ir + 1}'
                     )
 
-                for ic, col in enumerate(row):
-                    index = self.listModel.index(rows, ic)
-                    if (not self.listModel.setData(index, col)):
-                        raise DatabaseError(
-                                f'Error in inserting row {ir}, field {ic}'
-                        )
+                # SQLite performs type-checking here
+                # inserting line-by-line to check lines
+                chk = self.listModel.submitAll()
+                if (not chk):
+                    raise DatabaseError(
+                            f'Error in inserting row {ir + 1}'
+                    )
 
-            self.listModel.submitAll()
             self.listModel.select()
-
-        # resetting default edit strategy
-        self.listModel.setEditStrategy(
-                QSqlTableModel.EditStrategy.OnRowChange
-        )
 
 
 
@@ -387,7 +403,7 @@ class ModelWrapper():
         query.exec('SELECT * FROM expenses ;')
 
         # number of fields
-        COLS = 4
+        COLS = query.record().count()
 
         # handwriting of csv file required
         # (QSqlQuery cannot pass .mode commands,

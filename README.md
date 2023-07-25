@@ -48,7 +48,6 @@ The main executable is launched as
 - [ ] Add filter-by-justification functionality
 - [ ] Allow to add expenses
 - [ ] Allow to delete expenses
-- [ ] Allow checking when changing in-place
 - [ ] Status bar
 - [ ] Robust error management
 - [ ] Compute total sum ?
