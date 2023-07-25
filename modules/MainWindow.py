@@ -26,8 +26,7 @@
 from PyQt6 import QtCore
 from PyQt6.QtCore import QSize
 from PyQt6.QtGui import QAction, QIcon
-from PyQt6.QtWidgets import QApplication, QToolBar,\
-        QFileDialog, QLineEdit, QMainWindow
+from PyQt6.QtWidgets import QToolBar, QFileDialog, QMainWindow
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
 from modules.Common import ErrorMsg

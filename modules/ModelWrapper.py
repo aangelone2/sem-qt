@@ -124,7 +124,7 @@ class ModelWrapper():
 
         # Closing connection if currently active
         if (self.__conn is not None):
-            if (self.__conn.open()):
+            if (self.__conn.isOpen()):
                 self.__conn.close()
 
         # opening default connection
@@ -179,13 +179,12 @@ class ModelWrapper():
         """
 
         # checking if db already exists
-        chk = os.path.isfile(filename)
-        if (not chk):
+        if (not os.path.isfile(filename)):
             raise DatabaseError('Database does not exists')
 
         # Closing connection if currently active
         if (self.__conn is not None):
-            if (self.__conn.open()):
+            if (self.__conn.isOpen()):
                 self.__conn.close()
 
         # opening default connection
@@ -342,39 +341,44 @@ class ModelWrapper():
         # handreading of csv file required
         # (QSqlQuery cannot pass .mode commands,
         # and record() is not iterable)
-        with open(filename, 'r') as csvfile:
+        with open(filename, 'r', newline = '') as csvfile:
             reader = csv.reader(csvfile, quotechar = '"')
 
-            for ir, row in enumerate(reader):
-                # empty record will contain info on the table schema
-                record = self.listModel.record()
+            try:
+                for ir, row in enumerate(reader):
+                    # empty record will contain info on the table schema
+                    record = self.listModel.record()
 
-                # if 1st field is left unspecified, auto-assign
-                # (id, primary key, autoincrement integer)
-                # setting NULL does not work, found this solution
-                if (row[0] == ''):
-                    record.remove(0)
-                else:
-                    record.setValue(0, row[0])
+                    # if 1st field is left unspecified, auto-assign
+                    # (id, primary key, autoincrement integer)
+                    # setting NULL does not work, found this solution
+                    if (row[0] == ''):
+                        record.remove(0)
+                    else:
+                        record.setValue(0, row[0])
 
-                # setting other fields
-                for ic, col in enumerate(row[1:]):
-                    record.setValue(ic, col)
+                    # setting other fields
+                    for ic, col in enumerate(row[1:]):
+                        record.setValue(ic, col)
 
-                # inserting at last position
-                chk = self.listModel.insertRecord(-1, record)
-                if (not chk):
-                    raise DatabaseError(
-                            f'Error in inserting record {ir + 1}'
-                    )
+                    # inserting at last position
+                    chk = self.listModel.insertRecord(-1, record)
+                    if (not chk):
+                        raise DatabaseError(
+                                f'Error in inserting record {ir + 1}'
+                        )
 
-                # SQLite performs type-checking here
-                # inserting line-by-line to check lines
-                chk = self.listModel.submitAll()
-                if (not chk):
-                    raise DatabaseError(
-                            f'Error in inserting row {ir + 1}'
-                    )
+                    # SQLite performs type-checking here
+                    # inserting line-by-line to check lines
+                    chk = self.listModel.submitAll()
+                    if (not chk):
+                        raise DatabaseError(
+                                f'Error in inserting row {ir + 1}'
+                        )
+            except csv.Error as err:
+                raise DatabaseError(
+                        f'CSV file error :: line {reader.line_num} :: {err}'
+                )
 
             self.listModel.select()
 
@@ -408,7 +412,7 @@ class ModelWrapper():
         # handwriting of csv file required
         # (QSqlQuery cannot pass .mode commands,
         # and record() is not iterable)
-        with open(filename, 'w') as csvfile:
+        with open(filename, 'w', newline = '') as csvfile:
             writer = csv.writer(csvfile, quotechar = '"',
                 quoting = csv.QUOTE_NONNUMERIC)
 

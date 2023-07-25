@@ -24,7 +24,7 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from PyQt6 import QtCore
-from PyQt6.QtCore import Qt, QSize, pyqtSignal
+from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
         QCalendarWidget, QGroupBox
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout

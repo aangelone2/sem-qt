@@ -23,12 +23,8 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from PyQt6 import QtCore
-from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor, QPalette
-from PyQt6.QtWidgets import QWidget, QTableWidget,\
-        QHeaderView, QTableView, QTableWidgetItem,\
-        QAbstractItemView
+from PyQt6.QtWidgets import QWidget, QHeaderView, QTableView
 
 
 
@@ -61,7 +57,8 @@ class CQTableView(QTableView):
 
         # setting color palette
         gray = QColor('#E6E6E6')
-        p = QPalette()
+
+        p = self.palette()
         p.setBrush(QPalette.ColorRole.AlternateBase, gray)
         self.setPalette(p)
 
