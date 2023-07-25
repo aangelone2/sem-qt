@@ -24,9 +24,7 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from PyQt6.QtGui import QColor
-
 from PyQt6.QtWidgets import QWidget, QSizePolicy, QMessageBox
-
 
 
 
@@ -37,7 +35,6 @@ class colors:
 
     lightgray = QColor('#E6E6E6')
     white = QColor('#FFFFFF')
-
 
 
 
@@ -66,7 +63,6 @@ def lock_height(widget: QWidget) -> QWidget:
 
 
 
-
 def lock_size(widget: QWidget) -> QWidget:
     """
     Changes size policy locking both height and width
@@ -92,7 +88,6 @@ def lock_size(widget: QWidget) -> QWidget:
 
 
 
-
 def set_font_size(widget: QWidget, size: int) -> QWidget:
     """
     Changes font size
@@ -114,7 +109,6 @@ def set_font_size(widget: QWidget, size: int) -> QWidget:
     )
 
     return widget
-
 
 
 

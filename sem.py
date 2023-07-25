@@ -22,17 +22,16 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
-import sys
-
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtGui import QFont
+
+import sys
 
 from modules.windows.main_window import main_window
 
 
-version = '1.3.7'
 
+version = '1.3.7'
 
 
 

@@ -23,25 +23,28 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from os.path import isfile
-
 from PyQt6 import QtCore
 from PyQt6.QtCore import QSize
 from PyQt6.QtGui import QAction, QIcon
-
 from PyQt6.QtWidgets import QWidget, QApplication,\
         QToolBar, QFileDialog, QMessageBox,\
         QInputDialog, QLineEdit
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
-import pandas as pd
-from pandas import DataFrame as dataframe
+from pandas import DataFrame
 
-import modules.db as db
+import modules.db.connect as connect
+from modules.db.connect import DatabaseError
+
+import modules.db.data as data
+from modules.db.data import InputError
+
+import modules.db.csv as csv
 
 from modules.windows.list_form import list_form
 from modules.windows.add_form import add_form
 from modules.windows.import_dialog import import_dialog
+
 
 
 mw_narrow = 1200
@@ -50,7 +53,6 @@ mw_height = 400
 
 id_width = 900
 id_height = 500
-
 
 
 
@@ -108,7 +110,7 @@ class main_window(QWidget):
 
     Private slots
     -----------------------
-    __request_add(dataframe)
+    __request_add(DataFrame)
         Attempts addition of new data to the db
     __request_listing(str, str):
         Updates self.__form_lst with expenses
@@ -200,7 +202,6 @@ class main_window(QWidget):
 
 
 
-
     def __init_forms(self):
         """
         Inits the forms and the layout which contains them
@@ -215,14 +216,12 @@ class main_window(QWidget):
 
 
 
-
     def __init_dialogs(self):
         """
         Inits dialogs
         """
 
         self.__dialog_import = import_dialog(self)
-
 
 
 
@@ -270,7 +269,6 @@ class main_window(QWidget):
 
 
 
-
     def __init_connections(self):
         """
         Inits form and dialog connections
@@ -290,7 +288,6 @@ class main_window(QWidget):
         self.__dialog_import.import_requested.connect(
                 lambda df: self.__request_add(df)
         )
-
 
 
 
@@ -336,27 +333,23 @@ class main_window(QWidget):
 
 
 
-
     @QtCore.pyqtSlot()
-    def __request_add(self, df: dataframe):
+    def __request_add(self, df: DataFrame):
         """
         Attempts addition of new data to the db
 
         Arguments
 
         -----------------------
-        df : dataframe
+        df : DataFrame
             Data to add to the database
         """
 
         try:
-            db.add(self.__conn, df)
-        except db.DatabaseError as err:
-            QMessageBox.critical(
-                None, 'Error', 'Operation failed : {}'.format(err)
-            )
+            data.add(self.__conn, df)
+        except (DatabaseError, InputError) as err:
+            QMessageBox.critical(None, 'Error', err)
             return
-
 
 
 
@@ -376,14 +369,12 @@ class main_window(QWidget):
         """
 
         try:
-            df = db.fetch(self.__conn, start, end)
-            self.__form_lst.update_tables(df)
-        except db.DatabaseError as err:
-            QMessageBox.critical(
-                None, 'Error', 'Operation failed : {}'.format(err)
-            )
+            df = data.fetch(self.__conn, start, end)
+        except DatabaseError as err:
+            QMessageBox.critical(None, 'Error', err)
             return
 
+        self.__form_lst.update_tables(df)
 
 
 
@@ -402,21 +393,11 @@ class main_window(QWidget):
         if (filename == ''):
             return
 
-        # Checking if database exists
-        if (isfile(filename)):
-            QMessageBox.critical(
-                None, 'Error', 'Operation failed : database exists'
-            )
-            return
-
         try:
-            self.__conn = db.create(filename)
-        except db.DatabaseError as err:
-            QMessageBox.critical(
-                None, 'Error', 'Operation failed : {}'.format(err)
-            )
+            self.__conn = connect.create(filename)
+        except DatabaseError as err:
+            QMessageBox.critical(None, 'Error', err)
             return
-
 
 
 
@@ -436,13 +417,10 @@ class main_window(QWidget):
             return
 
         try:
-            self.__conn = db.open(filename)
-        except db.DatabaseError as err:
-            QMessageBox.critical(
-                None, 'Error', 'Operation failed : {}'.format(err)
-            )
+            self.__conn = connect.open(filename)
+        except DatabaseError as err:
+            QMessageBox.critical(None, 'Error', err)
             return
-
 
 
 
@@ -472,7 +450,6 @@ class main_window(QWidget):
 
 
 
-
     @QtCore.pyqtSlot()
     def __request_export(self):
         """
@@ -490,13 +467,10 @@ class main_window(QWidget):
             return
 
         try:
-            db.save_csv(self.__conn, filename)
-        except db.DatabaseError as err:
-            QMessageBox.critical(
-                None, 'Error', 'Operation failed : {}'.format(err)
-            )
+            csv.save_csv(self.__conn, filename)
+        except DatabaseError as err:
+            QMessageBox.critical(None, 'Error', err)
             return
-
 
 
 
@@ -507,8 +481,12 @@ class main_window(QWidget):
         """
 
         rowids = self.__form_lst.selected_rowids()
-        db.delete(self.__conn, rowids)
 
+        try:
+            data.delete(self.__conn, rowids)
+        except DatabaseError as err:
+            QMessageBox.critical(None, 'Error', err)
+            return
 
 
 
@@ -518,11 +496,12 @@ class main_window(QWidget):
         Logs out from current database and clears tables
         """
 
-        if (self.__conn is None):
-            QMessageBox.critical(None, 'Error', 'Operation failed')
-            return
-
         self.__form_lst.clear_tables()
 
-        self.__conn.close()
+        try:
+            connect.close(self.__conn)
+        except DatabaseError as err:
+            QMessageBox.critical(None, 'Error', err)
+            return
+
         self.__conn = None

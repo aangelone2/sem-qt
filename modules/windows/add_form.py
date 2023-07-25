@@ -23,25 +23,20 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 from PyQt6 import QtCore
-from PyQt6.QtCore import Qt, QRegularExpression, pyqtSignal
-from PyQt6.QtGui import QValidator, QIntValidator,\
-        QDoubleValidator, QRegularExpressionValidator
-
+from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import QWidget, QPushButton,\
-        QCalendarWidget, QLabel, QGroupBox, QMessageBox
+        QCalendarWidget, QLabel, QGroupBox, QMessageBox,\
+        QLineEdit
 from PyQt6.QtWidgets import QHBoxLayout, QVBoxLayout
 
-import pandas as pd
-from pandas import DataFrame as dataframe
+from pandas import DataFrame
 
 import modules.common as common
-from modules.CQWidgets.CQLineEdit import CQLineEdit
+
 
 
 af_width = 400
-
 
 
 
@@ -53,11 +48,11 @@ class add_form(QWidget):
     -----------------------
     __cal : QCalendarWidget
         Calendar to select the date for the expense
-    __txt_type : CQLineEdit
+    __txt_type : QLineEdit
         Textbox for the expense type
-    __txt_amount : CQLineEdit
+    __txt_amount : QLineEdit
         Textbox for the expense amount
-    __txt_justif : CQLineEdit
+    __txt_justif : QLineEdit
         Textbox for the expense justification
     __but_accept : QPushButton
         Button to accept specified details
@@ -76,9 +71,9 @@ class add_form(QWidget):
 
     Signals
     -----------------------
-    insertion_requested[dataframe]
+    insertion_requested[DataFrame]
         Broadcasts record to add to the database
-        Transmits a dataframe containing the fields
+        Transmits a DataFrame containing the fields
 
     Private slots
     -----------------------
@@ -128,7 +123,6 @@ class add_form(QWidget):
 
 
 
-
     def __init_widgets(self) -> QVBoxLayout:
         """
         Initializes widget layout, sets up validators
@@ -144,29 +138,13 @@ class add_form(QWidget):
         self.__cal = common.set_font_size(self.__cal, 18)
 
         # type textbox
-        self.__txt_type = CQLineEdit(self)
-        # only one uppercase letter
-        self.__txt_type.setValidator(
-                QRegularExpressionValidator(
-                    QRegularExpression('^[A-Z]$')
-                )
-        )
+        self.__txt_type = QLineEdit(self)
 
         # amount textbox
-        self.__txt_amount = CQLineEdit(self)
-        # 2 digits after decimal point
-        self.__txt_amount.setValidator(
-                QDoubleValidator(-10000.0, +10000.0, 2)
-        )
+        self.__txt_amount = QLineEdit(self)
 
         # justification textbox
-        self.__txt_justif = CQLineEdit(self)
-        # Accepts up to 100 characters
-        self.__txt_justif.setValidator(
-                QRegularExpressionValidator(
-                    QRegularExpression("^.{1,100}$")
-                )
-        )
+        self.__txt_justif = QLineEdit(self)
 
         self.__but_accept = QPushButton('Add expense', self)
 
@@ -208,7 +186,6 @@ class add_form(QWidget):
 
 
 
-
     def __init_connections(self):
         """
         Inits connections
@@ -234,45 +211,34 @@ class add_form(QWidget):
 
 
 
-
-    insertion_requested = pyqtSignal(dataframe)
+    insertion_requested = pyqtSignal(DataFrame)
     """
         Broadcasts record to add to the database
-        Transmits a dataframe containing the fields
+        Transmits a DataFrame containing the fields
     """
-
 
 
 
     @QtCore.pyqtSlot()
     def __request_insertion(self):
         """
+        Sets focus on the calendar
         Fetches query details from widgets
         Emits signal passing details as dictionary
-        Sets focus on the calendar
         """
+
+        self.__cal.setFocus()
 
         date = self.__cal.selectedDate().toString(
                 format = Qt.DateFormat.ISODate
         )
 
-        if (not self.__txt_type.hasAcceptableInput()
-            or not self.__txt_amount.hasAcceptableInput()
-            or not self.__txt_justif.hasAcceptableInput()
-        ):
-            QMessageBox.critical(
-                None, 'Error', 'Invalid expense data'
-            )
-            return
-
-        # single-row dataframe, still works
-        df = dataframe({
+        # single-row DataFrame, still works
+        df = DataFrame({
             'date': [date],
             'type': [self.__txt_type.text()],
             'amount': [self.__txt_amount.text()],
             'justification': [self.__txt_justif.text()]
         })
-
-        self.__cal.setFocus()
 
         self.insertion_requested.emit(df)

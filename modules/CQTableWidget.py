@@ -23,8 +23,7 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import pandas as pd
-from pandas import DataFrame as dataframe
+from pandas import DataFrame
 
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt
@@ -35,7 +34,6 @@ from PyQt6.QtWidgets import QWidget, QTableWidget,\
         QAbstractItemView
 
 import modules.common as common
-
 
 
 
@@ -55,8 +53,8 @@ class CQTableWidget(QTableWidget):
         Constructor
     clear()
         Clears all contents and resets table
-    fill(df: dataframe, col: bool)
-        Fills table with the given dataframe
+    fill(df: DataFrame, col: bool)
+        Fills table with the given DataFrame
         Colors alternate rows/columns based on context
     selected_rows() -> list[int]
         Returns list of indices of currently selected rows
@@ -141,26 +139,24 @@ class CQTableWidget(QTableWidget):
 
 
 
-
     def clear(self):
         self.setRowCount(0)
         self.setColumnCount(0)
 
 
 
-
     def fill(self,
-             df: dataframe,
+             df: DataFrame,
              col: bool,
              floats: list[int] = None,
              last_bold: bool = False):
         """
-        Fills table with the given dataframe
+        Fills table with the given DataFrame
         Colors alternate rows/columns based on context
 
         Arguments
         -----------------------
-        df : dataframe
+        df : DataFrame
             Dataframe containing the data
         col : bool
             If true, considers table as single-row,
@@ -218,7 +214,6 @@ class CQTableWidget(QTableWidget):
 
 
 
-
     def selected_rows(self) -> list[int]:
         """
         Returns list of indices of currently selected rows
@@ -227,7 +222,6 @@ class CQTableWidget(QTableWidget):
         return [s.row()
                 for s
                 in self.selectionModel().selectedRows()]
-
 
 
 

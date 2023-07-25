@@ -23,26 +23,24 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
-import pandas as pd
-from pandas import DataFrame as dataframe
-
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt, pyqtSignal
-
 from PyQt6.QtWidgets import QWidget, QDialog,\
         QDialogButtonBox, QFileDialog
 from PyQt6.QtWidgets import QVBoxLayout
 
+from pandas import DataFrame
+
 import modules.common as common
-import modules.db as db
+from modules.db.data import InputError
+from modules.db.csv import parse_csv
 
 from modules.CQWidgets.CQTableWidget import CQTableWidget
 
 
+
 isd_width = 800
 isd_height = 500
-
 
 
 
@@ -52,7 +50,7 @@ class import_dialog(QDialog):
 
     Attributes
     -----------------------
-    __df : dataframe
+    __df : DataFrame
         Stores the imported data
     __table : QTableWidget
         Table showing the imported data
@@ -73,17 +71,17 @@ class import_dialog(QDialog):
 
     Signals
     -----------------------
-    import_requested[dataframe]
+    import_requested[DataFrame]
         Broadcasts the request for importing in the database
 
     Public slots
     -----------------------
     load()
         Allows the user to select a CSV file,
-        loads it in the member dataframe
+        loads it in the member DataFrame
         and displays it in the table
     accept()
-        Emits `import_requested` with the stored dataframe
+        Emits `import_requested` with the stored DataFrame
 
     Connections
     -----------------------
@@ -112,7 +110,6 @@ class import_dialog(QDialog):
 
 
 
-
     def __init_widgets(self) -> QVBoxLayout:
         """
         Sets up widgets and layouts
@@ -138,7 +135,6 @@ class import_dialog(QDialog):
 
 
 
-
     def __init_connections(self):
         """
         Inits connections
@@ -149,17 +145,15 @@ class import_dialog(QDialog):
 
 
 
-
-    import_requested = pyqtSignal(dataframe)
+    import_requested = pyqtSignal(DataFrame)
     """
     Broadcasts import request
 
     Arguments
     -----------------------
-    df : dataframe
-        The dataframe to bulk-import in the database
+    df : DataFrame
+        The DataFrame to bulk-import in the database
     """
-
 
 
 
@@ -167,7 +161,7 @@ class import_dialog(QDialog):
     def load(self):
         """
         Allows the user to select a CSV file,
-        loads it in the member dataframe
+        loads it in the member DataFrame
         and displays it in the table
         """
 
@@ -182,9 +176,9 @@ class import_dialog(QDialog):
             return
 
         try:
-            self.__df = db.parse_csv(filename)
-        except db.DatabaseError as err:
-            common.ErrorMsg('File error : {}'.format(err))
+            self.__df = parse_csv(filename)
+        except InputError as err:
+            common.ErrorMsg(f'File error : {err}')
             return
 
         self.__table.fill(
@@ -197,11 +191,10 @@ class import_dialog(QDialog):
 
 
 
-
     @QtCore.pyqtSlot()
     def accept(self):
         """
-        Emits a signal carrying the stored dataframe
+        Emits a signal carrying the stored DataFrame
         for importing in the database
         """
         self.import_requested.emit(self.__df)

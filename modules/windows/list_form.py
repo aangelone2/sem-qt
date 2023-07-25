@@ -26,18 +26,15 @@
 
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt, QSize, pyqtSignal
-
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
         QCalendarWidget, QGroupBox
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
-import pandas as pd
-from pandas import DataFrame as dataframe
+from pandas import DataFrame
 
 import modules.common as common
 
-from modules.CQWidgets.CQTableWidget import CQTableWidget
-
+from modules.CQTableWidget import CQTableWidget
 
 
 
@@ -67,8 +64,8 @@ class list_form(QWidget):
         Constructor
     clear_tables()
         Clears all content
-    update_tables(dataframe)
-        Updates the tables from a provided dataframe
+    update_tables(DataFrame)
+        Updates the tables from a provided DataFrame
     selected_rowids() -> list[int]:
         Returns list of rowids of selected rows in __tab_list
 
@@ -130,7 +127,6 @@ class list_form(QWidget):
 
 
 
-
     def __init_lay_tab(self) -> QVBoxLayout:
         """
         Returns the initialized table layout, empty tables
@@ -158,7 +154,6 @@ class list_form(QWidget):
         lay.addWidget(self.__tab_sum)
 
         return lay
-
 
 
 
@@ -215,7 +210,6 @@ class list_form(QWidget):
 
 
 
-
     def __init_connections(self):
         """
         Inits connections
@@ -224,7 +218,6 @@ class list_form(QWidget):
         self.__but_update.clicked.connect(
                 self.__request_query
         )
-
 
 
 
@@ -238,14 +231,13 @@ class list_form(QWidget):
 
 
 
-
-    def update_tables(self, df: dataframe):
+    def update_tables(self, df: DataFrame):
         """
-        Updates the tables from a provided dataframe
+        Updates the tables from a provided DataFrame
 
         Arguments
         -----------------------
-        df : dataframe
+        df : DataFrame
             Dataframe used to fill the tables
             __tab_sum will only contain the categories in df
         """
@@ -274,7 +266,6 @@ class list_form(QWidget):
 
 
 
-
     def selected_rowids(self) -> list[int]:
         """
         Returns list of selected rows in __tab_list
@@ -289,7 +280,6 @@ class list_form(QWidget):
 
 
 
-
     query_requested = pyqtSignal(str, str)
     """
     Broadcasts expense list request
@@ -301,7 +291,6 @@ class list_form(QWidget):
     end_date : str
         Ending date for the requested query, 'yyyy-mm-dd'
     """
-
 
 
 
