@@ -38,9 +38,9 @@ class DatabaseError(Exception):
 
 
 
-class Model():
+class ModelWrapper():
     """
-    Model wrapper class
+    Wrapper for list and sum models
 
     Public attributes
     -----------------------
@@ -68,10 +68,10 @@ class Model():
         Creates and inits connection to existing DB
     init_model()
         Initializes list model
-    close()
-        Closes connection with DB
     save_csv(str)
         Dumps the database to a CSV file
+    close_db()
+        Closes connection with DB
     """
 
     def __init__(self, parent: QWidget):
@@ -220,15 +220,6 @@ class Model():
 
 
 
-    def close(self):
-        """
-        Closes connection with DB
-        """
-
-        self.__conn.close()
-
-
-
     def save_csv(self, filename: str):
         """
         Dumps the database to a CSV file
@@ -263,3 +254,12 @@ class Model():
                     query.value(2), query.value(3)
                 )
                 print(row, out)
+
+
+
+    def close_db(self):
+        """
+        Closes connection with DB
+        """
+
+        self.__conn.close()

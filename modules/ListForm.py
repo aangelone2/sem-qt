@@ -29,10 +29,9 @@ from PyQt6.QtCore import Qt, QSize, pyqtSignal
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
         QCalendarWidget, QGroupBox
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
+from PyQt6.QtSql import QSqlTableModel
 
-from pandas import DataFrame
-
-import modules.common as common
+from modules.Common import lock_height, lock_size
 
 from modules.CQTableWidget import CQTableWidget
 
@@ -42,7 +41,7 @@ SUM_TABLE_HEIGHT = 50
 
 
 
-class list_form(QWidget):
+class ListForm(QWidget):
     """
     Form to display and summarize records
 
@@ -64,14 +63,10 @@ class list_form(QWidget):
 
     Public methods
     -----------------------
-    __init__()
+    __init__(QSqlTableModel)
         Constructor
     clear_tables()
         Clears all content
-    update_tables(DataFrame)
-        Updates the tables from a provided DataFrame
-    selected_rowids() -> list[int]:
-        Returns list of rowids of selected rows in __tab_list
 
     Private methods
     -----------------------
@@ -101,9 +96,14 @@ class list_form(QWidget):
         -> query_requested(start_date, end_date)
     """
 
-    def __init__(self):
+    def __init__(self, list_model: QSqlTableModel):
         """
         Constructor
+
+        Arguments
+        -----------------------
+        list_model: QSqlTableModel
+            Model for the list CQTableWidget
         """
 
         super().__init__()
@@ -116,6 +116,9 @@ class list_form(QWidget):
 
         lay_tab = self.__init_lay_tab()
         lay_cal_but = self.__init_lay_cal_but()
+
+        # assigning SQL models
+        self.__tab_list.setModel(list_model)
 
         # generating main layout
         lay_gen = QHBoxLayout()
@@ -146,7 +149,7 @@ class list_form(QWidget):
         # sum table
         self.__tab_sum = CQTableWidget(self)
         self.__tab_sum.setMaximumHeight(SUM_TABLE_HEIGHT)
-        self.__tab_sum = common.lock_height(self.__tab_sum)
+        self.__tab_sum = lock_height(self.__tab_sum)
 
         # setting up layout
         lay = QVBoxLayout()
@@ -171,7 +174,7 @@ class list_form(QWidget):
 
         # start date calendar
         self.__cal_start = QCalendarWidget(self)
-        self.__cal_start = common.lock_size(self.__cal_start)
+        self.__cal_start = lock_size(self.__cal_start)
 
         # end date label
         lab_end = QLabel('End date [included]', self)
@@ -179,7 +182,7 @@ class list_form(QWidget):
 
         # end date calendar
         self.__cal_end = QCalendarWidget(self)
-        self.__cal_end = common.lock_size(self.__cal_end)
+        self.__cal_end = lock_size(self.__cal_end)
 
         # update button (graphical setup)
         self.__but_update = QPushButton('Update', self)
@@ -226,55 +229,6 @@ class list_form(QWidget):
 
         self.__tab_list.clear()
         self.__tab_sum.clear()
-
-
-
-    def update_tables(self, df: DataFrame):
-        """
-        Updates the tables from a provided DataFrame
-
-        Arguments
-        -----------------------
-        df : DataFrame
-            Dataframe used to fill the tables
-            __tab_sum will only contain the categories in df
-        """
-
-        # Filling expense table
-        self.__tab_list.fill(
-                df,
-                col = False,
-                floats = [3]
-        )
-
-        # filling sum table
-        try:
-            ser = df.groupby('type')['amount'].sum()
-            ser['Total'] = ser.sum()
-
-            self.__tab_sum.fill(
-                    ser.to_frame().T,
-                    col = True,
-                    floats = None,
-                    last_bold = True
-            )
-        except KeyError:
-            # empty result set
-            pass
-
-
-
-    def selected_rowids(self) -> list[int]:
-        """
-        Returns list of selected rows in __tab_list
-        """
-
-        rows = self.__tab_list.selected_rows()
-        return [
-                int(self.__tab_list.item(r,0).text())
-                for r
-                in rows
-        ]
 
 
 

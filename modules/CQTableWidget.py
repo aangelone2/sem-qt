@@ -33,7 +33,7 @@ from PyQt6.QtWidgets import QWidget, QTableWidget,\
         QHeaderView, QTableView, QTableWidgetItem,\
         QAbstractItemView
 
-import modules.common as common
+from modules.Common import colors
 
 
 
@@ -124,9 +124,9 @@ class CQTableWidget(QTableWidget):
                 grey = ((ir % 2 == 1) if rows else (ic % 2 == 1))
 
                 color = (
-                        common.colors.lightgray
+                        colors.lightgray
                         if grey
-                        else common.colors.white
+                        else colors.white
                 )
 
                 self.item(ir, ic).setBackground(color)

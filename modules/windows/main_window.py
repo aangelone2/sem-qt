@@ -30,17 +30,8 @@ from PyQt6.QtWidgets import QWidget, QApplication,\
         QToolBar, QFileDialog, QLineEdit
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
-from pandas import DataFrame
-
 from modules.common import ErrorMsg
-
-import modules.db.connect as connect
-from modules.db.connect import DatabaseError
-
-import modules.db.data as data
-from modules.db.data import InputError
-
-import modules.db.csv as csv
+from modules.model import ModelWrapper
 
 from modules.windows.list_form import list_form
 from modules.windows.add_form import add_form, ADD_FORM_WIDTH
@@ -63,8 +54,8 @@ class main_window(QWidget):
 
     Attributes
     -----------------------
-    __conn: connection
-        Connection to database-table pair
+    __models: ModelWrapper
+        Wrapper for list and sum models
     __form_lst : list_form
         Internal list_form widget
     __form_add : add_form
