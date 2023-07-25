@@ -99,12 +99,6 @@ class CQTableWidget(QTableWidget):
                 QHeaderView.ResizeMode.Stretch
         )
 
-        # font sizes
-        self.setStyleSheet('QTabWidget {font-size: 18px}')
-        self.horizontalHeader().setStyleSheet(
-                'QHeaderView {font-size: 20px}'
-        )
-
         # sorting on column after click
         self.horizontalHeader().sectionClicked.connect(
                 lambda ic: self.__sort(ic)

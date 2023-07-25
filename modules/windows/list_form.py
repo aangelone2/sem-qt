@@ -38,6 +38,10 @@ from modules.CQTableWidget import CQTableWidget
 
 
 
+SUM_TABLE_HEIGHT = 50
+
+
+
 class list_form(QWidget):
     """
     Form to display and summarize records
@@ -138,11 +142,10 @@ class list_form(QWidget):
         # label for sum table
         label = QLabel('Summary', self)
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        label = common.set_font_size(label, 20)
 
         # sum table
         self.__tab_sum = CQTableWidget(self)
-        self.__tab_sum.setMaximumHeight(58)
+        self.__tab_sum.setMaximumHeight(SUM_TABLE_HEIGHT)
         self.__tab_sum = common.lock_height(self.__tab_sum)
 
         # setting up layout
@@ -165,26 +168,21 @@ class list_form(QWidget):
         # start date label
         lab_start = QLabel('Start date [included]', self)
         lab_start.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        lab_start = common.set_font_size(lab_start, 20)
 
         # start date calendar
         self.__cal_start = QCalendarWidget(self)
         self.__cal_start = common.lock_size(self.__cal_start)
-        self.__cal_start = common.set_font_size(self.__cal_start, 16)
 
         # end date label
         lab_end = QLabel('End date [included]', self)
         lab_end.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        lab_end = common.set_font_size(lab_end, 20)
 
         # end date calendar
         self.__cal_end = QCalendarWidget(self)
         self.__cal_end = common.lock_size(self.__cal_end)
-        self.__cal_end = common.set_font_size(self.__cal_end, 16)
 
         # update button (graphical setup)
         self.__but_update = QPushButton('Update', self)
-        self.__but_update = common.set_font_size(self.__but_update, 20)
 
         # setting up query details layout
         lay_det = QVBoxLayout()

@@ -88,30 +88,6 @@ def lock_size(widget: QWidget) -> QWidget:
 
 
 
-def set_font_size(widget: QWidget, size: int) -> QWidget:
-    """
-    Changes font size
-    
-    Arguments
-    -----------------------
-    widget : QWidget
-        Widget whose font size will be changed
-
-    Return value
-    -----------------------
-    Returns the modified widget
-    """
-
-    widget.setStyleSheet(
-            '{} {{font-size: {}px}}'.format(
-                type(widget).__name__, size
-            )
-    )
-
-    return widget
-
-
-
 def ErrorMsg(err: Exception):
     """
     Wraps QMessageBox to generate an error message

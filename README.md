@@ -52,8 +52,6 @@ The main executable is launched as
 - [ ] Add flexibility for date format to CSV importing
 - [ ] Add search functionality
 - [ ] Fully implement MVC design pattern
-- [ ] Clear custom appearance
-- [ ] Allow to modify records ?
 
 - [ ] Add documentation
 - [ ] Streamline packaging

@@ -39,8 +39,8 @@ from modules.CQTableWidget import CQTableWidget
 
 
 
-isd_width = 800
-isd_height = 500
+IMPORT_DIALOG_WIDTH = 800
+IMPORT_DIALOG_HEIGHT = 500
 
 
 
@@ -102,7 +102,7 @@ class import_dialog(QDialog):
         self.__table = None
         self.__buttons = None
 
-        self.resize(isd_width, isd_height)
+        self.resize(IMPORT_DIALOG_WIDTH, IMPORT_DIALOG_HEIGHT)
 
         self.setLayout(self.__init_widgets())
 

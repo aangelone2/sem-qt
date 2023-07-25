@@ -37,7 +37,6 @@ version = '1.3.7'
 
 if __name__ == "__main__":
     app = QApplication([])
-    app.setFont(QFont('Lato', 16))
 
     mw = main_window()
     mw.show()

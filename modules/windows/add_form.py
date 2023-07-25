@@ -35,7 +35,7 @@ import modules.common as common
 
 
 
-af_width = 400
+ADD_FORM_WIDTH = 300
 
 
 
@@ -114,7 +114,7 @@ class add_form(QWidget):
         self.__txt_justif = None
         self.__but_accept = None
 
-        self.setMaximumWidth(af_width)
+        self.setMaximumWidth(ADD_FORM_WIDTH)
 
         self.setLayout(self.__init_widgets())
 
@@ -134,7 +134,6 @@ class add_form(QWidget):
         # calendar
         self.__cal = QCalendarWidget(self)
         self.__cal = common.lock_size(self.__cal)
-        self.__cal = common.set_font_size(self.__cal, 18)
 
         # type textbox
         self.__txt_type = QLineEdit(self)

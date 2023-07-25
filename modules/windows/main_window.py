@@ -43,14 +43,14 @@ from modules.db.data import InputError
 import modules.db.csv as csv
 
 from modules.windows.list_form import list_form
-from modules.windows.add_form import add_form
+from modules.windows.add_form import add_form, ADD_FORM_WIDTH
 from modules.windows.import_dialog import import_dialog
 
 
 
-mw_narrow = 1200
-mw_wide = 1600
-mw_height = 400
+MAIN_WINDOW_NARROW = 1200
+MAIN_WINDOW_WIDE = MAIN_WINDOW_NARROW + ADD_FORM_WIDTH
+MAIN_WINDOW_HEIGHT = 400
 
 id_width = 900
 id_height = 500
@@ -178,7 +178,7 @@ class main_window(QWidget):
         self.__act_close = None
 
         # set to narrow size by default
-        self.resize(mw_narrow, mw_height)
+        self.resize(MAIN_WINDOW_NARROW, MAIN_WINDOW_HEIGHT)
         # setting window title
         self.setWindowTitle('Simple Expense Manager')
 
@@ -434,14 +434,14 @@ class main_window(QWidget):
 
         if (self.__form_add.isVisible() is False):
             # show add form
-            self.resize(mw_wide, mw_height)
+            self.resize(MAIN_WINDOW_WIDE, MAIN_WINDOW_HEIGHT)
             self.__lay_hor.addWidget(self.__form_add)
             self.__form_add.show()
         else:
             # hide add form
             self.__form_add.hide()
             self.__lay_hor.removeWidget(self.__form_add)
-            self.resize(mw_narrow, mw_height)
+            self.resize(MAIN_WINDOW_NARROW, MAIN_WINDOW_HEIGHT)
 
         # re-centering the window horizontally
         screen = QApplication.primaryScreen()
