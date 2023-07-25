@@ -88,5 +88,11 @@ It is important to note that, due to these design choices,
 
 ## To Do
 
-- [ ] Add documentation (underway)
+- [ ] Update documentation/README
+- [ ] Add flexibility for date format to CSV importing
+- [ ] Add search functionality
+- [ ] Clear custom appearance
+- [ ] Allow to modify records ?
+
+- [ ] Add documentation
 - [ ] Streamline packaging

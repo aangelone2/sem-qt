@@ -33,9 +33,6 @@ from PyQt6.QtWidgets import QWidget, QPushButton,\
         QCalendarWidget, QLabel, QGroupBox, QMessageBox
 from PyQt6.QtWidgets import QHBoxLayout, QVBoxLayout
 
-import sqlite3 as sql
-from sqlite3 import Connection as connection
-
 import pandas as pd
 from pandas import DataFrame as dataframe
 

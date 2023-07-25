@@ -75,7 +75,7 @@ class main_window(QWidget):
         Toolbar widget
     __act_create : QAction
         The action of creating a new database
-    __act_login : QAction
+    __act_open : QAction
         The action of logging in to a new database
     __act_add : QAction
         The action of displaying/hiding the add_form
@@ -85,7 +85,7 @@ class main_window(QWidget):
         The action of saving the database to an external file
     __act_delete : QAction
         Deletes selected rows
-    __act_logout : QAction
+    __act_close : QAction
         Logs the user out
 
     Public methods
@@ -114,10 +114,10 @@ class main_window(QWidget):
         Updates self.__form_lst with expenses
         comprised between the two given dates
     __request_create()
-        Attempts creation of encrypted database,
+        Attempts creation of database,
         sets self.__conn to the resulting connection
-    __request_login()
-        Attempts login to encrypted database,
+    __request_open()
+        Attempts to open existing database,
         sets self.__conn to the resulting connection
     __toggle_add()
         Hides/shows the addition form
@@ -126,8 +126,8 @@ class main_window(QWidget):
         Collects filename from user and dumps database
     __request_deletion()
         Requests deletion of selected rows, updates display
-    __logout_db()
-        Logs out from current database and clears tables
+    __close_db()
+        Closes current database and clears tables
 
     Connections
     -----------------------
@@ -139,8 +139,8 @@ class main_window(QWidget):
         -> __request_add(df)
     __act_create.triggered
         -> __request_create()
-    __act_login.triggered
-        -> __request_login()
+    __act_open.triggered
+        -> __request_open()
     __act_add.triggered
         -> __toggle_add()
     __act_import.triggered
@@ -149,8 +149,8 @@ class main_window(QWidget):
         -> __request_export()
     __act_delete.triggered
         -> __request_deletion()
-    __act_logout.triggered
-        -> __logout_db()
+    __act_close.triggered
+        -> __close_db()
     """
 
     def __init__(self):
@@ -167,12 +167,12 @@ class main_window(QWidget):
         self.__lay_hor = None
         self.__tb = None
         self.__act_create = None
-        self.__act_login = None
+        self.__act_open = None
         self.__act_add = None
         self.__act_import = None
         self.__act_export = None
         self.__act_delete = None
-        self.__act_logout = None
+        self.__act_close = None
 
         # set to narrow size by default
         self.resize(mw_narrow, mw_height)
@@ -237,8 +237,8 @@ class main_window(QWidget):
         self.__act_create = QAction(QIcon('resources/create.png'), 'Create', self)
         self.__act_create.setToolTip('Create new database')
 
-        self.__act_login = QAction(QIcon('resources/login.png'), 'Login', self)
-        self.__act_login.setToolTip('Login to existing database')
+        self.__act_open = QAction(QIcon('resources/open.png'), 'Open', self)
+        self.__act_open.setToolTip('Open existing database')
 
         self.__act_add = QAction(QIcon('resources/add.png'), 'Add', self)
         self.__act_add.setCheckable(True)
@@ -253,11 +253,11 @@ class main_window(QWidget):
         self.__act_delete = QAction(QIcon('resources/delete.png'), 'Delete', self)
         self.__act_delete.setToolTip('Deletes selected expenses from database')
 
-        self.__act_logout = QAction(QIcon('resources/logout.png'), 'Logout', self)
-        self.__act_logout.setToolTip('Logout')
+        self.__act_close = QAction(QIcon('resources/close.png'), 'Close', self)
+        self.__act_close.setToolTip('Close current database')
 
         self.__tb.addAction(self.__act_create)
-        self.__tb.addAction(self.__act_login)
+        self.__tb.addAction(self.__act_open)
         self.__tb.addSeparator()
         self.__tb.addAction(self.__act_add)
         self.__tb.addAction(self.__act_import)
@@ -266,7 +266,7 @@ class main_window(QWidget):
         self.__tb.addSeparator()
         self.__tb.addAction(self.__act_delete)
         self.__tb.addSeparator()
-        self.__tb.addAction(self.__act_logout)
+        self.__tb.addAction(self.__act_close)
 
 
 
@@ -304,9 +304,9 @@ class main_window(QWidget):
                 self.__request_create
         )
 
-        # login action
-        self.__act_login.triggered.connect(
-                self.__request_login
+        # open action
+        self.__act_open.triggered.connect(
+                self.__request_open
         )
 
         # show/hide request for add_form
@@ -329,9 +329,9 @@ class main_window(QWidget):
                 self.__request_deletion
         )
 
-        # logout from current database
-        self.__act_logout.triggered.connect(
-                self.__logout_db
+        # close current database
+        self.__act_close.triggered.connect(
+                self.__close_db
         )
 
 
@@ -390,7 +390,7 @@ class main_window(QWidget):
     @QtCore.pyqtSlot()
     def __request_create(self):
         """
-        Attempts creation of encrypted database,
+        Attempts creation of database,
         sets self.__conn to the resulting connection
         """
 
@@ -409,15 +409,8 @@ class main_window(QWidget):
             )
             return
 
-        pssw = QInputDialog.getText(
-                self,
-                'Password input',
-                'Select a password',
-                QLineEdit.EchoMode.Password
-        )[0]
-
         try:
-            self.__conn = db.create(filename, pssw)
+            self.__conn = db.create(filename)
         except db.DatabaseError as err:
             QMessageBox.critical(
                 None, 'Error', 'Operation failed : {}'.format(err)
@@ -428,9 +421,9 @@ class main_window(QWidget):
 
 
     @QtCore.pyqtSlot()
-    def __request_login(self):
+    def __request_open(self):
         """
-        Attempts login to encrypted database,
+        Attempts to open database,
         sets self.__conn to the resulting connection
         """
 
@@ -442,15 +435,8 @@ class main_window(QWidget):
         if (filename == ''):
             return
 
-        pssw = QInputDialog.getText(
-                self,
-                'Password input',
-                'Input the password',
-                QLineEdit.EchoMode.Password
-        )[0]
-
         try:
-            self.__conn = db.login(filename, pssw)
+            self.__conn = db.open(filename)
         except db.DatabaseError as err:
             QMessageBox.critical(
                 None, 'Error', 'Operation failed : {}'.format(err)
@@ -527,7 +513,7 @@ class main_window(QWidget):
 
 
     @QtCore.pyqtSlot()
-    def __logout_db(self):
+    def __close_db(self):
         """
         Logs out from current database and clears tables
         """

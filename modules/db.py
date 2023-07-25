@@ -27,8 +27,8 @@
 import re
 import datetime
 
-from pysqlcipher3 import dbapi2 as sql
-from pysqlcipher3.dbapi2 import Connection as connection
+import sqlite3
+from sqlite3 import Connection as connection
 
 import pandas as pd
 from pandas import DataFrame as dataframe
@@ -45,7 +45,7 @@ class DatabaseError(Exception):
 
 
 
-def create(filename: str, pssw: str) -> connection:
+def create(filename: str) -> connection:
     """
     Creates encrypted database and establishes connection
     
@@ -53,9 +53,6 @@ def create(filename: str, pssw: str) -> connection:
     -----------------------
     filename : str
         Path of the database to connect to
-    pssw : str
-        Passphrase to access the database
-        Will be verified by the database when connecting
 
     Return value
     -----------------------
@@ -67,9 +64,7 @@ def create(filename: str, pssw: str) -> connection:
     """
 
     # Attempting connection, checking credentials
-    conn = sql.connect(filename)
-    conn.execute("PRAGMA key = '{}' ;".format(pssw))
-    conn.execute('PRAGMA cypher_compatibility = 3 ;')
+    conn = sqlite3.connect(filename)
 
     command = '''
         CREATE TABLE expenses (
@@ -88,7 +83,7 @@ def create(filename: str, pssw: str) -> connection:
 
 
 
-def login(filename: str, pssw: str) -> connection:
+def open(filename: str) -> connection:
     """
     Establishes connection to existing database
 
@@ -96,9 +91,6 @@ def login(filename: str, pssw: str) -> connection:
     -----------------------
     filename : str
         Path of the database to connect to
-    pssw : str
-        Passphrase to access the database
-        Will be verified by the database when connecting
 
     Return value
     -----------------------
@@ -107,17 +99,14 @@ def login(filename: str, pssw: str) -> connection:
     Raises
     -----------------------
     - DatabaseError if database not found
-    - DatabaseError if credentials are incorrect
     - DatabaseError if 'expenses' table not found
     """
 
     # Attempting connection, checking credentials
     try:
-        conn = sql.connect(filename)
-        conn.execute("PRAGMA key = '{}' ;".format(pssw))
-        conn.execute('PRAGMA cypher_compatibility = 3 ;')
+        conn = sqlite3.connect(filename)
         conn.execute('SELECT * from sqlite_master ;')
-    except sql.DatabaseError:
+    except sqlite3.DatabaseError:
         raise DatabaseError('invalid credentials')
 
     # Checking existence of 'expenses' table
