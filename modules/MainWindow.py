@@ -55,6 +55,8 @@ class MainWindow(QMainWindow):
         The action of creating a new database
     __actOpen : QAction
         The action of logging in to a new database
+    __actAdd : QAction
+        The action of manually adding expenses to the database
     __actImport : QAction
         The action of importing an external CSV file
     __actExport : QAction
@@ -82,6 +84,8 @@ class MainWindow(QMainWindow):
         Attempts creation of database
     __requestOpen()
         Attempts to open existing database
+    __requestAdd()
+        Attempts to add expense to the view and then to the DB
     __requestImport()
         Collects filename from user and loads CSV data
     __requestExport()
@@ -97,6 +101,8 @@ class MainWindow(QMainWindow):
         -> __requestCreate()
     __actOpen.triggered
         -> __requestOpen()
+    __actAdd.triggered
+        -> __requestAdd()
     __actImport.triggered
         -> __requestImport()
     __actExport.triggered
@@ -114,6 +120,7 @@ class MainWindow(QMainWindow):
         self.__formLst = None
         self.__actCreate = None
         self.__actOpen = None
+        self.__actAdd = None
         self.__actImport = None
         self.__actExport = None
 
@@ -150,6 +157,9 @@ class MainWindow(QMainWindow):
         self.__actOpen = QAction(QIcon('resources/open.png'), 'Open', self)
         self.__actOpen.setToolTip('Open existing database')
 
+        self.__actAdd = QAction(QIcon('resources/add.png'), 'Add', self)
+        self.__actAdd.setToolTip('Add expenses manually')
+
         self.__actImport = QAction(QIcon('resources/import.png'), 'Import', self)
         self.__actImport.setToolTip('Import external CSV file')
 
@@ -158,6 +168,8 @@ class MainWindow(QMainWindow):
 
         tb.addAction(self.__actCreate)
         tb.addAction(self.__actOpen)
+        tb.addSeparator()
+        tb.addAction(self.__actAdd)
         tb.addSeparator()
         tb.addAction(self.__actImport)
         tb.addAction(self.__actExport)
@@ -194,6 +206,11 @@ class MainWindow(QMainWindow):
         # open action
         self.__actOpen.triggered.connect(
                 self.__requestOpen
+        )
+
+        # add action
+        self.__actAdd.triggered.connect(
+                self.__requestAdd
         )
 
         # request importing from CSV
@@ -261,6 +278,16 @@ class MainWindow(QMainWindow):
                 self.__models.listModel,
                 self.__models.sumModel
         )
+
+
+
+    @QtCore.pyqtSlot()
+    def __requestAdd(self):
+        """
+        The action of manually adding expenses to the database
+        """
+
+        self.__models.addDefaultRecord()
 
 
 

@@ -46,7 +46,6 @@ The main executable is launched as
 ## To Do
 
 - [ ] Add filter-by-justification functionality
-- [ ] Allow to add expenses
 - [ ] Allow to delete expenses
 - [ ] Status bar
 - [ ] Robust error management

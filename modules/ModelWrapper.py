@@ -31,6 +31,7 @@ from PyQt6.QtSql import QSqlDatabase, QSqlQuery,\
 from string import Template
 import csv
 import os
+import datetime
 
 
 
@@ -72,6 +73,8 @@ class ModelWrapper():
         Initializes list and sum models
     applyDateFilter(list[str])
         Apply filter to models with the specified dates
+    addDefaultRecord()
+        Adds a default record to the end of the DB
     importCSV(str)
         Appends the contents of a CSV file to the database
     saveCSV(str)
@@ -316,6 +319,36 @@ class ModelWrapper():
         )
 
         self.listModel.select()
+
+
+
+    def addDefaultRecord(self):
+        """
+        Adds a default record to the end of the DB
+
+        Raises
+        -----------------------
+        - DatabaseError if unsuccessful addition
+        """
+
+        # empty reference record
+        record = self.listModel.record()
+
+        # allowing to auto-set primary key
+        record.remove(0)
+
+        # setting default values for other fields
+        # notice the realigned indices
+        record.setValue(0, datetime.date.today().strftime('%Y-%m-%d'))
+        record.setValue(1, '-')
+        record.setValue(2, 0.0)
+        record.setValue(3, '-')
+
+        # inserting in last position
+        chk = self.listModel.insertRecord(-1, record)
+        if (not chk):
+            print(self.listModel.lastError().text())
+            raise DatabaseError(f'Error in inserting record')
 
 
 
