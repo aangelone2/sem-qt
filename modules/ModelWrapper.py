@@ -44,7 +44,7 @@ class ModelWrapper():
 
     Public attributes
     -----------------------
-    list_model: QSqlTableModel
+    listModel: QSqlTableModel
         Model for general expense data
 
     Private attributes
@@ -53,24 +53,22 @@ class ModelWrapper():
         Parent QWidget
     __conn: QSqlDatabase
         Database connection
-    __start_date: str
-        Starting date for model data
-    __end_date: str
-        Starting date for model data
 
     Public methods
     -----------------------
     __init__()
         Constructor
-    create_db(str)
+    createDB(str)
         Creates and inits connection to new DB
-    open_db(str)
+    openDB(str)
         Creates and inits connection to existing DB
-    init_model()
+    initModel()
         Initializes list model
-    save_csv(str)
+    updateModel(str, str)
+        Apply filter to models with the specified dates
+    saveCSV(str)
         Dumps the database to a CSV file
-    close_db()
+    closeDB()
         Closes connection with DB
     """
 
@@ -86,17 +84,17 @@ class ModelWrapper():
 
         super().__init__()
 
-        self.list_model = None
+        self.listModel = None
         self.__parent = None
         self.__conn = None
-        self.__start_date = None
-        self.__end_date = None
+        self.__startDate = None
+        self.__endDate = None
 
         self.__parent = parent
 
 
 
-    def create_db(self, filename: str):
+    def createDB(self, filename: str):
         """
         Creates and inits connection to new DB
 
@@ -141,7 +139,7 @@ class ModelWrapper():
 
 
 
-    def open_db(self, filename: str):
+    def openDB(self, filename: str):
         """
         Creates and inits connection to existing DB
 
@@ -198,29 +196,49 @@ class ModelWrapper():
 
 
 
-    def init_model(self):
+    def initModel(self):
         """
         Initializes list model
         """
 
+        if (self.__conn is None):
+            raise DatabaseError('Uninitialized connection')
+
         # using default connection
-        self.list_model = QSqlTableModel(self.__parent)
-        self.list_model.setTable('expenses')
+        self.listModel = QSqlTableModel(self.__parent)
+        self.listModel.setTable('expenses')
         # sorting by date
-        self.list_model.setSort(
+        self.listModel.setSort(
                 0, Qt.SortOrder.DescendingOrder
         )
 
         colnames = ['date', 'type', 'amount', 'justification']
         for i,c in enumerate(colnames):
-            self.list_model.setHeaderData(i, Qt.Horizontal, c)
+            self.listModel.setHeaderData(i, Qt.Horizontal, c)
 
         # no filter for initialization
-        self.list_model.select()
+        self.listModel.select()
 
 
 
-    def save_csv(self, filename: str):
+    def updateModel(startDate: str, endDate: str)
+        """
+        Apply filter to models with the specified dates
+
+        Arguments
+        -----------------------
+        filename : str
+            Filename of the output CSV file
+        """
+
+        self.listModel.setFilter(
+                f'date BETWEEN {startDate} AND {endDate}'
+        )
+        self.listModel.select()
+
+
+
+    def saveCSV(self, filename: str):
         """
         Dumps the database to a CSV file
     
@@ -257,7 +275,7 @@ class ModelWrapper():
 
 
 
-    def close_db(self):
+    def closeDB(self):
         """
         Closes connection with DB
         """

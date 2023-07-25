@@ -23,17 +23,14 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt, QSize, pyqtSignal
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
-        QCalendarWidget, QGroupBox
+        QCalendarWidget, QGroupBox, QTableView
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 from PyQt6.QtSql import QSqlTableModel
 
-from modules.Common import lock_height, lock_size
-
-from modules.CQTableWidget import CQTableWidget
+from modules.Common import lockHeight, lockSize
 
 
 
@@ -47,17 +44,17 @@ class ListForm(QWidget):
 
     Attributes
     -----------------------
-    __tab_list : CQTableWidget
+    __tabList : QTableWidget
         Contains the expenses with dates between the two
         selected dates, lists all fields
-    __tab_sum : CQTableWidget
+    __tabSum : CQTableWidget
         Contains the sum of the expenses with dates between the
         two selected dates, grouped by category
-    __cal_start : QCalendarWidget
+    __calStart : QCalendarWidget
         QCalendarWidget used to select start date in queries
-    __cal_end : QCalendarWidget
+    __calEnd : QCalendarWidget
         QCalendarWidget used to select end date in queries
-    __but_update : QPushButton
+    __butUpdate : QPushButton
         Updates the tables based on selected dates.
         Also refreshes expense categories
 
@@ -65,60 +62,58 @@ class ListForm(QWidget):
     -----------------------
     __init__(QSqlTableModel)
         Constructor
-    clear_tables()
-        Clears all content
 
     Private methods
     -----------------------
-    __init_lay_tab() -> QVBoxLayout
+    __initLayTab() -> QVBoxLayout
         Returns the initialized table layout, empty tables
-    __init_lay_cal_but() -> QVBoxLayout
+    __initLayCalBut() -> QVBoxLayout
         Returns the initialized calendar + buttons layout
-    __init_connections()
+    __initConnections()
         Inits connections
 
     Signals
     -----------------------
-    query_requested[str, str]
+    queryRequested[str, str]
         Broadcasts expense list request
 
     Private slots
     -----------------------
-    __request_query()
+    __requestQuery()
         Fetches start and end dates
-        and emits 'query_requested' signal
+        and emits 'queryRequested' signal
         with start and end date as arguments
 
     Connections
     -----------------------
-    __but_update.clicked
-        -> __request_query()
-        -> query_requested(start_date, end_date)
+    __butUpdate.clicked
+        -> __requestQuery()
+        -> queryRequested(start_date, end_date)
     """
 
-    def __init__(self, list_model: QSqlTableModel):
+    def __init__(self, listModel: QSqlTableModel):
         """
         Constructor
 
         Arguments
         -----------------------
-        list_model: QSqlTableModel
-            Model for the list CQTableWidget
+        listModel: QSqlTableModel
+            Model for the list QTableWidget
         """
 
         super().__init__()
 
-        self.__tab_list = None
-        self.__tab_sum = None
-        self.__cal_start = None
-        self.__cal_end = None
-        self.__but_update = None
+        self.__tabList = None
+        self.__tabSum = None
+        self.__calStart = None
+        self.__calEnd = None
+        self.__butUpdate = None
 
-        lay_tab = self.__init_lay_tab()
-        lay_cal_but = self.__init_lay_cal_but()
+        lay_tab = self.__initLayTab()
+        lay_cal_but = self.__initLayCalBut()
 
         # assigning SQL models
-        self.__tab_list.setModel(list_model)
+        self.__tabList.setModel(listModel)
 
         # generating main layout
         lay_gen = QHBoxLayout()
@@ -130,130 +125,120 @@ class ListForm(QWidget):
 
         self.setLayout(lay_gen)
 
-        self.__init_connections()
+        self.__initConnections()
 
 
 
-    def __init_lay_tab(self) -> QVBoxLayout:
+    def __initLayTab(self) -> QVBoxLayout:
         """
         Returns the initialized table layout, empty tables
         """
 
         # expense list table
-        self.__tab_list = CQTableWidget(self)
+        self.__tabList = QTableWidget(self)
 
         # label for sum table
         label = QLabel('Summary', self)
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # sum table
-        self.__tab_sum = CQTableWidget(self)
-        self.__tab_sum.setMaximumHeight(SUM_TABLE_HEIGHT)
-        self.__tab_sum = lock_height(self.__tab_sum)
+        self.__tabSum = QTableWidget(self)
+        self.__tabSum.setMaximumHeight(SUM_TABLE_HEIGHT)
+        self.__tabSum = lock_height(self.__tabSum)
 
         # setting up layout
         lay = QVBoxLayout()
-        lay.addWidget(self.__tab_list)
+        lay.addWidget(self.__tabList)
         lay.addSpacing(50)
         lay.addWidget(label)
         lay.addSpacing(10)
-        lay.addWidget(self.__tab_sum)
+        lay.addWidget(self.__tabSum)
 
         return lay
 
 
 
-    def __init_lay_cal_but(self) -> QVBoxLayout:
+    def __initLayCalBut(self) -> QVBoxLayout:
         """
         Returns the initialized calendar + button layout
         """
 
         # start date label
-        lab_start = QLabel('Start date [included]', self)
-        lab_start.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        labStart = QLabel('Start date [included]', self)
+        labStart.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # start date calendar
-        self.__cal_start = QCalendarWidget(self)
-        self.__cal_start = lock_size(self.__cal_start)
+        self.__calStart = QCalendarWidget(self)
+        self.__calStart = lock_size(self.__calStart)
 
         # end date label
-        lab_end = QLabel('End date [included]', self)
-        lab_end.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        labEnd = QLabel('End date [included]', self)
+        labEnd.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # end date calendar
-        self.__cal_end = QCalendarWidget(self)
-        self.__cal_end = lock_size(self.__cal_end)
+        self.__calEnd = QCalendarWidget(self)
+        self.__calEnd = lock_size(self.__calEnd)
 
         # update button (graphical setup)
-        self.__but_update = QPushButton('Update', self)
+        self.__butUpdate = QPushButton('Update', self)
 
         # setting up query details layout
-        lay_det = QVBoxLayout()
-        lay_det.addWidget(lab_start)
-        lay_det.addWidget(self.__cal_start)
-        lay_det.addSpacing(80)
-        lay_det.addWidget(lab_end)
-        lay_det.addWidget(self.__cal_end)
-        lay_det.addSpacing(80)
-        lay_det.addWidget(self.__but_update)
+        layDet = QVBoxLayout()
+        layDet.addWidget(labStart)
+        layDet.addWidget(self.__calStart)
+        layDet.addSpacing(80)
+        layDet.addWidget(labEnd)
+        layDet.addWidget(self.__calEnd)
+        layDet.addSpacing(80)
+        layDet.addWidget(self.__butUpdate)
 
         # group box
-        gbx_cal = QGroupBox('Query details')
-        gbx_cal.setLayout(lay_det)
+        gbxCal = QGroupBox('Query details')
+        gbxCal.setLayout(layDet)
 
         # general layout
         lay = QVBoxLayout()
         lay.addSpacing(10)
-        lay.addWidget(gbx_cal)
+        lay.addWidget(gbxCal)
         lay.addSpacing(10)
 
         return lay
 
 
 
-    def __init_connections(self):
+    def __initConnections(self):
         """
         Inits connections
         """
 
-        self.__but_update.clicked.connect(
-                self.__request_query
+        self.__butUpdate.clicked.connect(
+                self.__requestQuery
         )
 
 
 
-    def clear_tables(self):
-        """
-        Clears all content
-        """
-
-        self.__tab_list.clear()
-        self.__tab_sum.clear()
-
-
-
-    query_requested = pyqtSignal(str, str)
+    queryRequested = pyqtSignal(str, str)
     """
     Broadcasts expense list request
 
     Arguments
     -----------------------
-    start_date : str
+    startDate : str
         Starting date for the requested query, 'yyyy-mm-dd'
-    end_date : str
+    endDate : str
         Ending date for the requested query, 'yyyy-mm-dd'
     """
 
 
 
     @QtCore.pyqtSlot()
-    def __request_query(self):
+    def __requestQuery(self):
         """
         Emits signal with start and end date as arguments
         """
 
         fmt = Qt.DateFormat.ISODate
-        start_date = self.__cal_start.selectedDate().toString(fmt)
-        end_date = self.__cal_end.selectedDate().toString(fmt)
+        startDate = self.__calStart.selectedDate().toString(fmt)
+        endDate = self.__calEnd.selectedDate().toString(fmt)
 
-        self.query_requested.emit(start_date, end_date)
+        self.queryRequested.emit(startDate, endDate)

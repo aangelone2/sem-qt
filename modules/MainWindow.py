@@ -50,15 +50,15 @@ class MainWindow(QMainWindow):
     -----------------------
     __models: ModelWrapper
         Wrapper for list and sum models
-    __form_lst : list_form
+    __formLst : ListForm
         Internal list_form widget
-    __act_create : QAction
+    __actCreate : QAction
         The action of creating a new database
-    __act_open : QAction
+    __actOpen : QAction
         The action of logging in to a new database
-    __act_export : QAction
+    __actExport : QAction
         The action of saving the database to an external file
-    __act_close : QAction
+    __actClose : QAction
         Logs the user out
 
     Public methods
@@ -68,38 +68,40 @@ class MainWindow(QMainWindow):
 
     Private methods
     -----------------------
-    __init_forms()
+    __initForms()
         Inits the forms and the layout which contains them
-    __init_dialogs()
+    __initDialogs()
         Inits dialogs
-    __init_toolbar()
+    __initToolbar()
         Inits toolbar and the contained actions
-    __init_connections()
+    __initConnections()
         Inits form and dialog connections
-    __init_tb_connections()
+    __initTbConnections()
         Inits connections of toolbar actions
 
     Private slots
     -----------------------
-    __request_create()
+    __requestCreate()
         Attempts creation of database
-    __request_open()
+    __requestOpen()
         Attempts to open existing database
-    __request_export()
+    __requestExport()
         Collects filename from user and dumps database
-    __close_db()
+    __closeDB()
         Closes current database
 
     Connections
     -----------------------
-    __act_create.triggered
-        -> __request_create()
-    __act_open.triggered
-        -> __request_open()
-    __act_export.triggered
-        -> __request_export()
-    __act_close.triggered
-        -> __close_db()
+    __formLst.queryRequested[start, end]
+        -> __models.updateModel(start, end)
+    __actCreate.triggered
+        -> __requestCreate()
+    __actOpen.triggered
+        -> __requestOpen()
+    __actExport.triggered
+        -> __requestExport()
+    __actClose.triggered
+        -> __closeDB()
     """
 
     def __init__(self):
@@ -110,11 +112,11 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.__models = None
-        self.__form_lst = None
-        self.__act_create = None
-        self.__act_open = None
-        self.__act_export = None
-        self.__act_close = None
+        self.__formLst = None
+        self.__actCreate = None
+        self.__actOpen = None
+        self.__actExport = None
+        self.__actClose = None
 
         # set to narrow size by default
         self.resize(MAIN_WINDOW_WIDTH, MAIN_WINDOW_HEIGHT)
@@ -122,18 +124,18 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('Simple Expense Manager')
 
         # initializing form
-        self.__form_lst = ListForm(self)
+        self.__formLst = ListForm(self)
         # initializing toolbar
-        self.__init_toolbar()
+        self.__initToolbar()
 
-        self.setCentralWidget(self.__form_lst)
+        self.setCentralWidget(self.__formLst)
 
-        self.__init_connections()
-        self.__init_tb_connections()
+        self.__initConnections()
+        self.__initTbConnections()
 
 
 
-    def __init_toolbar(self):
+    def __initToolbar(self):
         """
         Inits toolbar and the contained actions
         """
@@ -141,64 +143,67 @@ class MainWindow(QMainWindow):
         self.menuBar() = QToolBar(self)
         self.menuBar().setIconSize(QSize(30, 30))
 
-        self.__act_create = QAction(QIcon('resources/create.png'), 'Create', self)
-        self.__act_create.setToolTip('Create new database')
+        self.__actCreate = QAction(QIcon('resources/create.png'), 'Create', self)
+        self.__actCreate.setToolTip('Create new database')
 
-        self.__act_open = QAction(QIcon('resources/open.png'), 'Open', self)
-        self.__act_open.setToolTip('Open existing database')
+        self.__actOpen = QAction(QIcon('resources/open.png'), 'Open', self)
+        self.__actOpen.setToolTip('Open existing database')
 
-        self.__act_export = QAction(QIcon('resources/export.png'), 'Export', self)
-        self.__act_export.setToolTip('Export database to CSV file')
+        self.__actExport = QAction(QIcon('resources/export.png'), 'Export', self)
+        self.__actExport.setToolTip('Export database to CSV file')
 
-        self.__act_close = QAction(QIcon('resources/close.png'), 'Close', self)
-        self.__act_close.setToolTip('Close current database')
+        self.__actClose = QAction(QIcon('resources/close.png'), 'Close', self)
+        self.__actClose.setToolTip('Close current database')
 
-        self.__tb.addAction(self.__act_create)
-        self.__tb.addAction(self.__act_open)
+        self.__tb.addAction(self.__actCreate)
+        self.__tb.addAction(self.__actOpen)
         self.__tb.addSeparator()
-        self.__tb.addAction(self.__act_export)
+        self.__tb.addAction(self.__actExport)
         self.__tb.addSeparator()
-        self.__tb.addAction(self.__act_close)
+        self.__tb.addAction(self.__actClose)
 
 
 
-    def __init_connections(self):
+    def __initConnections(self):
         """
         Inits form and dialog connections
         """
-        pass
+
+        self.__formLst.queryRequested.connect(
+                lambda s,e: __models.updateModel(s,e)
+        )
 
 
 
-    def __init_tb_connections(self):
+    def __initTbConnections(self):
         """
         Inits connections of toolbar actions
         """
 
         # create action
-        self.__act_create.triggered.connect(
-                self.__request_create
+        self.__actCreate.triggered.connect(
+                self.__requestCreate
         )
 
         # open action
-        self.__act_open.triggered.connect(
-                self.__request_open
+        self.__actOpen.triggered.connect(
+                self.__requestOpen
         )
 
         # request exporting to CSV
-        self.__act_export.triggered.connect(
-                self.__request_export
+        self.__actExport.triggered.connect(
+                self.__requestExport
         )
 
         # close current database
-        self.__act_close.triggered.connect(
-                self.__close_db
+        self.__actClose.triggered.connect(
+                self.__closeDB
         )
 
 
 
     @QtCore.pyqtSlot()
-    def __request_create(self):
+    def __requestCreate(self):
         """
         Attempts creation of database
         """
@@ -212,17 +217,17 @@ class MainWindow(QMainWindow):
             return
 
         try:
-            self.__models.create_db(filename)
+            self.__models.createDB(filename)
         except DatabaseError as err:
             ErrorMsg(err)
             return
         
-        self.__models.init_model()
+        self.__models.initModel()
 
 
 
     @QtCore.pyqtSlot()
-    def __request_open(self):
+    def __requestOpen(self):
         """
         Attempts to open database
         """
@@ -236,17 +241,17 @@ class MainWindow(QMainWindow):
             return
 
         try:
-            self.__models.open_db(filename)
+            self.__models.openDB(filename)
         except DatabaseError as err:
             ErrorMsg(err)
             return
 
-        self.__models.init_model()
+        self.__models.initModel()
 
 
 
     @QtCore.pyqtSlot()
-    def __request_export(self):
+    def __requestExport(self):
         """
         Collects filename from user and dumps database
         """
@@ -262,7 +267,7 @@ class MainWindow(QMainWindow):
             return
 
         try:
-            self.__models.save_csv(filename)
+            self.__models.saveCSV(filename)
         except DatabaseError as err:
             ErrorMsg(err)
             return
@@ -270,9 +275,9 @@ class MainWindow(QMainWindow):
 
 
     @QtCore.pyqtSlot()
-    def __close_db(self):
+    def __closeDB(self):
         """
         Logs out from current database
         """
 
-        self.__models.close_db()
+        self.__models.closeDB()

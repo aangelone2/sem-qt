@@ -23,22 +23,11 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import QWidget, QSizePolicy, QMessageBox
 
 
 
-class colors:
-    """
-    Custom colors
-    """
-
-    lightgray = QColor('#E6E6E6')
-    white = QColor('#FFFFFF')
-
-
-
-def lock_height(widget: QWidget) -> QWidget:
+def lockHeight(widget: QWidget) -> QWidget:
     """
     Changes size policy locking height at free width
     
@@ -63,7 +52,7 @@ def lock_height(widget: QWidget) -> QWidget:
 
 
 
-def lock_size(widget: QWidget) -> QWidget:
+def lockSize(widget: QWidget) -> QWidget:
     """
     Changes size policy locking both height and width
     
@@ -88,7 +77,7 @@ def lock_size(widget: QWidget) -> QWidget:
 
 
 
-def ErrorMsg(err: Exception):
+def errorMsg(err: Exception):
     """
     Wraps QMessageBox to generate an error message
     
