@@ -66,36 +66,3 @@ def parse_csv(filename: str) -> DataFrame:
         raise
 
     return df
-
-
-
-def save_csv(conn: Connection, filename: str):
-    """
-    Dumps the specified database/table to a CSV file
-
-    Arguments
-    -----------------------
-    conn : Connection
-        Connection to a database/table pair
-    filename : str
-        Filename of the output CSV file
-
-    Raises
-    -----------------------
-    - DatabaseError if invalid Connection
-    """
-
-    if (conn is None):
-        raise DatabaseError('Uninitialized connection')
-
-    command = 'SELECT * FROM expenses ;'
-
-    # FIXME Use pd.read_sql()
-    DataFrame(
-            conn.execute(command).fetchall(),
-            columns = [
-                'date', 'type', 'amount', 'justification'
-            ]
-    ).to_csv(
-            filename, index = False
-    )
