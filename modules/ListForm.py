@@ -28,7 +28,7 @@ from PyQt6.QtCore import Qt, QSize, pyqtSignal
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
         QCalendarWidget, QGroupBox
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
-from PyQt6.QtSql import QSqlTableModel
+from PyQt6.QtSql import QSqlTableModel, QSqlQueryModel
 
 from modules.Common import lockSize
 from modules.CQTableView import CQTableView
@@ -123,7 +123,9 @@ class ListForm(QWidget):
 
 
 
-    def setModels(self, listModel: QSqlTableModel):
+    def setModels(self,
+                  listModel: QSqlTableModel,
+                  sumModel: QSqlQueryModel):
         """
         Set models for the CQTableView objects
 
@@ -131,9 +133,12 @@ class ListForm(QWidget):
         -----------------------
         listModel: QSqlTableModel
             Model for the list CQTableView
+        sumModel: QSqQueryModel
+            Model for the sum CQTableView
         """
 
         self.__tabList.setModel(listModel)
+        self.__tabSum.setModel(sumModel)
 
 
 

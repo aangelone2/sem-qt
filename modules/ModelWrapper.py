@@ -25,8 +25,10 @@
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QWidget
-from PyQt6.QtSql import QSqlDatabase, QSqlQuery, QSqlTableModel
+from PyQt6.QtSql import QSqlDatabase, QSqlQuery,\
+        QSqlTableModel, QSqlQueryModel
 
+from string import Template
 import csv
 import os
 
@@ -48,6 +50,8 @@ class ModelWrapper():
     -----------------------
     listModel: QSqlTableModel
         Model for general expense data
+    sumModel: QSqlQueryModel
+        Model for expense amounts aggregated by type
 
     Private attributes
     -----------------------
@@ -64,9 +68,9 @@ class ModelWrapper():
         Creates and inits connection to new DB
     openDB(str)
         Creates and inits connection to existing DB
-    initModel()
-        Initializes list model
-    updateModel(list[str])
+    initModels()
+        Initializes list and sum models
+    applyDateFilter(list[str])
         Apply filter to models with the specified dates
     importCSV(str)
         Appends the contents of a CSV file to the database
@@ -89,6 +93,7 @@ class ModelWrapper():
         super().__init__()
 
         self.listModel = None
+        self.sumModel = None
         self.__parent = None
         self.__conn = None
         self.__startDate = None
@@ -210,9 +215,9 @@ class ModelWrapper():
 
 
 
-    def initModel(self):
+    def initModels(self):
         """
-        Initializes list model
+        Initializes list and sum models
 
         Raises
         -----------------------
@@ -230,19 +235,31 @@ class ModelWrapper():
                 0, Qt.SortOrder.DescendingOrder
         )
 
-        colnames = ['date', 'type', 'amount', 'justification']
-        for i,c in enumerate(colnames):
-            self.listModel.setHeaderData(
-                    i, Qt.Orientation.Horizontal, c
-            )
-
         # setting edit strategy
         self.listModel.setEditStrategy(
                 QSqlTableModel.EditStrategy.OnRowChange
         )
 
-        # no filter for initialization
         self.listModel.select()
+
+        # sum model
+        self.sumModel = QSqlQueryModel()
+
+        # setting basic query
+        self.sumModel.setQuery('''
+            SELECT type, SUM(amount)
+            FROM expenses
+            GROUP BY type
+            ORDER BY type ;
+        ''')
+
+        # has to be done after setting up the query
+        # or names will be overridden by the query fields
+        colnames = ['type', 'sum']
+        for i,c in enumerate(colnames):
+            self.sumModel.setHeaderData(
+                    i, Qt.Orientation.Horizontal, c
+            )
 
 
 
@@ -265,15 +282,28 @@ class ModelWrapper():
         if (self.__conn is None):
             raise DatabaseError('Uninitialized connection')
 
-        if (dates is None):
-            self.listModel.setFilter('')
-        else:
+        # string template for the sum model
+        queryTemplate = Template('''
+            SELECT type, SUM(amount)
+            FROM expenses
+            WHERE $flt
+            GROUP BY type
+            ORDER BY type ;
+        ''')
+
+        # setting query filter
+        flt = 'TRUE'
+        if (dates is not None):
             if (len(dates) != 2):
                 raise DatabaseError('Invalid date interval')
+            else:
+                flt = f"date BETWEEN '{dates[0]}' AND '{dates[1]}'"
 
-            self.listModel.setFilter(
-                    f"date BETWEEN '{dates[0]}' AND '{dates[1]}'"
-            )
+        # applying filters, setQuery() requires WHERE
+        self.listModel.setFilter(flt)
+        self.sumModel.setQuery(
+                queryTemplate.substitute(flt = flt)
+        )
 
         self.listModel.select()
 
@@ -369,6 +399,8 @@ class ModelWrapper():
             while query.next():
                 writer.writerow([query.value(i)
                                  for i in range(COLS)])
+
+        query.finish()
 
 
 

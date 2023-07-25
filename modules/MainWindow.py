@@ -229,8 +229,11 @@ class MainWindow(QMainWindow):
             ErrorMsg(err)
             return
         
-        self.__models.initModel()
-        self.__formLst.setModels(self.__models.listModel)
+        self.__models.initModels()
+        self.__formLst.setModels(
+                self.__models.listModel,
+                self.__models.sumModel
+        )
 
 
 
@@ -254,8 +257,11 @@ class MainWindow(QMainWindow):
             ErrorMsg(err)
             return
 
-        self.__models.initModel()
-        self.__formLst.setModels(self.__models.listModel)
+        self.__models.initModels()
+        self.__formLst.setModels(
+                self.__models.listModel,
+                self.__models.sumModel
+        )
 
 
 
