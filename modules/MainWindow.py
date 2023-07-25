@@ -56,10 +56,10 @@ class MainWindow(QMainWindow):
         The action of creating a new database
     __actOpen : QAction
         The action of logging in to a new database
+    __actImport : QAction
+        The action of importing an external CSV file
     __actExport : QAction
         The action of saving the database to an external file
-    __actClose : QAction
-        Logs the user out
 
     Public methods
     -----------------------
@@ -70,8 +70,6 @@ class MainWindow(QMainWindow):
     -----------------------
     __initForms()
         Inits the forms and the layout which contains them
-    __initDialogs()
-        Inits dialogs
     __initToolbar()
         Inits toolbar and the contained actions
     __initConnections()
@@ -85,10 +83,10 @@ class MainWindow(QMainWindow):
         Attempts creation of database
     __requestOpen()
         Attempts to open existing database
+    __requestImport()
+        Collects filename from user and loads CSV data
     __requestExport()
         Collects filename from user and dumps database
-    __closeDB()
-        Closes current database
 
     Connections
     -----------------------
@@ -100,8 +98,6 @@ class MainWindow(QMainWindow):
         -> __requestOpen()
     __actExport.triggered
         -> __requestExport()
-    __actClose.triggered
-        -> __closeDB()
     """
 
     def __init__(self):
@@ -116,7 +112,6 @@ class MainWindow(QMainWindow):
         self.__actCreate = None
         self.__actOpen = None
         self.__actExport = None
-        self.__actClose = None
 
         # set to narrow size by default
         self.resize(MAIN_WINDOW_WIDTH, MAIN_WINDOW_HEIGHT)
@@ -151,18 +146,17 @@ class MainWindow(QMainWindow):
         self.__actOpen = QAction(QIcon('resources/open.png'), 'Open', self)
         self.__actOpen.setToolTip('Open existing database')
 
+        self.__actImport = QAction(QIcon('resources/import.png'), 'Import', self)
+        self.__actImport.setToolTip('Import external CSV file')
+
         self.__actExport = QAction(QIcon('resources/export.png'), 'Export', self)
         self.__actExport.setToolTip('Export database to CSV file')
-
-        self.__actClose = QAction(QIcon('resources/close.png'), 'Close', self)
-        self.__actClose.setToolTip('Close current database')
 
         tb.addAction(self.__actCreate)
         tb.addAction(self.__actOpen)
         tb.addSeparator()
+        tb.addAction(self.__actImport)
         tb.addAction(self.__actExport)
-        tb.addSeparator()
-        tb.addAction(self.__actClose)
 
         self.addToolBar(tb)
 
@@ -194,14 +188,14 @@ class MainWindow(QMainWindow):
                 self.__requestOpen
         )
 
+        # request importing from CSV
+        self.__actImport.triggered.connect(
+                self.__requestImport
+        )
+
         # request exporting to CSV
         self.__actExport.triggered.connect(
                 self.__requestExport
-        )
-
-        # close current database
-        self.__actClose.triggered.connect(
-                self.__closeDB
         )
 
 
@@ -257,6 +251,28 @@ class MainWindow(QMainWindow):
 
 
     @QtCore.pyqtSlot()
+    def __requestImport(self):
+        """
+        Collects filename from user and loads CSV data
+        """
+
+        filename = QFileDialog.getOpenFileName(
+                self,
+                'Specify file to import'
+        )[0]
+
+        if (filename == ''):
+            return
+
+        try:
+            self.__models.importCSV(filename)
+        except DatabaseError as err:
+            ErrorMsg(err)
+            return
+
+
+
+    @QtCore.pyqtSlot()
     def __requestExport(self):
         """
         Collects filename from user and dumps database
@@ -277,13 +293,3 @@ class MainWindow(QMainWindow):
         except DatabaseError as err:
             ErrorMsg(err)
             return
-
-
-
-    @QtCore.pyqtSlot()
-    def __closeDB(self):
-        """
-        Logs out from current database
-        """
-
-        self.__models.closeDB()

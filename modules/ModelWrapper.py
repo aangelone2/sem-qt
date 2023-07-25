@@ -27,6 +27,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QWidget
 from PyQt6.QtSql import QSqlDatabase, QSqlQuery, QSqlTableModel
 
+import csv
 import os
 
 
@@ -67,6 +68,8 @@ class ModelWrapper():
         Initializes list model
     updateModel(str, str)
         Apply filter to models with the specified dates
+    importCSV(str)
+        Appends the contents of a CSV file to the database
     saveCSV(str)
         Dumps the database to a CSV file
     closeDB()
@@ -114,12 +117,17 @@ class ModelWrapper():
         if (os.path.isfile(filename)):
             raise DatabaseError('Database already exists')
 
+        # Closing connection if currently active
+        if (self.__conn is not None):
+            if (self.__conn.open()):
+                self.__conn.close()
+
         # opening default connection
         self.__conn = QSqlDatabase.addDatabase('QSQLITE')
         self.__conn.setDatabaseName(filename)
 
         # misc errors in connection opening
-        if not self.__conn.open():
+        if (not self.__conn.open()):
             raise DatabaseError(self.__conn.lastError().text())
 
         query = QSqlQuery()
@@ -161,12 +169,17 @@ class ModelWrapper():
         if (not os.path.isfile(filename)):
             raise DatabaseError('Database does not exists')
 
+        # Closing connection if currently active
+        if (self.__conn is not None):
+            if (self.__conn.open()):
+                self.__conn.close()
+
         # opening default connection
         self.__conn = QSqlDatabase.addDatabase('QSQLITE')
         self.__conn.setDatabaseName(filename)
 
         # misc errors in connection opening
-        if not self.__conn.open():
+        if (not self.__conn.open()):
             raise DatabaseError(self.__conn.lastError().text())
 
         query = QSqlQuery()
@@ -219,6 +232,11 @@ class ModelWrapper():
                     i, Qt.Orientation.Horizontal, c
             )
 
+        # setting edit strategy
+        self.listModel.setEditStrategy(
+                QSqlTableModel.EditStrategy.OnRowChange
+        )
+
         # no filter for initialization
         self.listModel.select()
 
@@ -230,14 +248,71 @@ class ModelWrapper():
 
         Arguments
         -----------------------
-        filename : str
-            Filename of the output CSV file
+        startDate : str
+            Minimum date for the filter, included
+        endDate : str
+            Maximum date for the filter, included
         """
 
         self.listModel.setFilter(
                 f"date BETWEEN '{startDate}' AND '{endDate}'"
         )
         self.listModel.select()
+
+
+
+    def importCSV(self, filename: str):
+        """
+        Appends the contents of a CSV file to the database
+
+        Arguments
+        -----------------------
+        filename : str
+            Filename of the output CSV file
+
+        Raises
+        -----------------------
+        - DatabaseError if invalid Connection
+        - DatabaseError if file does not exist
+        - DatabaseError if invalid file content
+        """
+
+        if (self.__conn is None):
+            raise DatabaseError('Uninitialized connection')
+
+        # setting batch edit strategy
+        self.listModel.setEditStrategy(
+                QSqlTableModel.EditStrategy.OnManualSubmit
+        )
+
+        # handreading of csv file required
+        # (QSqlQuery cannot pass .mode commands,
+        # and record() is not iterable)
+        with open(filename, 'r') as csvfile:
+            reader = csv.reader(csvfile, quotechar = '"')
+
+            for ir, row in enumerate(reader):
+                rows = self.listModel.rowCount()
+                # inserting a row at the end of the model
+                if (not self.listModel.insertRows(rows, 1)):
+                    raise DatabaseError(
+                            f'Error in inserting row {ir}'
+                    )
+
+                for ic, col in enumerate(row):
+                    index = self.listModel.index(rows, ic)
+                    if (not self.listModel.setData(index, col)):
+                        raise DatabaseError(
+                                f'Error in inserting row {ir}, field {ic}'
+                        )
+
+            self.listModel.submitAll()
+            self.listModel.select()
+
+        # resetting default edit strategy
+        self.listModel.setEditStrategy(
+                QSqlTableModel.EditStrategy.OnRowChange
+        )
 
 
 
@@ -263,18 +338,19 @@ class ModelWrapper():
         # extracting data from database
         query.exec('SELECT * FROM expenses ;')
 
+        # number of fields
+        COLS = 4
+
         # handwriting of csv file required
         # (QSqlQuery cannot pass .mode commands,
         # and record() is not iterable)
-        with open(filename, 'w'):
-            print('date,type,amount,justification', out)
+        with open(filename, 'w') as csvfile:
+            writer = csv.writer(csvfile, quotechar = '"',
+                quoting = csv.QUOTE_NONNUMERIC)
 
             while query.next():
-                row = '{},{},{},{}'.format(
-                    query.value(0), query.value(1),
-                    query.value(2), query.value(3)
-                )
-                print(row, out)
+                writer.writerow([query.value(i)
+                                 for i in range(COLS)])
 
 
 
@@ -282,5 +358,8 @@ class ModelWrapper():
         """
         Closes connection with DB
         """
+
+        if (self.__conn is None):
+            raise DatabaseError('Uninitialized connection')
 
         self.__conn.close()
