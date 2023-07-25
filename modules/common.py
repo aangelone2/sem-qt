@@ -112,13 +112,13 @@ def set_font_size(widget: QWidget, size: int) -> QWidget:
 
 
 
-def ErrorMsg(msg: str):
+def ErrorMsg(err: Exception):
     """
     Wraps QMessageBox to generate an error message
     
     Arguments
     -----------------------
-    msg : str
-        Message to report
+    err : Exception
+        Encountered message-carrying exception
     """
-    QMessageBox.critical(None, 'Error', msg)
+    QMessageBox.critical(None, 'Error', f'{err}')

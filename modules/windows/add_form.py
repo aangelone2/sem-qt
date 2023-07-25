@@ -26,8 +26,7 @@
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import QWidget, QPushButton,\
-        QCalendarWidget, QLabel, QGroupBox, QMessageBox,\
-        QLineEdit
+        QCalendarWidget, QLabel, QGroupBox, QLineEdit
 from PyQt6.QtWidgets import QHBoxLayout, QVBoxLayout
 
 from pandas import DataFrame

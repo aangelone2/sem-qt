@@ -24,6 +24,7 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
+from pandas import DataFrame
 from sqlite3 import Connection, connect
 
 
@@ -117,7 +118,7 @@ def open(filename: str) -> Connection:
 
     # Checking columns of 'expenses' table
     command = "PRAGMA TABLE_INFO('expenses') ;"
-    columns = dataframe(
+    columns = DataFrame(
             conn.execute(command).fetchall(),
             columns = [
                 'cid', 'name', 'type',
@@ -139,7 +140,7 @@ def open(filename: str) -> Connection:
 
 
 
-def close(conn: Connection)
+def close(conn: Connection):
     """
     Closes the passed Connection
 

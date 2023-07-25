@@ -24,9 +24,10 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import re
-
-from pandas import DataFrame
 from sqlite3 import Connection
+
+import pandas as pd
+from pandas import DataFrame
 
 from modules.db.connect import DatabaseError
 
@@ -40,7 +41,7 @@ class InputError(Exception):
 
 
 
-def format_df(df: DataFrame)
+def format_df(df: DataFrame):
     """
     Attempts formatting the columns of the passed DataFrame
     to fit with the required schema,
@@ -113,7 +114,7 @@ def format_df(df: DataFrame)
 
 
 
-def add(conn: Connection, df: DataFrame)
+def add(conn: Connection, df: DataFrame):
     """
     Adds record(s) to a database through the given Connection
 

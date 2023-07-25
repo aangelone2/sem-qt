@@ -27,11 +27,12 @@ from PyQt6 import QtCore
 from PyQt6.QtCore import QSize
 from PyQt6.QtGui import QAction, QIcon
 from PyQt6.QtWidgets import QWidget, QApplication,\
-        QToolBar, QFileDialog, QMessageBox,\
-        QInputDialog, QLineEdit
+        QToolBar, QFileDialog, QLineEdit
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
 from pandas import DataFrame
+
+from modules.common import ErrorMsg
 
 import modules.db.connect as connect
 from modules.db.connect import DatabaseError
@@ -348,7 +349,7 @@ class main_window(QWidget):
         try:
             data.add(self.__conn, df)
         except (DatabaseError, InputError) as err:
-            QMessageBox.critical(None, 'Error', err)
+            ErrorMsg(err)
             return
 
 
@@ -371,7 +372,7 @@ class main_window(QWidget):
         try:
             df = data.fetch(self.__conn, start, end)
         except DatabaseError as err:
-            QMessageBox.critical(None, 'Error', err)
+            ErrorMsg(err)
             return
 
         self.__form_lst.update_tables(df)
@@ -396,7 +397,7 @@ class main_window(QWidget):
         try:
             self.__conn = connect.create(filename)
         except DatabaseError as err:
-            QMessageBox.critical(None, 'Error', err)
+            ErrorMsg(err)
             return
 
 
@@ -419,7 +420,7 @@ class main_window(QWidget):
         try:
             self.__conn = connect.open(filename)
         except DatabaseError as err:
-            QMessageBox.critical(None, 'Error', err)
+            ErrorMsg(err)
             return
 
 
@@ -469,7 +470,7 @@ class main_window(QWidget):
         try:
             csv.save_csv(self.__conn, filename)
         except DatabaseError as err:
-            QMessageBox.critical(None, 'Error', err)
+            ErrorMsg(err)
             return
 
 
@@ -485,7 +486,7 @@ class main_window(QWidget):
         try:
             data.delete(self.__conn, rowids)
         except DatabaseError as err:
-            QMessageBox.critical(None, 'Error', err)
+            ErrorMsg(err)
             return
 
 
@@ -501,7 +502,7 @@ class main_window(QWidget):
         try:
             connect.close(self.__conn)
         except DatabaseError as err:
-            QMessageBox.critical(None, 'Error', err)
+            ErrorMsg(err)
             return
 
         self.__conn = None

@@ -35,7 +35,7 @@ import modules.common as common
 from modules.db.data import InputError
 from modules.db.csv import parse_csv
 
-from modules.CQWidgets.CQTableWidget import CQTableWidget
+from modules.CQTableWidget import CQTableWidget
 
 
 
