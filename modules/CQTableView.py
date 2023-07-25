@@ -35,35 +35,26 @@ from PyQt6.QtWidgets import QWidget, QTableWidget,\
 class CQTableView(QTableView):
     """
     Custom QTableView
-    Builtin column width behavior and coloring routines
-
-    Members
-    -----------------------
-    __byRow : bool
-        True if filling by rows, False if filling by cols
+    Builtin column width/sorting behavior and coloring routines
 
     Public methods
     -----------------------
-    __init__(byRow: bool, parent: QWidget)
+    __init__(parent: QWidget)
         Constructor
     """
 
-    def __init__(self, byRow: bool, parent: QWidget):
+    def __init__(self, parent: QWidget):
         """
         Constructor
 
         Arguments
         -----------------------
-        byRow : bool
-            True if filling by rows, False if filling by cols
         parent : QWidget
             Parent QWidget
         """
 
         super().__init__(parent)
 
-        # filling pattern
-        self.__byRow = byRow
         # sets sorting as activated on column click
         # ascending/descending order is toggled
         self.setSortingEnabled(True)
@@ -74,19 +65,13 @@ class CQTableView(QTableView):
         p.setBrush(QPalette.ColorRole.AlternateBase, gray)
         self.setPalette(p)
 
-        if (byRow):
-            # autosize columns
-            self.horizontalHeader().setSectionResizeMode(
-                    QHeaderView.ResizeMode.ResizeToContents
-            )
+        # autosize columns
+        self.horizontalHeader().setSectionResizeMode(
+                QHeaderView.ResizeMode.ResizeToContents
+        )
 
-            # sets last column to take all available space
-            self.horizontalHeader().setStretchLastSection(True)
+        # sets last column to take all available space
+        self.horizontalHeader().setStretchLastSection(True)
 
-            # alternating row colors
-            self.setAlternatingRowColors(True)
-        else:
-            # equal-width columns
-            self.horizontalHeader().setSectionResizeMode(
-                    QHeaderView.ResizeMode.Stretch
-            )
+        # alternating row colors
+        self.setAlternatingRowColors(True)

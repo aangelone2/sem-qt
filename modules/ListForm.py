@@ -148,10 +148,10 @@ class ListForm(QWidget):
         """
 
         # expense list table
-        self.__tabList = CQTableView(True, self)
+        self.__tabList = CQTableView(self)
 
         # sum table
-        self.__tabSum = CQTableView(True, self)
+        self.__tabSum = CQTableView(self)
         self.__tabSum.setMaximumHeight(120)
         self.__tabSum = lockSize(self.__tabSum)
 

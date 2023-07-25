@@ -3,8 +3,7 @@
 the management of domestic expenses.
 
 A streamlined Qt graphical interface allows straightforward
-management of multi-user data stored in SQLite databases and
-transfered via Pandas dataframes.
+management and analysis of expense data stored in SQLite databases.
 
 
 
@@ -25,9 +24,7 @@ The following external libraries are imported in `sem`, and
 required for its operation:
 
 - [PyQt6](https://www.riverbankcomputing.com/software/pyqt/)
-  (GUI toolkit)
-- [Pandas](https://pandas.pydata.org/) (data manipulation and
-  transfer)
+  (GUI toolkit and Model/View interfaces)
 
 
 
@@ -37,7 +34,6 @@ required for its operation:
 Python 3 environment:
 
 - `PyQt6`
-- `pandas`
 
 The main executable is launched as
 
@@ -49,9 +45,13 @@ The main executable is launched as
 
 ## To Do
 
-- [ ] Add flexibility for date format to CSV importing
-- [ ] Add search functionality
-- [ ] Fully implement MVC design pattern
+- [ ] Add filter-by-justification functionality
+- [ ] Allow to add expenses
+- [ ] Allow to delete expenses
+- [ ] Allow checking when changing in-place
+- [ ] Status bar
+- [ ] Robust error management
+- [ ] Compute total sum ?
 
 - [ ] Add documentation
 - [ ] Streamline packaging
