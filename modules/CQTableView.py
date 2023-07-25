@@ -25,20 +25,10 @@
 
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont, QColor
+from PyQt6.QtGui import QColor, QPalette
 from PyQt6.QtWidgets import QWidget, QTableWidget,\
         QHeaderView, QTableView, QTableWidgetItem,\
         QAbstractItemView
-
-
-
-class colors:
-    """
-    Custom colors
-    """
-
-    lightgray = QColor('#E6E6E6')
-    white = QColor('#FFFFFF')
 
 
 
@@ -78,6 +68,12 @@ class CQTableView(QTableView):
         # ascending/descending order is toggled
         self.setSortingEnabled(True)
 
+        # setting color palette
+        gray = QColor('#E6E6E6')
+        p = QPalette()
+        p.setBrush(QPalette.ColorRole.AlternateBase, gray)
+        self.setPalette(p)
+
         if (byRow):
             # autosize columns
             self.horizontalHeader().setSectionResizeMode(
@@ -86,6 +82,9 @@ class CQTableView(QTableView):
 
             # sets last column to take all available space
             self.horizontalHeader().setStretchLastSection(True)
+
+            # alternating row colors
+            self.setAlternatingRowColors(True)
         else:
             # equal-width columns
             self.horizontalHeader().setSectionResizeMode(
