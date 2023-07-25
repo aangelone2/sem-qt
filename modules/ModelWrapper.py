@@ -208,7 +208,7 @@ class ModelWrapper():
         # using default connection
         self.listModel = QSqlTableModel(self.__parent)
         self.listModel.setTable('expenses')
-        # sorting by date
+        # sorting by date (newest first)
         self.listModel.setSort(
                 0, Qt.SortOrder.DescendingOrder
         )
@@ -224,7 +224,7 @@ class ModelWrapper():
 
 
 
-    def updateModel(startDate: str, endDate: str):
+    def updateModel(self, startDate: str, endDate: str):
         """
         Apply filter to models with the specified dates
 
@@ -235,7 +235,7 @@ class ModelWrapper():
         """
 
         self.listModel.setFilter(
-                f'date BETWEEN {startDate} AND {endDate}'
+                f"date BETWEEN '{startDate}' AND '{endDate}'"
         )
         self.listModel.select()
 

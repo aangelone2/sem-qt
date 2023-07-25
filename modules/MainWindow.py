@@ -174,7 +174,7 @@ class MainWindow(QMainWindow):
         """
 
         self.__formLst.queryRequested.connect(
-                lambda s,e: __models.updateModel(s,e)
+                lambda s,e: self.__models.updateModel(s,e)
         )
 
 

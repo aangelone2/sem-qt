@@ -26,11 +26,12 @@
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt, QSize, pyqtSignal
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
-        QCalendarWidget, QGroupBox, QTableView
+        QCalendarWidget, QGroupBox
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 from PyQt6.QtSql import QSqlTableModel
 
 from modules.Common import lockHeight, lockSize
+from modules.CQTableView import CQTableView
 
 
 
@@ -44,10 +45,10 @@ class ListForm(QWidget):
 
     Attributes
     -----------------------
-    __tabList : QTableView
+    __tabList : CQTableView
         Contains the expenses with dates between the two
         selected dates, lists all fields
-    __tabSum : QTableView
+    __tabSum : CQTableView
         Contains the sum of the expenses with dates between the
         two selected dates, grouped by category
     __calStart : QCalendarWidget
@@ -63,7 +64,7 @@ class ListForm(QWidget):
     __init__(QWidget)
         Constructor
     setModels(QSqlTableModel)
-        Set models for the QTableView objects
+        Set models for the CQTableView objects
 
     Private methods
     -----------------------
@@ -130,12 +131,12 @@ class ListForm(QWidget):
 
     def setModels(self, listModel: QSqlTableModel):
         """
-        Set models for the QTableView objects
+        Set models for the CQTableView objects
 
         Arguments
         -----------------------
         listModel: QSqlTableModel
-            Model for the list QTableView
+            Model for the list CQTableView
         """
 
         self.__tabList.setModel(listModel)
@@ -148,14 +149,14 @@ class ListForm(QWidget):
         """
 
         # expense list table
-        self.__tabList = QTableView(self)
+        self.__tabList = CQTableView(True, self)
 
         # label for sum table
         label = QLabel('Summary', self)
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # sum table
-        self.__tabSum = QTableView(self)
+        self.__tabSum = CQTableView(False, self)
         self.__tabSum.setMaximumHeight(SUM_TABLE_HEIGHT)
         self.__tabSum = lockHeight(self.__tabSum)
 
