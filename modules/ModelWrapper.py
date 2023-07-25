@@ -24,6 +24,7 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QWidget
 from PyQt6.QtSql import QSqlDatabase, QSqlQuery, QSqlTableModel
 
 import os
@@ -214,14 +215,16 @@ class ModelWrapper():
 
         colnames = ['date', 'type', 'amount', 'justification']
         for i,c in enumerate(colnames):
-            self.listModel.setHeaderData(i, Qt.Horizontal, c)
+            self.listModel.setHeaderData(
+                    i, Qt.Orientation.Horizontal, c
+            )
 
         # no filter for initialization
         self.listModel.select()
 
 
 
-    def updateModel(startDate: str, endDate: str)
+    def updateModel(startDate: str, endDate: str):
         """
         Apply filter to models with the specified dates
 

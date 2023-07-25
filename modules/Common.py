@@ -77,7 +77,7 @@ def lockSize(widget: QWidget) -> QWidget:
 
 
 
-def errorMsg(err: Exception):
+def ErrorMsg(err: Exception):
     """
     Wraps QMessageBox to generate an error message
     

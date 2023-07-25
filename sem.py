@@ -23,11 +23,10 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from PyQt6.QtWidgets import QApplication
-from PyQt6.QtGui import QFont
 
 import sys
 
-from modules.windows.main_window import main_window
+from modules.MainWindow import MainWindow
 
 
 
@@ -38,7 +37,7 @@ version = '1.3.7'
 if __name__ == "__main__":
     app = QApplication([])
 
-    mw = main_window()
+    mw = MainWindow()
     mw.show()
 
     sys.exit(app.exec())

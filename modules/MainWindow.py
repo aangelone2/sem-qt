@@ -26,12 +26,12 @@
 from PyQt6 import QtCore
 from PyQt6.QtCore import QSize
 from PyQt6.QtGui import QAction, QIcon
-from PyQt6.QtWidgets import QWidget, QApplication,\
-        QToolBar, QFileDialog, QLineEdit
+from PyQt6.QtWidgets import QApplication, QToolBar,\
+        QFileDialog, QLineEdit, QMainWindow
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
 from modules.Common import ErrorMsg
-from modules.ModelWrapper import ModelWrapper
+from modules.ModelWrapper import DatabaseError, ModelWrapper
 
 from modules.ListForm import ListForm
 
@@ -123,6 +123,8 @@ class MainWindow(QMainWindow):
         # setting window title
         self.setWindowTitle('Simple Expense Manager')
 
+        # initializing model/DB wrapper
+        self.__models = ModelWrapper(self)
         # initializing form
         self.__formLst = ListForm(self)
         # initializing toolbar
@@ -140,8 +142,8 @@ class MainWindow(QMainWindow):
         Inits toolbar and the contained actions
         """
 
-        self.menuBar() = QToolBar(self)
-        self.menuBar().setIconSize(QSize(30, 30))
+        tb = QToolBar(self)
+        tb.setIconSize(QSize(30, 30))
 
         self.__actCreate = QAction(QIcon('resources/create.png'), 'Create', self)
         self.__actCreate.setToolTip('Create new database')
@@ -155,12 +157,14 @@ class MainWindow(QMainWindow):
         self.__actClose = QAction(QIcon('resources/close.png'), 'Close', self)
         self.__actClose.setToolTip('Close current database')
 
-        self.__tb.addAction(self.__actCreate)
-        self.__tb.addAction(self.__actOpen)
-        self.__tb.addSeparator()
-        self.__tb.addAction(self.__actExport)
-        self.__tb.addSeparator()
-        self.__tb.addAction(self.__actClose)
+        tb.addAction(self.__actCreate)
+        tb.addAction(self.__actOpen)
+        tb.addSeparator()
+        tb.addAction(self.__actExport)
+        tb.addSeparator()
+        tb.addAction(self.__actClose)
+
+        self.addToolBar(tb)
 
 
 
@@ -223,6 +227,7 @@ class MainWindow(QMainWindow):
             return
         
         self.__models.initModel()
+        self.__formLst.setModels(self.__models.listModel)
 
 
 
@@ -247,6 +252,7 @@ class MainWindow(QMainWindow):
             return
 
         self.__models.initModel()
+        self.__formLst.setModels(self.__models.listModel)
 
 
 

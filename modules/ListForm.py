@@ -44,10 +44,10 @@ class ListForm(QWidget):
 
     Attributes
     -----------------------
-    __tabList : QTableWidget
+    __tabList : QTableView
         Contains the expenses with dates between the two
         selected dates, lists all fields
-    __tabSum : CQTableWidget
+    __tabSum : QTableView
         Contains the sum of the expenses with dates between the
         two selected dates, grouped by category
     __calStart : QCalendarWidget
@@ -60,8 +60,10 @@ class ListForm(QWidget):
 
     Public methods
     -----------------------
-    __init__(QSqlTableModel)
+    __init__(QWidget)
         Constructor
+    setModels(QSqlTableModel)
+        Set models for the QTableView objects
 
     Private methods
     -----------------------
@@ -91,17 +93,17 @@ class ListForm(QWidget):
         -> queryRequested(start_date, end_date)
     """
 
-    def __init__(self, listModel: QSqlTableModel):
+    def __init__(self, parent: QWidget):
         """
         Constructor
 
         Arguments
         -----------------------
-        listModel: QSqlTableModel
-            Model for the list QTableWidget
+        parent: QWidget
+            Parent QWidget
         """
 
-        super().__init__()
+        super().__init__(parent)
 
         self.__tabList = None
         self.__tabSum = None
@@ -109,23 +111,34 @@ class ListForm(QWidget):
         self.__calEnd = None
         self.__butUpdate = None
 
-        lay_tab = self.__initLayTab()
-        lay_cal_but = self.__initLayCalBut()
-
-        # assigning SQL models
-        self.__tabList.setModel(listModel)
+        layTab = self.__initLayTab()
+        layCalBut = self.__initLayCalBut()
 
         # generating main layout
-        lay_gen = QHBoxLayout()
-        lay_gen.addSpacing(25)
-        lay_gen.addLayout(lay_tab)
-        lay_gen.addSpacing(75)
-        lay_gen.addLayout(lay_cal_but)
-        lay_gen.addSpacing(25)
+        layGen = QHBoxLayout()
+        layGen.addSpacing(25)
+        layGen.addLayout(layTab)
+        layGen.addSpacing(75)
+        layGen.addLayout(layCalBut)
+        layGen.addSpacing(25)
 
-        self.setLayout(lay_gen)
+        self.setLayout(layGen)
 
         self.__initConnections()
+
+
+
+    def setModels(self, listModel: QSqlTableModel):
+        """
+        Set models for the QTableView objects
+
+        Arguments
+        -----------------------
+        listModel: QSqlTableModel
+            Model for the list QTableView
+        """
+
+        self.__tabList.setModel(listModel)
 
 
 
@@ -135,16 +148,16 @@ class ListForm(QWidget):
         """
 
         # expense list table
-        self.__tabList = QTableWidget(self)
+        self.__tabList = QTableView(self)
 
         # label for sum table
         label = QLabel('Summary', self)
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # sum table
-        self.__tabSum = QTableWidget(self)
+        self.__tabSum = QTableView(self)
         self.__tabSum.setMaximumHeight(SUM_TABLE_HEIGHT)
-        self.__tabSum = lock_height(self.__tabSum)
+        self.__tabSum = lockHeight(self.__tabSum)
 
         # setting up layout
         lay = QVBoxLayout()
@@ -169,7 +182,7 @@ class ListForm(QWidget):
 
         # start date calendar
         self.__calStart = QCalendarWidget(self)
-        self.__calStart = lock_size(self.__calStart)
+        self.__calStart = lockSize(self.__calStart)
 
         # end date label
         labEnd = QLabel('End date [included]', self)
@@ -177,7 +190,7 @@ class ListForm(QWidget):
 
         # end date calendar
         self.__calEnd = QCalendarWidget(self)
-        self.__calEnd = lock_size(self.__calEnd)
+        self.__calEnd = lockSize(self.__calEnd)
 
         # update button (graphical setup)
         self.__butUpdate = QPushButton('Update', self)
