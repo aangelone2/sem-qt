@@ -23,7 +23,7 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QPersistentModelIndex
 from PyQt6.QtWidgets import QWidget
 from PyQt6.QtSql import QSqlDatabase, QSqlQuery,\
         QSqlTableModel, QSqlQueryModel
@@ -75,6 +75,8 @@ class ModelWrapper():
         Apply filter to models with the specified dates
     addDefaultRecord()
         Adds a default record to the end of the DB
+    removeRecords(list[QPersistentModelIndex])
+        Removes the records with the given indices from the model
     importCSV(str)
         Appends the contents of a CSV file to the database
     saveCSV(str)
@@ -347,8 +349,26 @@ class ModelWrapper():
         # inserting in last position
         chk = self.listModel.insertRecord(-1, record)
         if (not chk):
-            print(self.listModel.lastError().text())
-            raise DatabaseError(f'Error in inserting record')
+            raise DatabaseError('Error in inserting record')
+
+
+
+    def removeRecords(self, indices: list[QPersistentModelIndex]):
+        """
+        Removes the records with the given indices from the model
+
+        Raises
+        -----------------------
+        - DatabaseError if unsuccessful removal
+        """
+
+        for i, index in enumerate(indices):
+            chk = self.listModel.removeRow(index.row())
+            if (not chk):
+                raise DatabaseError(f'Error in deleting record {i}')
+
+        # updating changes
+        self.listModel.select()
 
 
 

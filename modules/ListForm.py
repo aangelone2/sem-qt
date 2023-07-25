@@ -24,7 +24,7 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from PyQt6 import QtCore
-from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtCore import Qt, pyqtSignal, QPersistentModelIndex
 from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
         QCalendarWidget, QGroupBox
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
@@ -62,6 +62,8 @@ class ListForm(QWidget):
         Constructor
     setModels(QSqlTableModel)
         Set models for the CQTableView objects
+    selection() -> list[QPersistentModelIndex]
+        Returns the list of the indices of the selected rows
 
     Private methods
     -----------------------
@@ -139,6 +141,19 @@ class ListForm(QWidget):
 
         self.__tabList.setModel(listModel)
         self.__tabSum.setModel(sumModel)
+
+
+
+    def selection(self) -> list[QPersistentModelIndex]:
+        """
+        Returns the list of the indices of the selected rows
+        """
+
+        return [
+            QtCore.QPersistentModelIndex(model_idx)
+            for model_idx
+            in self.__tabList.selectionModel().selectedRows()
+        ]
 
 
 

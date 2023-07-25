@@ -45,11 +45,11 @@ The main executable is launched as
 
 ## To Do
 
-- [ ] Add filter-by-justification functionality
-- [ ] Allow to delete expenses
-- [ ] Status bar
 - [ ] Robust error management
-- [ ] Compute total sum ?
+- [ ] Cleanup and uniformize docstrings
+
+- [ ] Add filter-by-justification functionality
+- [ ] Status bar
 
 - [ ] Add documentation
 - [ ] Streamline packaging

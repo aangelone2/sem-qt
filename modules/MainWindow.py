@@ -57,6 +57,8 @@ class MainWindow(QMainWindow):
         The action of logging in to a new database
     __actAdd : QAction
         The action of manually adding expenses to the database
+    __actRemove : QAction
+        The action of removing the selected row
     __actImport : QAction
         The action of importing an external CSV file
     __actExport : QAction
@@ -86,6 +88,8 @@ class MainWindow(QMainWindow):
         Attempts to open existing database
     __requestAdd()
         Attempts to add expense to the view and then to the DB
+    __requestRemove()
+        Attempts to remove the selected row in the view
     __requestImport()
         Collects filename from user and loads CSV data
     __requestExport()
@@ -103,6 +107,8 @@ class MainWindow(QMainWindow):
         -> __requestOpen()
     __actAdd.triggered
         -> __requestAdd()
+    __actRemove.triggered
+        -> __requestRemove()
     __actImport.triggered
         -> __requestImport()
     __actExport.triggered
@@ -121,6 +127,7 @@ class MainWindow(QMainWindow):
         self.__actCreate = None
         self.__actOpen = None
         self.__actAdd = None
+        self.__actRemove = None
         self.__actImport = None
         self.__actExport = None
 
@@ -160,6 +167,9 @@ class MainWindow(QMainWindow):
         self.__actAdd = QAction(QIcon('resources/add.png'), 'Add', self)
         self.__actAdd.setToolTip('Add expenses manually')
 
+        self.__actRemove = QAction(QIcon('resources/remove.png'), 'Remove', self)
+        self.__actRemove.setToolTip('Remove selected expense')
+
         self.__actImport = QAction(QIcon('resources/import.png'), 'Import', self)
         self.__actImport.setToolTip('Import external CSV file')
 
@@ -170,6 +180,7 @@ class MainWindow(QMainWindow):
         tb.addAction(self.__actOpen)
         tb.addSeparator()
         tb.addAction(self.__actAdd)
+        tb.addAction(self.__actRemove)
         tb.addSeparator()
         tb.addAction(self.__actImport)
         tb.addAction(self.__actExport)
@@ -211,6 +222,11 @@ class MainWindow(QMainWindow):
         # add action
         self.__actAdd.triggered.connect(
                 self.__requestAdd
+        )
+
+        # add action
+        self.__actRemove.triggered.connect(
+                self.__requestRemove
         )
 
         # request importing from CSV
@@ -288,6 +304,18 @@ class MainWindow(QMainWindow):
         """
 
         self.__models.addDefaultRecord()
+
+
+
+    @QtCore.pyqtSlot()
+    def __requestRemove(self):
+        """
+        Attempts to remove the selected row in the view
+        """
+
+        self.__models.removeRecords(
+                self.__formLst.selection()
+        )
 
 
 

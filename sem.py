@@ -30,7 +30,7 @@ from modules.MainWindow import MainWindow
 
 
 
-version = '1.3.7'
+version = '2.0.0'
 
 
 
