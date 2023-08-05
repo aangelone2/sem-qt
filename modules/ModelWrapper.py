@@ -25,8 +25,12 @@
 
 from PyQt6.QtCore import Qt, QPersistentModelIndex
 from PyQt6.QtWidgets import QWidget
-from PyQt6.QtSql import QSqlDatabase, QSqlQuery,\
-        QSqlTableModel, QSqlQueryModel
+from PyQt6.QtSql import (
+    QSqlDatabase,
+    QSqlQuery,
+    QSqlTableModel,
+    QSqlQueryModel,
+)
 
 from string import Template
 import csv
@@ -34,16 +38,15 @@ import os
 import datetime
 
 
-
 class DatabaseError(Exception):
     """
     Subclassed exception for errors in db Connection
     """
+
     pass
 
 
-
-class ModelWrapper():
+class ModelWrapper:
     """
     Wrapper for list and sum models
 
@@ -106,8 +109,6 @@ class ModelWrapper():
 
         self.__parent = parent
 
-
-
     def createDB(self, filename: str):
         """
         Creates and inits connection to new DB
@@ -124,28 +125,28 @@ class ModelWrapper():
         """
 
         # checking if db already exists
-        if (os.path.isfile(filename)):
-            raise DatabaseError('Database already exists')
+        if os.path.isfile(filename):
+            raise DatabaseError("Database already exists")
 
         # Closing connection if currently active
-        if (self.__conn is not None):
-            if (self.__conn.isOpen()):
+        if self.__conn is not None:
+            if self.__conn.isOpen():
                 self.__conn.close()
 
         # opening default connection
-        self.__conn = QSqlDatabase.addDatabase('QSQLITE')
+        self.__conn = QSqlDatabase.addDatabase("QSQLITE")
         self.__conn.setDatabaseName(filename)
 
         # misc errors in connection opening
         chk = self.__conn.open()
-        if (not chk):
+        if not chk:
             raise DatabaseError(self.__conn.lastError().text())
 
         query = QSqlQuery()
 
         # creating and indexing 'expenses' table
         # checks here because SQLite is "dynamically" typed
-        command = '''
+        command = """
             CREATE TABLE expenses (
                 id INTEGER PRIMARY KEY AUTOINCREMENT
                     CHECK (TYPEOF(id) == ('integer')),
@@ -158,13 +159,13 @@ class ModelWrapper():
                 justification VARCHAR(100) NOT NULL
                     CHECK (LENGTH(justification) <= 100)
             ) ;
-        '''
+        """
         query.exec(command)
-        query.exec('CREATE INDEX date_index ON expenses(date) ;')
+        query.exec(
+            "CREATE INDEX date_index ON expenses(date) ;"
+        )
 
         query.finish()
-
-
 
     def openDB(self, filename: str):
         """
@@ -184,34 +185,34 @@ class ModelWrapper():
         """
 
         # checking if db already exists
-        if (not os.path.isfile(filename)):
-            raise DatabaseError('Database does not exists')
+        if not os.path.isfile(filename):
+            raise DatabaseError("Database does not exists")
 
         # Closing connection if currently active
-        if (self.__conn is not None):
-            if (self.__conn.isOpen()):
+        if self.__conn is not None:
+            if self.__conn.isOpen():
                 self.__conn.close()
 
         # opening default connection
-        self.__conn = QSqlDatabase.addDatabase('QSQLITE')
+        self.__conn = QSqlDatabase.addDatabase("QSQLITE")
         self.__conn.setDatabaseName(filename)
 
         # misc errors in connection opening
         chk = self.__conn.open()
-        if (not chk):
+        if not chk:
             raise DatabaseError(self.__conn.lastError().text())
 
         query = QSqlQuery()
 
         # checking for existence of 'expenses' table
-        if ('expenses' not in self.__conn.tables()):
-            raise DatabaseError('Invalid database schema')
+        if "expenses" not in self.__conn.tables():
+            raise DatabaseError("Invalid database schema")
 
         # checking for validity of schema of 'expense' table
         query.exec("PRAGMA TABLE_INFO('expenses') ;")
 
         names, types, notnulls = [], [], []
-        nm, tp, nn = 1,2,3
+        nm, tp, nn = 1, 2, 3
 
         # fetching table information based on index
         while query.next():
@@ -221,14 +222,28 @@ class ModelWrapper():
 
         # checking against expected output
         # (apparently for SQLite3 primary keys are not not-null...)
-        if (names != ['id', 'date', 'type', 'amount', 'justification']
-            or types != ['INTEGER', 'DATE', 'CHAR(1)', 'DOUBLE PRECISION', 'VARCHAR(100)']
-            or notnulls != [0, 1, 1, 1, 1]):
-            raise DatabaseError('Corrupted table')
-        
+        if (
+            names
+            != [
+                "id",
+                "date",
+                "type",
+                "amount",
+                "justification",
+            ]
+            or types
+            != [
+                "INTEGER",
+                "DATE",
+                "CHAR(1)",
+                "DOUBLE PRECISION",
+                "VARCHAR(100)",
+            ]
+            or notnulls != [0, 1, 1, 1, 1]
+        ):
+            raise DatabaseError("Corrupted table")
+
         query.finish()
-
-
 
     def initModels(self):
         """
@@ -239,20 +254,18 @@ class ModelWrapper():
         - DatabaseError if invalid Connection
         """
 
-        if (self.__conn is None):
-            raise DatabaseError('Uninitialized connection')
+        if self.__conn is None:
+            raise DatabaseError("Uninitialized connection")
 
         # using default connection
         self.listModel = QSqlTableModel(self.__parent)
-        self.listModel.setTable('expenses')
+        self.listModel.setTable("expenses")
         # sorting by date (newest first)
-        self.listModel.setSort(
-                0, Qt.SortOrder.DescendingOrder
-        )
+        self.listModel.setSort(0, Qt.SortOrder.DescendingOrder)
 
         # setting edit strategy
         self.listModel.setEditStrategy(
-                QSqlTableModel.EditStrategy.OnFieldChange
+            QSqlTableModel.EditStrategy.OnFieldChange
         )
 
         self.listModel.select()
@@ -261,22 +274,22 @@ class ModelWrapper():
         self.sumModel = QSqlQueryModel()
 
         # setting basic query
-        self.sumModel.setQuery('''
+        self.sumModel.setQuery(
+            """
             SELECT type, SUM(amount)
             FROM expenses
             GROUP BY type
             ORDER BY type ;
-        ''')
+        """
+        )
 
         # has to be done after setting up the query
         # or names will be overridden by the query fields
-        colnames = ['type', 'sum']
-        for i,c in enumerate(colnames):
+        colnames = ["type", "sum"]
+        for i, c in enumerate(colnames):
             self.sumModel.setHeaderData(
-                    i, Qt.Orientation.Horizontal, c
+                i, Qt.Orientation.Horizontal, c
             )
-
-
 
     def applyDateFilter(self, dates: list[str]):
         """
@@ -294,35 +307,35 @@ class ModelWrapper():
         - DatabaseError if invalid date range
         """
 
-        if (self.__conn is None):
-            raise DatabaseError('Uninitialized connection')
+        if self.__conn is None:
+            raise DatabaseError("Uninitialized connection")
 
         # string template for the sum model
-        queryTemplate = Template('''
+        queryTemplate = Template(
+            """
             SELECT type, SUM(amount)
             FROM expenses
             WHERE $flt
             GROUP BY type
             ORDER BY type ;
-        ''')
+        """
+        )
 
         # setting query filter
-        flt = 'TRUE'
-        if (dates is not None):
-            if (len(dates) != 2):
-                raise DatabaseError('Invalid date interval')
+        flt = "TRUE"
+        if dates is not None:
+            if len(dates) != 2:
+                raise DatabaseError("Invalid date interval")
             else:
                 flt = f"date BETWEEN '{dates[0]}' AND '{dates[1]}'"
 
         # applying filters, setQuery() requires WHERE
         self.listModel.setFilter(flt)
         self.sumModel.setQuery(
-                queryTemplate.substitute(flt = flt)
+            queryTemplate.substitute(flt=flt)
         )
 
         self.listModel.select()
-
-
 
     def addDefaultRecord(self):
         """
@@ -341,19 +354,21 @@ class ModelWrapper():
 
         # setting default values for other fields
         # notice the realigned indices
-        record.setValue(0, datetime.date.today().strftime('%Y-%m-%d'))
-        record.setValue(1, '-')
+        record.setValue(
+            0, datetime.date.today().strftime("%Y-%m-%d")
+        )
+        record.setValue(1, "-")
         record.setValue(2, 0.0)
-        record.setValue(3, '-')
+        record.setValue(3, "-")
 
         # inserting in last position
         chk = self.listModel.insertRecord(-1, record)
-        if (not chk):
-            raise DatabaseError('Error in inserting record')
+        if not chk:
+            raise DatabaseError("Error in inserting record")
 
-
-
-    def removeRecords(self, indices: list[QPersistentModelIndex]):
+    def removeRecords(
+        self, indices: list[QPersistentModelIndex]
+    ):
         """
         Removes the records with the given indices from the model
 
@@ -364,13 +379,13 @@ class ModelWrapper():
 
         for i, index in enumerate(indices):
             chk = self.listModel.removeRow(index.row())
-            if (not chk):
-                raise DatabaseError(f'Error in deleting record {i}')
+            if not chk:
+                raise DatabaseError(
+                    f"Error in deleting record {i}"
+                )
 
         # updating changes
         self.listModel.select()
-
-
 
     def importCSV(self, filename: str):
         """
@@ -388,14 +403,14 @@ class ModelWrapper():
         - DatabaseError if invalid file content
         """
 
-        if (self.__conn is None):
-            raise DatabaseError('Uninitialized connection')
+        if self.__conn is None:
+            raise DatabaseError("Uninitialized connection")
 
         # handreading of csv file required
         # (QSqlQuery cannot pass .mode commands,
         # and record() is not iterable)
-        with open(filename, 'r', newline = '') as csvfile:
-            reader = csv.reader(csvfile, quotechar = '"')
+        with open(filename, "r", newline="") as csvfile:
+            reader = csv.reader(csvfile, quotechar='"')
 
             try:
                 for ir, row in enumerate(reader):
@@ -405,7 +420,7 @@ class ModelWrapper():
                     # if 1st field is left unspecified, auto-assign
                     # (id, primary key, autoincrement integer)
                     # setting NULL does not work, found this solution
-                    if (row[0] == ''):
+                    if row[0] == "":
                         record.remove(0)
                     else:
                         record.setValue(0, row[0])
@@ -415,49 +430,49 @@ class ModelWrapper():
                         record.setValue(ic, col)
 
                     # inserting at last position
-                    chk = self.listModel.insertRecord(-1, record)
-                    if (not chk):
+                    chk = self.listModel.insertRecord(
+                        -1, record
+                    )
+                    if not chk:
                         raise DatabaseError(
-                                f'Error in inserting record {ir + 1}'
+                            f"Error in inserting record {ir + 1}"
                         )
 
                     # SQLite performs type-checking here
                     # inserting line-by-line to check lines
                     chk = self.listModel.submitAll()
-                    if (not chk):
+                    if not chk:
                         raise DatabaseError(
-                                f'Error in inserting row {ir + 1}'
+                            f"Error in inserting row {ir + 1}"
                         )
             except csv.Error as err:
                 raise DatabaseError(
-                        f'CSV file error :: line {reader.line_num} :: {err}'
+                    f"CSV file error :: line {reader.line_num} :: {err}"
                 )
 
             self.listModel.select()
 
-
-
     def saveCSV(self, filename: str):
         """
         Dumps the database to a CSV file
-    
+
         Arguments
         -----------------------
         filename : str
             Filename of the output CSV file
-    
+
         Raises
         -----------------------
         - DatabaseError if invalid Connection
         """
-    
-        if (self.__conn is None):
-            raise DatabaseError('Uninitialized connection')
-    
+
+        if self.__conn is None:
+            raise DatabaseError("Uninitialized connection")
+
         query = QSqlQuery()
 
         # extracting data from database
-        query.exec('SELECT * FROM expenses ;')
+        query.exec("SELECT * FROM expenses ;")
 
         # number of fields
         COLS = query.record().count()
@@ -465,24 +480,26 @@ class ModelWrapper():
         # handwriting of csv file required
         # (QSqlQuery cannot pass .mode commands,
         # and record() is not iterable)
-        with open(filename, 'w', newline = '') as csvfile:
-            writer = csv.writer(csvfile, quotechar = '"',
-                quoting = csv.QUOTE_NONNUMERIC)
+        with open(filename, "w", newline="") as csvfile:
+            writer = csv.writer(
+                csvfile,
+                quotechar='"',
+                quoting=csv.QUOTE_NONNUMERIC,
+            )
 
             while query.next():
-                writer.writerow([query.value(i)
-                                 for i in range(COLS)])
+                writer.writerow(
+                    [query.value(i) for i in range(COLS)]
+                )
 
         query.finish()
-
-
 
     def closeDB(self):
         """
         Closes connection with DB
         """
 
-        if (self.__conn is None):
-            raise DatabaseError('Uninitialized connection')
+        if self.__conn is None:
+            raise DatabaseError("Uninitialized connection")
 
         self.__conn.close()

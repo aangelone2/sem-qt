@@ -27,7 +27,6 @@ from PyQt6.QtGui import QColor, QPalette
 from PyQt6.QtWidgets import QWidget, QHeaderView, QTableView
 
 
-
 class CQTableView(QTableView):
     """
     Custom QTableView
@@ -56,7 +55,7 @@ class CQTableView(QTableView):
         self.setSortingEnabled(True)
 
         # setting color palette
-        gray = QColor('#E6E6E6')
+        gray = QColor("#E6E6E6")
 
         p = self.palette()
         p.setBrush(QPalette.ColorRole.AlternateBase, gray)
@@ -64,7 +63,7 @@ class CQTableView(QTableView):
 
         # autosize columns
         self.horizontalHeader().setSectionResizeMode(
-                QHeaderView.ResizeMode.ResizeToContents
+            QHeaderView.ResizeMode.ResizeToContents
         )
 
         # sets last column to take all available space

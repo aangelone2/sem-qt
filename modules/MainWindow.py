@@ -5,7 +5,7 @@
 # Software.
 #
 # This file is part of sem.
-# 
+#
 # This file may be used under the terms of the GNU General
 # Public License version 3.0 as published by the Free Software
 # Foundation and appearing in the file LICENSE included in the
@@ -13,7 +13,7 @@
 # information to ensure the GNU General Public License version
 # 3.0 requirements will be met:
 # http://www.gnu.org/copyleft/gpl.html.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
 # KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
 # WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
@@ -35,10 +35,8 @@ from modules.ModelWrapper import DatabaseError, ModelWrapper
 from modules.ListForm import ListForm
 
 
-
 MAIN_WINDOW_WIDTH = 1200
 MAIN_WINDOW_HEIGHT = 400
-
 
 
 class MainWindow(QMainWindow):
@@ -134,7 +132,7 @@ class MainWindow(QMainWindow):
         # set to narrow size by default
         self.resize(MAIN_WINDOW_WIDTH, MAIN_WINDOW_HEIGHT)
         # setting window title
-        self.setWindowTitle('Simple Expense Manager')
+        self.setWindowTitle("Simple Expense Manager")
 
         # initializing model/DB wrapper
         self.__models = ModelWrapper(self)
@@ -148,8 +146,6 @@ class MainWindow(QMainWindow):
         self.__initConnections()
         self.__initTbConnections()
 
-
-
     def __initToolbar(self):
         """
         Inits toolbar and the contained actions
@@ -158,23 +154,37 @@ class MainWindow(QMainWindow):
         tb = QToolBar(self)
         tb.setIconSize(QSize(30, 30))
 
-        self.__actCreate = QAction(QIcon('resources/create.png'), 'Create', self)
-        self.__actCreate.setToolTip('Create new database')
+        self.__actCreate = QAction(
+            QIcon("resources/create.png"), "Create", self
+        )
+        self.__actCreate.setToolTip("Create new database")
 
-        self.__actOpen = QAction(QIcon('resources/open.png'), 'Open', self)
-        self.__actOpen.setToolTip('Open existing database')
+        self.__actOpen = QAction(
+            QIcon("resources/open.png"), "Open", self
+        )
+        self.__actOpen.setToolTip("Open existing database")
 
-        self.__actAdd = QAction(QIcon('resources/add.png'), 'Add', self)
-        self.__actAdd.setToolTip('Add expenses manually')
+        self.__actAdd = QAction(
+            QIcon("resources/add.png"), "Add", self
+        )
+        self.__actAdd.setToolTip("Add expenses manually")
 
-        self.__actRemove = QAction(QIcon('resources/remove.png'), 'Remove', self)
-        self.__actRemove.setToolTip('Remove selected expense')
+        self.__actRemove = QAction(
+            QIcon("resources/remove.png"), "Remove", self
+        )
+        self.__actRemove.setToolTip("Remove selected expense")
 
-        self.__actImport = QAction(QIcon('resources/import.png'), 'Import', self)
-        self.__actImport.setToolTip('Import external CSV file')
+        self.__actImport = QAction(
+            QIcon("resources/import.png"), "Import", self
+        )
+        self.__actImport.setToolTip("Import external CSV file")
 
-        self.__actExport = QAction(QIcon('resources/export.png'), 'Export', self)
-        self.__actExport.setToolTip('Export database to CSV file')
+        self.__actExport = QAction(
+            QIcon("resources/export.png"), "Export", self
+        )
+        self.__actExport.setToolTip(
+            "Export database to CSV file"
+        )
 
         tb.addAction(self.__actCreate)
         tb.addAction(self.__actOpen)
@@ -187,22 +197,18 @@ class MainWindow(QMainWindow):
 
         self.addToolBar(tb)
 
-
-
     def __initConnections(self):
         """
         Inits form and dialog connections
         """
 
         self.__formLst.filterRequested.connect(
-                lambda dates: self.__models.applyDateFilter(dates)
+            lambda dates: self.__models.applyDateFilter(dates)
         )
 
         self.__formLst.clearingRequested.connect(
-                lambda: self.__models.applyDateFilter(None)
+            lambda: self.__models.applyDateFilter(None)
         )
-
-
 
     def __initTbConnections(self):
         """
@@ -211,35 +217,29 @@ class MainWindow(QMainWindow):
 
         # create action
         self.__actCreate.triggered.connect(
-                self.__requestCreate
+            self.__requestCreate
         )
 
         # open action
-        self.__actOpen.triggered.connect(
-                self.__requestOpen
-        )
+        self.__actOpen.triggered.connect(self.__requestOpen)
 
         # add action
-        self.__actAdd.triggered.connect(
-                self.__requestAdd
-        )
+        self.__actAdd.triggered.connect(self.__requestAdd)
 
         # add action
         self.__actRemove.triggered.connect(
-                self.__requestRemove
+            self.__requestRemove
         )
 
         # request importing from CSV
         self.__actImport.triggered.connect(
-                self.__requestImport
+            self.__requestImport
         )
 
         # request exporting to CSV
         self.__actExport.triggered.connect(
-                self.__requestExport
+            self.__requestExport
         )
-
-
 
     @QtCore.pyqtSlot()
     def __requestCreate(self):
@@ -248,11 +248,11 @@ class MainWindow(QMainWindow):
         """
 
         filename = QFileDialog.getSaveFileName(
-                self,
-                'Select name for new database',
+            self,
+            "Select name for new database",
         )[0]
 
-        if (filename == ''):
+        if filename == "":
             return
 
         try:
@@ -260,14 +260,11 @@ class MainWindow(QMainWindow):
         except DatabaseError as err:
             ErrorMsg(err)
             return
-        
+
         self.__models.initModels()
         self.__formLst.setModels(
-                self.__models.listModel,
-                self.__models.sumModel
+            self.__models.listModel, self.__models.sumModel
         )
-
-
 
     @QtCore.pyqtSlot()
     def __requestOpen(self):
@@ -276,11 +273,10 @@ class MainWindow(QMainWindow):
         """
 
         filename = QFileDialog.getOpenFileName(
-                self,
-                'Select database to access'
+            self, "Select database to access"
         )[0]
 
-        if (filename == ''):
+        if filename == "":
             return
 
         try:
@@ -291,11 +287,8 @@ class MainWindow(QMainWindow):
 
         self.__models.initModels()
         self.__formLst.setModels(
-                self.__models.listModel,
-                self.__models.sumModel
+            self.__models.listModel, self.__models.sumModel
         )
-
-
 
     @QtCore.pyqtSlot()
     def __requestAdd(self):
@@ -305,19 +298,13 @@ class MainWindow(QMainWindow):
 
         self.__models.addDefaultRecord()
 
-
-
     @QtCore.pyqtSlot()
     def __requestRemove(self):
         """
         Attempts to remove the selected row in the view
         """
 
-        self.__models.removeRecords(
-                self.__formLst.selection()
-        )
-
-
+        self.__models.removeRecords(self.__formLst.selection())
 
     @QtCore.pyqtSlot()
     def __requestImport(self):
@@ -326,11 +313,10 @@ class MainWindow(QMainWindow):
         """
 
         filename = QFileDialog.getOpenFileName(
-                self,
-                'Specify file to import'
+            self, "Specify file to import"
         )[0]
 
-        if (filename == ''):
+        if filename == "":
             return
 
         try:
@@ -339,8 +325,6 @@ class MainWindow(QMainWindow):
             ErrorMsg(err)
             return
 
-
-
     @QtCore.pyqtSlot()
     def __requestExport(self):
         """
@@ -348,13 +332,13 @@ class MainWindow(QMainWindow):
         """
 
         filename = QFileDialog.getSaveFileName(
-                self,
-                'Specify file for exporting',
-                None,
-                'CSV files (*.csv)'
+            self,
+            "Specify file for exporting",
+            None,
+            "CSV files (*.csv)",
         )[0]
 
-        if (filename == ''):
+        if filename == "":
             return
 
         try:

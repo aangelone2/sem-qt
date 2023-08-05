@@ -26,11 +26,10 @@
 from PyQt6.QtWidgets import QWidget, QSizePolicy, QMessageBox
 
 
-
 def lockHeight(widget: QWidget) -> QWidget:
     """
     Changes size policy locking height at free width
-    
+
     Arguments
     -----------------------
     widget : QWidget
@@ -42,20 +41,19 @@ def lockHeight(widget: QWidget) -> QWidget:
     """
 
     widget.setSizePolicy(
-            QSizePolicy(
-                QSizePolicy.Policy.Ignored,
-                QSizePolicy.Policy.Fixed
-            )
+        QSizePolicy(
+            QSizePolicy.Policy.Ignored,
+            QSizePolicy.Policy.Fixed,
+        )
     )
 
     return widget
-
 
 
 def lockSize(widget: QWidget) -> QWidget:
     """
     Changes size policy locking both height and width
-    
+
     Arguments
     -----------------------
     widget : QWidget
@@ -67,23 +65,21 @@ def lockSize(widget: QWidget) -> QWidget:
     """
 
     widget.setSizePolicy(
-            QSizePolicy(
-                QSizePolicy.Policy.Fixed,
-                QSizePolicy.Policy.Fixed
-            )
+        QSizePolicy(
+            QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed
+        )
     )
 
     return widget
 
 
-
 def ErrorMsg(err: Exception):
     """
     Wraps QMessageBox to generate an error message
-    
+
     Arguments
     -----------------------
     err : Exception
         Encountered message-carrying exception
     """
-    QMessageBox.critical(None, 'Error', f'{err}')
+    QMessageBox.critical(None, "Error", f"{err}")

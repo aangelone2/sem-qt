@@ -25,14 +25,18 @@
 
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt, pyqtSignal, QPersistentModelIndex
-from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
-        QCalendarWidget, QGroupBox
+from PyQt6.QtWidgets import (
+    QWidget,
+    QLabel,
+    QPushButton,
+    QCalendarWidget,
+    QGroupBox,
+)
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 from PyQt6.QtSql import QSqlTableModel, QSqlQueryModel
 
 from modules.Common import lockSize
 from modules.CQTableView import CQTableView
-
 
 
 class ListForm(QWidget):
@@ -123,11 +127,11 @@ class ListForm(QWidget):
 
         self.__initConnections()
 
-
-
-    def setModels(self,
-                  listModel: QSqlTableModel,
-                  sumModel: QSqlQueryModel):
+    def setModels(
+        self,
+        listModel: QSqlTableModel,
+        sumModel: QSqlQueryModel,
+    ):
         """
         Set models for the CQTableView objects
 
@@ -142,8 +146,6 @@ class ListForm(QWidget):
         self.__tabList.setModel(listModel)
         self.__tabSum.setModel(sumModel)
 
-
-
     def selection(self) -> list[QPersistentModelIndex]:
         """
         Returns the list of the indices of the selected rows
@@ -151,11 +153,8 @@ class ListForm(QWidget):
 
         return [
             QtCore.QPersistentModelIndex(model_idx)
-            for model_idx
-            in self.__tabList.selectionModel().selectedRows()
+            for model_idx in self.__tabList.selectionModel().selectedRows()
         ]
-
-
 
     def __initWidgets(self) -> QHBoxLayout:
         """
@@ -174,11 +173,11 @@ class ListForm(QWidget):
         laySum.addWidget(self.__tabSum)
 
         # sum group box
-        gbxSum = QGroupBox('Expense summary')
+        gbxSum = QGroupBox("Expense summary")
         gbxSum.setLayout(laySum)
 
         # start date label
-        labStart = QLabel('Start date [included]', self)
+        labStart = QLabel("Start date [included]", self)
         labStart.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # start date calendar
@@ -186,7 +185,7 @@ class ListForm(QWidget):
         self.__calStart = lockSize(self.__calStart)
 
         # end date label
-        labEnd = QLabel('End date [included]', self)
+        labEnd = QLabel("End date [included]", self)
         labEnd.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # end date calendar
@@ -194,10 +193,10 @@ class ListForm(QWidget):
         self.__calEnd = lockSize(self.__calEnd)
 
         # update button (graphical setup)
-        self.__butUpdate = QPushButton('Update', self)
+        self.__butUpdate = QPushButton("Update", self)
 
         # clear button (graphical setup)
-        self.__butClear = QPushButton('Clear', self)
+        self.__butClear = QPushButton("Clear", self)
 
         # button layout
         layButtons = QHBoxLayout()
@@ -213,7 +212,7 @@ class ListForm(QWidget):
         layControls.addLayout(layButtons)
 
         # control group box
-        gbxControl = QGroupBox('Filter by date')
+        gbxControl = QGroupBox("Filter by date")
         gbxControl.setLayout(layControls)
 
         # control-sum layout
@@ -228,22 +227,14 @@ class ListForm(QWidget):
 
         return lay
 
-
-
     def __initConnections(self):
         """
         Inits connections
         """
 
-        self.__butUpdate.clicked.connect(
-                self.__requestFilter
-        )
+        self.__butUpdate.clicked.connect(self.__requestFilter)
 
-        self.__butClear.clicked.connect(
-                self.__requestClearing
-        )
-
-
+        self.__butClear.clicked.connect(self.__requestClearing)
 
     filterRequested = pyqtSignal(list)
     """
@@ -256,14 +247,10 @@ class ListForm(QWidget):
         may be None
     """
 
-
-
     clearingRequested = pyqtSignal()
     """
     Broadcasts request to clear date filter
     """
-
-
 
     @QtCore.pyqtSlot()
     def __requestFilter(self):
@@ -274,12 +261,12 @@ class ListForm(QWidget):
         """
 
         fmt = Qt.DateFormat.ISODate
-        startDate = self.__calStart.selectedDate().toString(fmt)
+        startDate = self.__calStart.selectedDate().toString(
+            fmt
+        )
         endDate = self.__calEnd.selectedDate().toString(fmt)
 
         self.filterRequested.emit([startDate, endDate])
-
-
 
     @QtCore.pyqtSlot()
     def __requestClearing(self):
