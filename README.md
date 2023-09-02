@@ -45,9 +45,8 @@ The main executable is launched as
 
 ## To Do
 
+- [ ] Update documentation
 - [ ] Robust error management
 
 - [ ] Add filter-by-justification functionality
 - [ ] Status bar
-
-- [ ] Set up poetry packaging

@@ -1,5 +1,8 @@
 .PHONY: docs
 
+run:
+	poetry run python sem.py
+
 docs:
-	mkdocs build
-	mkdocs serve
+	poetry run mkdocs build
+	poetry run mkdocs serve
