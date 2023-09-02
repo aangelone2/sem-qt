@@ -1,3 +1,11 @@
+"""Custom table widget.
+
+Classes
+-----------------------
+MainWindow
+    Custom QTableView.
+"""
+
 # Copyright (c) 2022 Adriano Angelone
 #
 # The above copyright notice and this permission notice shall be
@@ -28,8 +36,8 @@ from PyQt6.QtWidgets import QWidget, QHeaderView, QTableView
 
 
 class CQTableView(QTableView):
-    """
-    Custom QTableView
+    """Custom QTableView.
+
     Builtin column width/sorting behavior and coloring routines
 
     Public methods
@@ -39,15 +47,13 @@ class CQTableView(QTableView):
     """
 
     def __init__(self, parent: QWidget):
-        """
-        Constructor
+        """Construct class instance.
 
-        Arguments
+        Parameters
         -----------------------
         parent : QWidget
             Parent QWidget
         """
-
         super().__init__(parent)
 
         # sets sorting as activated on column click
