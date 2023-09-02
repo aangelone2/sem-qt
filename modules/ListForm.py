@@ -141,14 +141,26 @@ class ListForm(QWidget):
         self.__tabSum.setModel(sumModel)
 
     def selection(self) -> list[QPersistentModelIndex]:
-        """Return the list of the indices of the selected rows."""
+        """Return the list of selected indices.
+
+        Returns
+        -----------------------
+        list[QPersistentModelIndex]
+            The list of indices of the selected rows.
+        """
         return [
             QtCore.QPersistentModelIndex(model_idx)
             for model_idx in self.__tabList.selectionModel().selectedRows()
         ]
 
     def __initWidgets(self) -> QHBoxLayout:
-        """Return the initialized and arranged widgets."""
+        """Return the initialized and arranged widgets.
+
+        Returns
+        -----------------------
+        QHBoxLayout
+            The initialized widget layout.
+        """
         # expense list table
         self.__tabList = CQTableView(self)
 

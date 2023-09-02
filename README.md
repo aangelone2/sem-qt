@@ -46,7 +46,6 @@ The main executable is launched as
 ## To Do
 
 - [ ] Robust error management
-- [ ] Cleanup and uniformize docstrings
 
 - [ ] Add filter-by-justification functionality
 - [ ] Status bar

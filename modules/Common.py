@@ -1,3 +1,15 @@
+"""Common functions.
+
+Functions
+-----------------------
+lockHeight()
+    Change size policy locking height at free width.
+lockSize()
+    Change size policy locking both height and width.
+ErrorMsg()
+    Raise wrapped QMessageBox to generate an error message.
+"""
+
 # Copyright (c) 2022 Adriano Angelone
 #
 # The above copyright notice and this permission notice shall be
@@ -27,19 +39,18 @@ from PyQt6.QtWidgets import QWidget, QSizePolicy, QMessageBox
 
 
 def lockHeight(widget: QWidget) -> QWidget:
-    """
-    Changes size policy locking height at free width
+    """Change size policy locking height at free width.
 
-    Arguments
+    Parameters
     -----------------------
     widget : QWidget
         Widget whose size policy will be changed
 
-    Return value
+    Returns
     -----------------------
-    Returns the modified widget
+    QWidget
+        The modified widget
     """
-
     widget.setSizePolicy(
         QSizePolicy(
             QSizePolicy.Policy.Ignored,
@@ -51,19 +62,18 @@ def lockHeight(widget: QWidget) -> QWidget:
 
 
 def lockSize(widget: QWidget) -> QWidget:
-    """
-    Changes size policy locking both height and width
+    """Change size policy locking both height and width.
 
-    Arguments
+    Parameters
     -----------------------
     widget : QWidget
         Widget whose size policy will be changed
 
-    Return value
+    Returns
     -----------------------
-    Returns the modified widget
+    QWidget
+        The modified widget
     """
-
     widget.setSizePolicy(
         QSizePolicy(
             QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed
@@ -74,10 +84,9 @@ def lockSize(widget: QWidget) -> QWidget:
 
 
 def ErrorMsg(err: Exception):
-    """
-    Wraps QMessageBox to generate an error message
+    """Raise wrapped QMessageBox to generate an error message.
 
-    Arguments
+    Parameters
     -----------------------
     err : Exception
         Encountered message-carrying exception
