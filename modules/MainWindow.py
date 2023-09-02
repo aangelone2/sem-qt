@@ -1,3 +1,11 @@
+"""Main window.
+
+Classes
+-----------------------
+MainWindow
+    Main program window.
+"""
+
 # Copyright (c) 2022 Adriano Angelone
 #
 # The above copyright notice and this permission notice shall be
@@ -27,7 +35,6 @@ from PyQt6 import QtCore
 from PyQt6.QtCore import QSize
 from PyQt6.QtGui import QAction, QIcon
 from PyQt6.QtWidgets import QToolBar, QFileDialog, QMainWindow
-from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout
 
 from modules.Common import ErrorMsg
 from modules.ModelWrapper import DatabaseError, ModelWrapper
@@ -40,8 +47,7 @@ MAIN_WINDOW_HEIGHT = 400
 
 
 class MainWindow(QMainWindow):
-    """
-    Main program window
+    """Main program window.
 
     Attributes
     -----------------------
@@ -65,33 +71,33 @@ class MainWindow(QMainWindow):
     Public methods
     -----------------------
     __init__()
-        Constructor
+        Construct class instance.
 
     Private methods
     -----------------------
     __initForms()
-        Inits the forms and the layout which contains them
+        Init the forms and the layout which contains them.
     __initToolbar()
-        Inits toolbar and the contained actions
+        Init toolbar and the contained actions.
     __initConnections()
-        Inits form and dialog connections
+        Init form and dialog connections.
     __initTbConnections()
-        Inits connections of toolbar actions
+        Init connections of toolbar actions.
 
     Private slots
     -----------------------
     __requestCreate()
-        Attempts creation of database
+        Attempt creation of database.
     __requestOpen()
-        Attempts to open existing database
+        Attempt to open existing database.
     __requestAdd()
-        Attempts to add expense to the view and then to the DB
+        Manually add expenses to the database.
     __requestRemove()
-        Attempts to remove the selected row in the view
+        Attempt to remove the selected row in the view.
     __requestImport()
-        Collects filename from user and loads CSV data
+        Collect filename from user and loads CSV data.
     __requestExport()
-        Collects filename from user and dumps database
+        Collect filename from user and dumps database.
 
     Connections
     -----------------------
@@ -114,10 +120,7 @@ class MainWindow(QMainWindow):
     """
 
     def __init__(self):
-        """
-        Constructor
-        """
-
+        """Construct class instance."""
         super().__init__()
 
         self.__models = None
@@ -147,10 +150,7 @@ class MainWindow(QMainWindow):
         self.__initTbConnections()
 
     def __initToolbar(self):
-        """
-        Inits toolbar and the contained actions
-        """
-
+        """Init toolbar and the contained actions."""
         tb = QToolBar(self)
         tb.setIconSize(QSize(30, 30))
 
@@ -198,10 +198,7 @@ class MainWindow(QMainWindow):
         self.addToolBar(tb)
 
     def __initConnections(self):
-        """
-        Inits form and dialog connections
-        """
-
+        """Init form and dialog connections."""
         self.__formLst.filterRequested.connect(
             lambda dates: self.__models.applyDateFilter(dates)
         )
@@ -211,10 +208,7 @@ class MainWindow(QMainWindow):
         )
 
     def __initTbConnections(self):
-        """
-        Inits connections of toolbar actions
-        """
-
+        """Init connections of toolbar actions."""
         # create action
         self.__actCreate.triggered.connect(
             self.__requestCreate
@@ -243,10 +237,7 @@ class MainWindow(QMainWindow):
 
     @QtCore.pyqtSlot()
     def __requestCreate(self):
-        """
-        Attempts creation of database
-        """
-
+        """Attempt creation of database."""
         filename = QFileDialog.getSaveFileName(
             self,
             "Select name for new database",
@@ -268,10 +259,7 @@ class MainWindow(QMainWindow):
 
     @QtCore.pyqtSlot()
     def __requestOpen(self):
-        """
-        Attempts to open database
-        """
-
+        """Attempt to open database."""
         filename = QFileDialog.getOpenFileName(
             self, "Select database to access"
         )[0]
@@ -292,26 +280,17 @@ class MainWindow(QMainWindow):
 
     @QtCore.pyqtSlot()
     def __requestAdd(self):
-        """
-        The action of manually adding expenses to the database
-        """
-
+        """Manually add expenses to the database."""
         self.__models.addDefaultRecord()
 
     @QtCore.pyqtSlot()
     def __requestRemove(self):
-        """
-        Attempts to remove the selected row in the view
-        """
-
+        """Attempt to remove the selected row in the view."""
         self.__models.removeRecords(self.__formLst.selection())
 
     @QtCore.pyqtSlot()
     def __requestImport(self):
-        """
-        Collects filename from user and loads CSV data
-        """
-
+        """Collect filename from user and loads CSV data."""
         filename = QFileDialog.getOpenFileName(
             self, "Specify file to import"
         )[0]
@@ -327,10 +306,7 @@ class MainWindow(QMainWindow):
 
     @QtCore.pyqtSlot()
     def __requestExport(self):
-        """
-        Collects filename from user and dumps database
-        """
-
+        """Collect filename from user and dumps database."""
         filename = QFileDialog.getSaveFileName(
             self,
             "Specify file for exporting",

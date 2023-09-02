@@ -423,7 +423,10 @@ confidence=HIGH,
 # --disable=W".
 disable=invalid-name,
         import-error,
-        raise-missing-from
+        raise-missing-from,
+        too-many-instance-attributes,
+        too-few-public-methods,
+        unnecessary-lambda
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

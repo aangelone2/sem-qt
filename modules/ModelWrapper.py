@@ -1,4 +1,4 @@
-"""Model wrapper classes.
+"""Model wrapper.
 
 Classes
 -----------------------
