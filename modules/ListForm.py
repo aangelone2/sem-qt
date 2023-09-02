@@ -1,3 +1,11 @@
+"""List window.
+
+Classes
+-----------------------
+ListForm
+    Form to display and summarize records.
+"""
+
 # Copyright (c) 2022 Adriano Angelone
 #
 # The above copyright notice and this permission notice shall be
@@ -40,8 +48,7 @@ from modules.CQTableView import CQTableView
 
 
 class ListForm(QWidget):
-    """
-    Form to display and summarize records
+    """Form to display and summarize records.
 
     Attributes
     -----------------------
@@ -55,71 +62,60 @@ class ListForm(QWidget):
         QCalendarWidget used to select start date in queries
     __calEnd : QCalendarWidget
         QCalendarWidget used to select end date in queries
-    __butApply : QPushButton
-        Applies the selected data filter
     __butClear : QPushButton
         Clears all data filters
 
     Public methods
     -----------------------
     __init__(QWidget)
-        Constructor
+        Construct class instance.
     setModels(QSqlTableModel)
-        Set models for the CQTableView objects
+        Set models for the CQTableView objects.
     selection() -> list[QPersistentModelIndex]
-        Returns the list of the indices of the selected rows
+        Return the list of the indices of the selected rows.
 
     Private methods
     -----------------------
     __initWidgets() -> QHBoxLayout
-        Returns the initialized and arranged widgets
+        Return the initialized and arranged widgets.
     __initConnections()
-        Inits connections
+        Init connections.
 
     Signals
     -----------------------
     filterRequested[list[str]]
-        Broadcasts request to update date filter
+        Broadcast request to update date filter.
     clearingRequested[]
-        Broadcasts request to clear date filter
+        Broadcast request to clear date filter.
 
     Private slots
     -----------------------
     __requestFilter()
-        Fetches start and end dates
-        and emits 'filterRequested' signal
-        with start and end date as arguments
+        Request data filtering.
     __requestClearing()
-        Emits 'clearingRequested' signal
-        requesting clearing of date filters
+        Request table clearing.
 
     Connections
     -----------------------
-    __butApply.clicked
-        -> __requestFilter()
-        -> filterRequested([start_date, end_date])
     __butClear.clicked
         -> __requestClearing()
         -> clearingRequested()
     """
 
     def __init__(self, parent: QWidget):
-        """
-        Constructor
+        """Construct class instance.
 
-        Arguments
+        Parameters
         -----------------------
         parent: QWidget
             Parent QWidget
         """
-
         super().__init__(parent)
 
         self.__tabList = None
         self.__tabSum = None
         self.__calStart = None
         self.__calEnd = None
-        self.__butApply = None
         self.__butClear = None
 
         lay = self.__initWidgets()
@@ -132,35 +128,27 @@ class ListForm(QWidget):
         listModel: QSqlTableModel,
         sumModel: QSqlQueryModel,
     ):
-        """
-        Set models for the CQTableView objects
+        """Set models for the CQTableView objects.
 
-        Arguments
+        Parameters
         -----------------------
         listModel: QSqlTableModel
             Model for the list CQTableView
         sumModel: QSqQueryModel
             Model for the sum CQTableView
         """
-
         self.__tabList.setModel(listModel)
         self.__tabSum.setModel(sumModel)
 
     def selection(self) -> list[QPersistentModelIndex]:
-        """
-        Returns the list of the indices of the selected rows
-        """
-
+        """Return the list of the indices of the selected rows."""
         return [
             QtCore.QPersistentModelIndex(model_idx)
             for model_idx in self.__tabList.selectionModel().selectedRows()
         ]
 
     def __initWidgets(self) -> QHBoxLayout:
-        """
-        Returns the initialized and arranged widgets
-        """
-
+        """Return the initialized and arranged widgets."""
         # expense list table
         self.__tabList = CQTableView(self)
 
@@ -228,19 +216,15 @@ class ListForm(QWidget):
         return lay
 
     def __initConnections(self):
-        """
-        Inits connections
-        """
-
+        """Init connections."""
         self.__butUpdate.clicked.connect(self.__requestFilter)
 
         self.__butClear.clicked.connect(self.__requestClearing)
 
     filterRequested = pyqtSignal(list)
-    """
-    Broadcasts request to update date filter
+    """Broadcast request to update date filter.
 
-    Arguments
+    Parameters
     -----------------------
     dates : list[str]
         [startDate, endDate], 'yyyy-mm-dd'
@@ -248,18 +232,16 @@ class ListForm(QWidget):
     """
 
     clearingRequested = pyqtSignal()
-    """
-    Broadcasts request to clear date filter
-    """
+    """Broadcast request to clear date filter."""
 
     @QtCore.pyqtSlot()
     def __requestFilter(self):
-        """
+        """Request data filtering.
+
         Fetches start and end dates
         and emits 'filterRequested' signal
         with start and end date as arguments
         """
-
         fmt = Qt.DateFormat.ISODate
         startDate = self.__calStart.selectedDate().toString(
             fmt
@@ -270,9 +252,9 @@ class ListForm(QWidget):
 
     @QtCore.pyqtSlot()
     def __requestClearing(self):
-        """
+        """Request table clearing.
+
         Emits 'filterRequested' signal with `None` argument,
         requesting clearing of date filters
         """
-
         self.clearingRequested.emit()
