@@ -2,7 +2,7 @@
 
 Classes
 -----------------------
-MainWindow
+CQTableView
     Custom QTableView.
 """
 
@@ -38,7 +38,8 @@ from PyQt6.QtWidgets import QWidget, QHeaderView, QTableView
 class CQTableView(QTableView):
     """Custom QTableView.
 
-    Builtin column width/sorting behavior and coloring routines
+    Builtin column width/sorting behavior and coloring
+    routines.
 
     Public methods
     -----------------------

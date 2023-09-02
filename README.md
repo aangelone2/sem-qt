@@ -50,5 +50,4 @@ The main executable is launched as
 - [ ] Add filter-by-justification functionality
 - [ ] Status bar
 
-- [ ] Add `mkdocs` documentation
 - [ ] Set up poetry packaging
