@@ -1,3 +1,13 @@
+"""Model wrapper classes.
+
+Classes
+-----------------------
+DatabaseError
+    Subclassed exception for errors in db Connection.
+ModelWrapper
+    Wrapper for list and sum models.
+"""
+
 # Copyright (c) 2022 Adriano Angelone
 #
 # The above copyright notice and this permission notice shall be
@@ -23,6 +33,11 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from string import Template
+import csv
+import os
+import datetime
+
 from PyQt6.QtCore import Qt, QPersistentModelIndex
 from PyQt6.QtWidgets import QWidget
 from PyQt6.QtSql import (
@@ -32,23 +47,13 @@ from PyQt6.QtSql import (
     QSqlQueryModel,
 )
 
-from string import Template
-import csv
-import os
-import datetime
-
 
 class DatabaseError(Exception):
-    """
-    Subclassed exception for errors in db Connection
-    """
-
-    pass
+    """Subclassed exception for errors in db Connection."""
 
 
 class ModelWrapper:
-    """
-    Wrapper for list and sum models
+    """Wrapper for list and sum models.
 
     Public attributes
     -----------------------
@@ -67,53 +72,48 @@ class ModelWrapper:
     Public methods
     -----------------------
     __init__()
-        Constructor
+        Construct class instance.
     createDB(str)
-        Creates and inits connection to new DB
+        Create and init connection to new DB.
     openDB(str)
-        Creates and inits connection to existing DB
+        Create and init connection to existing DB.
     initModels()
-        Initializes list and sum models
+        Initialize list and sum models.
     applyDateFilter(list[str])
-        Apply filter to models with the specified dates
+        Apply filter to models with the specified dates.
     addDefaultRecord()
-        Adds a default record to the end of the DB
+        Add a default record to the end of the DB.
     removeRecords(list[QPersistentModelIndex])
-        Removes the records with the given indices from the model
+        Remove the records with the given indices from the model.
     importCSV(str)
-        Appends the contents of a CSV file to the database
+        Append the contents of a CSV file to the database.
     saveCSV(str)
-        Dumps the database to a CSV file
+        Dump the database to a CSV file.
     closeDB()
-        Closes connection with DB
+        Close connection with DB.
     """
 
     def __init__(self, parent: QWidget):
-        """
-        Constructor
+        """Construct class instance.
 
-        Arguments
+        Parameters
         -----------------------
         parent : QWidget
             Parent QWidget
         """
-
         super().__init__()
 
         self.listModel = None
         self.sumModel = None
         self.__parent = None
         self.__conn = None
-        self.__startDate = None
-        self.__endDate = None
 
         self.__parent = parent
 
     def createDB(self, filename: str):
-        """
-        Creates and inits connection to new DB
+        """Create and init connection to new DB.
 
-        Arguments
+        Parameters
         -----------------------
         filename : str
             Path of the database to create
@@ -123,7 +123,6 @@ class ModelWrapper:
         - DatabaseError if database exists
         - DatabaseError if other connection errors
         """
-
         # checking if db already exists
         if os.path.isfile(filename):
             raise DatabaseError("Database already exists")
@@ -168,10 +167,9 @@ class ModelWrapper:
         query.finish()
 
     def openDB(self, filename: str):
-        """
-        Creates and inits connection to existing DB
+        """Create and init connection to existing DB.
 
-        Arguments
+        Parameters
         -----------------------
         filename : str
             Path of the database to open
@@ -183,7 +181,6 @@ class ModelWrapper:
         - DatabaseError if 'expenses' table not found
         - DatabaseError if schema of 'expenses' is not valid
         """
-
         # checking if db already exists
         if not os.path.isfile(filename):
             raise DatabaseError("Database does not exists")
@@ -246,14 +243,12 @@ class ModelWrapper:
         query.finish()
 
     def initModels(self):
-        """
-        Initializes list and sum models
+        """Initialize list and sum models.
 
         Raises
         -----------------------
         - DatabaseError if invalid Connection
         """
-
         if self.__conn is None:
             raise DatabaseError("Uninitialized connection")
 
@@ -292,10 +287,9 @@ class ModelWrapper:
             )
 
     def applyDateFilter(self, dates: list[str]):
-        """
-        Apply data filter to the model
+        """Apply data filter to the model.
 
-        Arguments
+        Parameters
         -----------------------
         dates : list[str]
             - [startDate, endDate], both included
@@ -306,7 +300,6 @@ class ModelWrapper:
         - DatabaseError if invalid Connection
         - DatabaseError if invalid date range
         """
-
         if self.__conn is None:
             raise DatabaseError("Uninitialized connection")
 
@@ -326,8 +319,8 @@ class ModelWrapper:
         if dates is not None:
             if len(dates) != 2:
                 raise DatabaseError("Invalid date interval")
-            else:
-                flt = f"date BETWEEN '{dates[0]}' AND '{dates[1]}'"
+
+            flt = f"date BETWEEN '{dates[0]}' AND '{dates[1]}'"
 
         # applying filters, setQuery() requires WHERE
         self.listModel.setFilter(flt)
@@ -338,14 +331,12 @@ class ModelWrapper:
         self.listModel.select()
 
     def addDefaultRecord(self):
-        """
-        Adds a default record to the end of the DB
+        """Add a default record to the end of the DB.
 
         Raises
         -----------------------
         - DatabaseError if unsuccessful addition
         """
-
         # empty reference record
         record = self.listModel.record()
 
@@ -369,14 +360,12 @@ class ModelWrapper:
     def removeRecords(
         self, indices: list[QPersistentModelIndex]
     ):
-        """
-        Removes the records with the given indices from the model
+        """Remove the records with the given indices from the model.
 
         Raises
         -----------------------
         - DatabaseError if unsuccessful removal
         """
-
         for i, index in enumerate(indices):
             chk = self.listModel.removeRow(index.row())
             if not chk:
@@ -388,10 +377,9 @@ class ModelWrapper:
         self.listModel.select()
 
     def importCSV(self, filename: str):
-        """
-        Appends the contents of a CSV file to the database
+        """Append the contents of a CSV file to the database.
 
-        Arguments
+        Parameters
         -----------------------
         filename : str
             Filename of the output CSV file
@@ -402,14 +390,15 @@ class ModelWrapper:
         - DatabaseError if file does not exist
         - DatabaseError if invalid file content
         """
-
         if self.__conn is None:
             raise DatabaseError("Uninitialized connection")
 
         # handreading of csv file required
         # (QSqlQuery cannot pass .mode commands,
         # and record() is not iterable)
-        with open(filename, "r", newline="") as csvfile:
+        with open(
+            filename, "r", newline="", encoding="utf-8"
+        ) as csvfile:
             reader = csv.reader(csvfile, quotechar='"')
 
             try:
@@ -453,10 +442,9 @@ class ModelWrapper:
             self.listModel.select()
 
     def saveCSV(self, filename: str):
-        """
-        Dumps the database to a CSV file
+        """Dump the database to a CSV file.
 
-        Arguments
+        Parameters
         -----------------------
         filename : str
             Filename of the output CSV file
@@ -465,7 +453,6 @@ class ModelWrapper:
         -----------------------
         - DatabaseError if invalid Connection
         """
-
         if self.__conn is None:
             raise DatabaseError("Uninitialized connection")
 
@@ -480,7 +467,9 @@ class ModelWrapper:
         # handwriting of csv file required
         # (QSqlQuery cannot pass .mode commands,
         # and record() is not iterable)
-        with open(filename, "w", newline="") as csvfile:
+        with open(
+            filename, "w", newline="", encoding="utf-8"
+        ) as csvfile:
             writer = csv.writer(
                 csvfile,
                 quotechar='"',
@@ -495,10 +484,7 @@ class ModelWrapper:
         query.finish()
 
     def closeDB(self):
-        """
-        Closes connection with DB
-        """
-
+        """Close connection with DB."""
         if self.__conn is None:
             raise DatabaseError("Uninitialized connection")
 
