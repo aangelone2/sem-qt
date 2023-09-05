@@ -45,7 +45,10 @@ The main executable is launched as
 
 ## To Do
 
-- [ ] Update documentation
+- [ ] More flexible CSV parsing
+- [ ] More ergonomic visualization and addition of new expenses
+
+- [ ] Update access in documentation
 - [ ] Robust error management
 
 - [ ] Add filter-by-justification functionality
