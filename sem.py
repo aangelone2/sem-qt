@@ -50,12 +50,10 @@ class main_window(QWidget):
         self.list_dialog = lw.list_window(conn)
         bl.clicked.connect(self.list_dialog.show)
 
-        bs = QPushButton('[S]ummarize expenses')
-
         bq = QPushButton('[Q]uit')
         bq.clicked.connect(QApplication.instance().quit)
 
-        b = [ba, bl, bs, bq]
+        b = [ba, bl, bq]
 
         lay = QVBoxLayout()
         lay.addStretch(1)
@@ -72,7 +70,10 @@ class main_window(QWidget):
 
 def main():
     app = QApplication(sys.argv)
-    app.setFont(QFont('Arial', 24))
+
+    font = app.font()
+    font.setPointSize(22)
+    app.setFont(font)
 
     path = 'data/expenses.sqlite'
     table = 'expenses'
