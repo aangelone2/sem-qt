@@ -31,35 +31,55 @@ from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout,\
         QSizePolicy
 
+import sqlite3
+
 import modules.common as common
 import modules.db as db
 
+# color for odd columns in the QTableView,
 # #D9D9D9 also a good choice, slightly darker
 bcolor1 = '#E6E6E6'
 
 
 
 
+# form to display and summarize records: contains
+# + two QCalendarWidget, to select start (self.s_cal) and end
+#   (self.e_cal) date for the queries
+# + an update and a quit button
+# + two QTableView, the upper one displaying the records within
+#   the date interval (self.table) and the lower one displaying
+#   the sum of the amounts for each expense type (self.sum).
+#   form to display and summarize records
+# + a label between the two tables
 class list_window(QWidget):
-    def __init__(self, conn):
+
+    # constructor
+    # + conn: database connection
+    def __init__(self, conn: sqlite3.Connection):
         super().__init__()
 
+        # MEMBER: database connection for adding
         self.conn = conn
 
         self.resize(1800, 1000)
 
+        # MEMBER: QCalendarWidget for start date
         self.s_cal = QCalendarWidget()
         self.s_cal = common.lock_size(self.s_cal)
         self.s_cal.setStyleSheet('QCalendarWidget\
                 {font-size: 18px}')
 
+        # MEMBER: QCalendarWidget for end date
         self.e_cal = QCalendarWidget()
         self.e_cal = common.lock_size(self.e_cal)
         self.e_cal.setStyleSheet('QCalendarWidget\
                 {font-size: 18px}')
 
+        # MEMBER: query update button
         self.ub = QPushButton('Update')
         self.ub.clicked.connect(self.update)
+        # MEMBER: quit button
         self.qb = QPushButton('Quit')
         self.qb.clicked.connect(self.hide)
 
@@ -72,6 +92,7 @@ class list_window(QWidget):
         lay1.addWidget(self.e_cal)
         lay1.addLayout(layb)
 
+        # init table group
         layt = self.init_table_layout()
 
         lay2 = QHBoxLayout()
@@ -85,12 +106,15 @@ class list_window(QWidget):
         self.setLayout(lay2)
 
 
-    def init_table_layout(self):
+    # inits the QVBoxLayout containing the QTableView and the label
+    def init_table_layout(self) -> QVBoxLayout:
         self.table = QTableWidget(0, 5)
+        # hide record index number in the record table
         self.table.verticalHeader().hide()
 
         self.table = common.set_tw_behavior(self.table, 'equal')
 
+        # set header names in the record table
         headers = ['ID', 'Date', 'Type', 'Amount', 'Justification']
         for ih, h in enumerate(headers):
             self.table.setHorizontalHeaderItem(ih, QTableWidgetItem(h))
@@ -99,9 +123,11 @@ class list_window(QWidget):
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.sum = QTableWidget(1, 5)
+        # hide record index number in the sum table
         self.sum.verticalHeader().hide()
         self.sum = common.set_tw_behavior(self.sum, 'equal')
 
+        # set header names in the sum table
         headers = ['E', 'H', 'I', 'N', 'R']
         for ih, h in enumerate(headers):
             self.sum.setHorizontalHeaderItem(ih, QTableWidgetItem(h))
@@ -118,7 +144,10 @@ class list_window(QWidget):
         return layt
 
 
+    # updates the record selection visualized in the upper
+    # table, as well as the sum visualized in the lower one
     def update(self):
+        # resets the number of rows
         self.table.setRowCount(0)
 
         fmt = Qt.DateFormat.ISODate
@@ -129,6 +158,7 @@ class list_window(QWidget):
         df = db.fetch(start_date, end_date, self.conn)
 
         self.table = common.set_tw_behavior(self.table, 'auto')
+        # sets last column in self.table to take all available space
         self.table.horizontalHeader().setStretchLastSection(True)
 
         for ir, row in df.iterrows():
@@ -139,6 +169,7 @@ class list_window(QWidget):
                 if (field != 'justification'):
                     itm.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
 
+                # odd columns are colored in light gray
                 if (ic % 2 == 1):
                     itm.setBackground(QColor(bcolor1))
 
@@ -149,6 +180,9 @@ class list_window(QWidget):
 
         headers = ['E', 'H', 'I', 'N', 'R']
         for i,h in enumerate(headers):
+
+            # if no expense with a certain key is present,
+            # return 0.0 (could be done in SQL, simpler here)
             try:
                 val = asum.loc[h]
             except KeyError:

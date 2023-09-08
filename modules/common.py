@@ -26,12 +26,14 @@
 from PyQt6 import QtCore
 from PyQt6.QtGui import QValidator
 from PyQt6.QtWidgets import QWidget, QSizePolicy, QMessageBox,\
-        QLineEdit, QHeaderView
+        QLineEdit, QHeaderView, QTableView
 
 
 
 
-def lock_height(widget):
+# given a widget, returns it with its size policy changed,
+# width is free to change while height is fixed to the default
+def lock_height(widget: QWidget) -> QWidget:
     widget.setSizePolicy(
             QSizePolicy(
                 QSizePolicy.Policy.Ignored,
@@ -42,7 +44,9 @@ def lock_height(widget):
     return widget
 
 
-def lock_size(widget):
+# given a widget, returns it with its size policy changed,
+# both width and height are fixed to the default
+def lock_size(widget: QWidget) -> QWidget:
     widget.setSizePolicy(
             QSizePolicy(
                 QSizePolicy.Policy.Fixed,
@@ -55,18 +59,28 @@ def lock_size(widget):
 
 
 
-def ErrorMsg(msg):
+# wrapper to QMessageBox to generate error messages
+def ErrorMsg(msg: str):
     QMessageBox.critical(None, 'Error', msg)
 
 
 
 
+# subclass of QLineEdit
+# + focusInEvent reimplemented to check and visualize validity
+#   of content (through color change)
+# + content validity also checked whenever content is changed
 class EQLineEdit(QLineEdit):
+
+    # reimplemented focusInEvent, checks validity of content
+    # through check_state()
     def focusInEvent(self, event):
         self.check_state()
         QLineEdit.focusInEvent(self, event)
 
 
+    # validation function for input, changes color based on
+    # state (green/yellow/red for ok/possibly ok/invalid)
     def check_state(self):
         state = self.validator().validate(self.text(), 0)[0]
 
@@ -83,12 +97,20 @@ class EQLineEdit(QLineEdit):
     def __init__(self):
         super().__init__()
 
+        # validity checked whenever content changed
         self.textChanged[str].connect(self.check_state)
 
 
 
 
-def set_tw_behavior(tw, behavior):
+# accepts and returns a modified QTableView and a string value
+# to set its behavior concerning field width:
+# + 'equal' sets all fields to have the same width and stretch
+#   to cover all available space
+# + 'auto' sets all fields to change their size to fit the
+#   longest item contained within them
+# In both cases, fields become non-resizable by the user
+def set_tw_behavior(tw: QTableView, behavior: str) -> QTableView:
     if (behavior == 'equal'):
         tw.horizontalHeader().setSectionResizeMode(
                 QHeaderView.ResizeMode.Stretch

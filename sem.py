@@ -25,45 +25,18 @@
 
 import sys
 
-from PyQt6.QtWidgets import QWidget, QPushButton, QApplication
-from PyQt6.QtWidgets import QVBoxLayout
-from PyQt6.QtGui import QFont
+from PyQt6.QtWidgets import QApplication
 
 import modules.db as db
+import modules.main_window as mw
 import modules.add_window as aw
 import modules.list_window as lw
 
-
-
-
-class main_window(QWidget):
-    def __init__(self, conn):
-        super().__init__()
-
-        self.resize(300, 700)
-
-        ba = QPushButton('[A]dd expenses')
-        self.add_dialog = aw.add_window(conn)
-        ba.clicked.connect(self.add_dialog.show)
-
-        bl = QPushButton('[L]ist expenses')
-        self.list_dialog = lw.list_window(conn)
-        bl.clicked.connect(self.list_dialog.show)
-
-        bq = QPushButton('[Q]uit')
-        bq.clicked.connect(QApplication.instance().quit)
-
-        b = [ba, bl, bq]
-
-        lay = QVBoxLayout()
-        lay.addStretch(1)
-        for bi in b:
-            lay.addWidget(bi)
-            lay.addStretch(1)
-
-        self.setLayout(lay)
-
-        self.show()
+version = {
+        'major': 0,
+        'minor': 1,
+        'revision': 0
+}
 
 
 
@@ -71,6 +44,7 @@ class main_window(QWidget):
 def main():
     app = QApplication(sys.argv)
 
+    # using system default font, just changing size
     font = app.font()
     font.setPointSize(22)
     app.setFont(font)
@@ -83,7 +57,7 @@ def main():
         EQMessageBox.ErrorMsg('Database error')
         sys.exit()
 
-    w = main_window(db_conn)
+    w = mw.main_window(version, db_conn)
     w.setWindowTitle('sem')
 
     sys.exit(app.exec())
