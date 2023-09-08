@@ -23,7 +23,12 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+from PyQt6 import QtCore
+
 from PyQt6.QtWidgets import QWidget, QSizePolicy
+from PyQt6.QtWidgets import QLineEdit
+from PyQt6.QtGui import QValidator
+from PyQt6.QtWidgets import QMessageBox
 
 
 
@@ -48,3 +53,36 @@ def lock_size(widget):
     )
 
     return widget
+
+
+
+
+def ErrorMsg(msg):
+    QMessageBox.critical(None, 'Error', msg)
+
+
+
+
+class EQLineEdit(QLineEdit):
+    def focusInEvent(self, event):
+        self.check_state()
+        QLineEdit.focusInEvent(self, event)
+
+
+    def check_state(self):
+        state = self.validator().validate(self.text(), 0)[0]
+
+        if (state == QValidator.State.Acceptable):
+            color = 'lightgreen'
+        elif (state == QValidator.State.Intermediate):
+            color = 'lightyellow'
+        else:
+            color = 'lightred'
+
+        self.setStyleSheet('background-color: ' + color)
+
+
+    def __init__(self):
+        super().__init__()
+
+        self.textChanged[str].connect(self.check_state)

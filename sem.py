@@ -29,11 +29,9 @@ from PyQt6.QtWidgets import QWidget, QPushButton, QApplication
 from PyQt6.QtWidgets import QVBoxLayout
 from PyQt6.QtGui import QFont
 
-import EQMessageBox
-
-import DataApi
-import AddWindow
-import ListWindow
+import modules.db as db
+import modules.add_window as aw
+import modules.list_window as lw
 
 
 
@@ -45,11 +43,11 @@ class main_window(QWidget):
         self.resize(300, 700)
 
         ba = QPushButton('[A]dd expenses')
-        self.add_dialog = AddWindow.AddWindow(conn)
+        self.add_dialog = aw.add_window(conn)
         ba.clicked.connect(self.add_dialog.show)
 
         bl = QPushButton('[L]ist expenses')
-        self.list_dialog = ListWindow.ListWindow(conn)
+        self.list_dialog = lw.list_window(conn)
         bl.clicked.connect(self.list_dialog.show)
 
         bs = QPushButton('[S]ummarize expenses')
@@ -79,13 +77,13 @@ def main():
     path = 'data/expenses.sqlite'
     table = 'expenses'
     try:
-        db_conn = DataApi.db_init(path, table)
-    except DataApi.DatabaseError:
+        db_conn = db.init(path, table)
+    except db.DatabaseError:
         EQMessageBox.ErrorMsg('Database error')
         sys.exit()
 
     w = main_window(db_conn)
-    w.setWindowTitle('dem')
+    w.setWindowTitle('sem')
 
     sys.exit(app.exec())
 

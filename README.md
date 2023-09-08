@@ -1,5 +1,5 @@
-# dem
-Domestic Expense Manager
+# sem
+Simple Expense Manager
 
 
 ## todo

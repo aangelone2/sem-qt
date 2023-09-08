@@ -29,13 +29,13 @@ from PyQt6.QtWidgets import QWidget, QLabel, QPushButton,\
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout,\
         QSizePolicy
 
-import Common
-import DataApi
+import modules.common as common
+import modules.db as db
 
 
 
 
-class ListWindow(QWidget):
+class list_window(QWidget):
     def __init__(self, conn):
         super().__init__()
 
@@ -44,12 +44,12 @@ class ListWindow(QWidget):
         self.resize(1800, 1000)
 
         self.s_cal = QCalendarWidget()
-        self.s_cal = Common.lock_size(self.s_cal)
+        self.s_cal = common.lock_size(self.s_cal)
         self.s_cal.setStyleSheet('QCalendarWidget\
                 {font-size: 18px}')
 
         self.e_cal = QCalendarWidget()
-        self.e_cal = Common.lock_size(self.e_cal)
+        self.e_cal = common.lock_size(self.e_cal)
         self.e_cal.setStyleSheet('QCalendarWidget\
                 {font-size: 18px}')
 
@@ -105,7 +105,7 @@ class ListWindow(QWidget):
             self.sum.setColumnWidth(ih, w)
             self.sum.setHorizontalHeaderItem(ih, QTableWidgetItem(h))
 
-        self.sum = Common.lock_height(self.sum)
+        self.sum = common.lock_height(self.sum)
 
         layt = QVBoxLayout()
         layt.addWidget(self.table)
@@ -125,7 +125,7 @@ class ListWindow(QWidget):
         start_date = self.s_cal.selectedDate().toString(fmt)
         end_date = self.e_cal.selectedDate().toString(fmt)
 
-        df = DataApi.db_fetch(start_date, end_date, self.conn)
+        df = db.fetch(start_date, end_date, self.conn)
 
         for ir, row in df.iterrows():
             self.table.insertRow(ir)

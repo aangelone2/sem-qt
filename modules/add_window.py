@@ -29,14 +29,14 @@ from PyQt6.QtWidgets import QGridLayout, QHBoxLayout, QVBoxLayout
 from PyQt6.QtGui import QValidator, QIntValidator,\
     QDoubleValidator, QRegularExpressionValidator
 
-from EQLineEdit import EQLineEdit
+from modules.common import EQLineEdit
 
-import DataApi
-
-
+import modules.db as db
 
 
-class AddWindow(QWidget):
+
+
+class add_window(QWidget):
     def init_textboxes(self):
         yt = EQLineEdit()
         yt.setValidator(QIntValidator(1000, 9999))
@@ -145,5 +145,5 @@ class AddWindow(QWidget):
             'justification': self.t[5].text()
         }
 
-        DataApi.db_add(fields, self.conn)
+        db.add(fields, self.conn)
         self.reset_focus()
