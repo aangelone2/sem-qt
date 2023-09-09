@@ -1,9 +1,21 @@
 # sem
+
+[![pyqt6](https://img.shields.io/badge/PyQt6-FF0000)](https://pypi.org/project/PyQt6/)
+[![sqlite](https://img.shields.io/badge/SQLite-FF0000)](https://www.sqlite.org/index.html)
+[![pylint](https://img.shields.io/badge/linting-pylint-blue)](https://github.com/pylint-dev/pylint)
+[![black](https://img.shields.io/badge/code%20style-black-black)](https://github.com/psf/black)
+[![poetry](https://img.shields.io/badge/build-poetry-blue)](https://github.com/python-poetry/poetry)
+[![mkdocs](https://img.shields.io/badge/documentation-mkdocs-blue)](https://github.com/mkdocs/mkdocs)
+
+
+
+
 `sem` (Simple Expense Manager) is a simple Python utility for
 the management of domestic expenses.
 
 A streamlined Qt graphical interface allows straightforward
 management and analysis of expense data stored in SQLite databases.
+
 
 
 
@@ -18,6 +30,7 @@ management and analysis of expense data stored in SQLite databases.
 
 
 
+
 ## Imported libraries
 
 The following external libraries are imported in `sem`, and
@@ -28,28 +41,35 @@ required for its operation:
 
 
 
+
 ## Dependencies and Setup
 
-`sem` requires the following packages to be installed in the
-Python 3 environment:
-
-- `PyQt6`
-
-The main executable is launched as
+`sem` is packaged with `poetry`: the command
 
 ```
-  > python sem.py
+$ poetry install
 ```
+
+will setup a virtual environment will all required
+dependencies. The command
+
+```
+$ poetry run python -m modules.sem
+```
+
+or a call to the launch bash script
+
+```
+$ ./sem-qt
+```
+
+will execute the program.
+
 
 
 
 ## To Do
 
-- [ ] More flexible CSV parsing
+- [ ] Documentation (and access to it)
 - [ ] More ergonomic visualization and addition of new expenses
-
-- [ ] Update access in documentation
 - [ ] Robust error management
-
-- [ ] Add filter-by-justification functionality
-- [ ] Status bar
