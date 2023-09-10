@@ -93,4 +93,3 @@ generate the documentation, which can be browsed at the URL
 
 - [ ] Documentation (and access to it)
 - [ ] More ergonomic visualization and addition of new expenses
-- [ ] Robust error management
