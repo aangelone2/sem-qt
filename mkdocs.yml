@@ -11,7 +11,9 @@ plugins:
 nav:
   - Homepage: index.md
   - Tutorial:
-      - tutorial/cc.md
+      - tutorial/schema.md
+      - tutorial/basic.md
+      - tutorial/adv.md
   - Module reference:
       - reference/Common.md
       - reference/CQTableView.md

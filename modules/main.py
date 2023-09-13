@@ -31,7 +31,7 @@ from PyQt6.QtWidgets import QApplication
 from modules.MainWindow import MainWindow
 
 
-version = "2.0.0"
+version = "2.0.1"
 
 
 if __name__ == "__main__":

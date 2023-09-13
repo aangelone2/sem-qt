@@ -16,14 +16,14 @@ same, although the controls may look slightly different.
 - The controls on the right (3) allow to filter displayed data
   and to gather overall information.
 
-![splash](cc-01-splash.png)
+![splash](basic-01-splash.png)
 
 The topmost left buttons allow, respectively, to create a new
 database with the correct table structure and to log in to an
 existing one.
 
-![create](cc-02-create.png)
-![open](cc-03-open.png)
+![create](basic-02-create.png)
+![open](basic-03-open.png)
 
 Both commands will open a file creation/selection dialog where
 a new database can be created or an existing one opened. Once
@@ -31,7 +31,7 @@ accepted, the splash screen will slightly change, reporting the
 headers of the database; for an empty one, it should look like
 in the figure displayed below.
 
-![splash-opened](cc-04-splash-opened.png)
+![splash-opened](basic-04-splash-opened.png)
 
 
 
@@ -41,24 +41,26 @@ in the figure displayed below.
 The third button from the left allows to add new expenses to
 the database.
 
-![add](cc-05-add.png)
+![add](basic-05-add.png)
 
 This will add a template expense in the table (and in the
 database).
 
-![template](cc-06-template.png)
+![template](basic-06-template.png)
 
 Double-clicking any of the fields allows to modify them, with
-modifications being applied to the database as well.
+modifications being applied to the database as well. See the
+[schema](schema.md) page for information on the meaning of the
+fields.
 
-![template](cc-07-edited.png)
+![template](basic-07-edited.png)
 
 The fourth button from the left allows to remove expenses; to
 select an expense for removal, its entire row should be
 selected (this can be achieved by pressing the bumper to the
 left of the `id` field, marked below).
 
-![remove](cc-08-remove.png)
+![remove](basic-08-remove.png)
 
 The removal of an expense is also immediately committed to the
 database.
