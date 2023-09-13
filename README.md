@@ -85,11 +85,3 @@ $ make docs
 
 generate the documentation, which can be browsed at the URL
 [http://localhost:8000](http://localhost:8000).
-
-
-
-
-## To Do
-
-- [ ] Documentation (and access to it)
-- [ ] More ergonomic visualization and addition of new expenses
