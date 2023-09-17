@@ -14,7 +14,7 @@ ModelWrapper
 # included in all copies or substantial portions of the
 # Software.
 #
-# This file is part of sem.
+# This file is part of sem-qt.
 #
 # This file may be used under the terms of the GNU General
 # Public License version 3.0 as published by the Free Software
