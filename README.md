@@ -33,7 +33,7 @@ management and analysis of expense data stored in SQLite databases.
 
 ## Imported libraries
 
-The following external libraries are imported in `sem`, and
+The following external libraries are imported in `sem-qt`, and
 required for its operation:
 
 - [PyQt6](https://www.riverbankcomputing.com/software/pyqt/)
@@ -44,7 +44,7 @@ required for its operation:
 
 ## Dependencies and Setup
 
-`sem` is packaged with `poetry`: the command
+`sem-qt` is packaged with `poetry`: the command
 
 ```
 $ poetry install
@@ -54,7 +54,7 @@ will setup a virtual environment will all required
 dependencies. The command
 
 ```
-$ poetry run python -m modules.sem
+$ poetry run python -m modules.main
 ```
 
 or a call to the launch bash script
