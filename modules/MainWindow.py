@@ -159,14 +159,10 @@ class MainWindow(QMainWindow):
         )
         self.__actCreate.setToolTip("Create new database")
 
-        self.__actOpen = QAction(
-            QIcon("resources/open.png"), "Open", self
-        )
+        self.__actOpen = QAction(QIcon("resources/open.png"), "Open", self)
         self.__actOpen.setToolTip("Open existing database")
 
-        self.__actAdd = QAction(
-            QIcon("resources/add.png"), "Add", self
-        )
+        self.__actAdd = QAction(QIcon("resources/add.png"), "Add", self)
         self.__actAdd.setToolTip("Add expenses manually")
 
         self.__actRemove = QAction(
@@ -182,9 +178,7 @@ class MainWindow(QMainWindow):
         self.__actExport = QAction(
             QIcon("resources/export.png"), "Export", self
         )
-        self.__actExport.setToolTip(
-            "Export database to CSV file"
-        )
+        self.__actExport.setToolTip("Export database to CSV file")
 
         tb.addAction(self.__actCreate)
         tb.addAction(self.__actOpen)
@@ -210,9 +204,7 @@ class MainWindow(QMainWindow):
     def __initTbConnections(self):
         """Init connections of toolbar actions."""
         # create action
-        self.__actCreate.triggered.connect(
-            self.__requestCreate
-        )
+        self.__actCreate.triggered.connect(self.__requestCreate)
 
         # open action
         self.__actOpen.triggered.connect(self.__requestOpen)
@@ -221,19 +213,13 @@ class MainWindow(QMainWindow):
         self.__actAdd.triggered.connect(self.__requestAdd)
 
         # add action
-        self.__actRemove.triggered.connect(
-            self.__requestRemove
-        )
+        self.__actRemove.triggered.connect(self.__requestRemove)
 
         # request importing from CSV
-        self.__actImport.triggered.connect(
-            self.__requestImport
-        )
+        self.__actImport.triggered.connect(self.__requestImport)
 
         # request exporting to CSV
-        self.__actExport.triggered.connect(
-            self.__requestExport
-        )
+        self.__actExport.triggered.connect(self.__requestExport)
 
     @QtCore.pyqtSlot()
     def __requestCreate(self):
@@ -291,9 +277,9 @@ class MainWindow(QMainWindow):
     @QtCore.pyqtSlot()
     def __requestImport(self):
         """Collect filename from user and loads CSV data."""
-        filename = QFileDialog.getOpenFileName(
-            self, "Specify file to import"
-        )[0]
+        filename = QFileDialog.getOpenFileName(self, "Specify file to import")[
+            0
+        ]
 
         if filename == "":
             return

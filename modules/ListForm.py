@@ -255,9 +255,7 @@ class ListForm(QWidget):
         with start and end date as arguments
         """
         fmt = Qt.DateFormat.ISODate
-        startDate = self.__calStart.selectedDate().toString(
-            fmt
-        )
+        startDate = self.__calStart.selectedDate().toString(fmt)
         endDate = self.__calEnd.selectedDate().toString(fmt)
 
         self.filterRequested.emit([startDate, endDate])

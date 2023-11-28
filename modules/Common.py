@@ -75,9 +75,7 @@ def lockSize(widget: QWidget) -> QWidget:
         The modified widget
     """
     widget.setSizePolicy(
-        QSizePolicy(
-            QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed
-        )
+        QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
     )
 
     return widget

@@ -86,7 +86,7 @@ $ make docs
 generate the documentation, which can be browsed at the URL
 [http://localhost:8000](http://localhost:8000).
 
-Most of the documentation (including all the information 
-related to the UI and the statistical background) can be 
-consulted on the [github 
+Most of the documentation (including all the information
+related to the UI and the statistical background) can be
+consulted on the [github
 wiki](https://github.com/aangelone2/sem-qt/wiki).

@@ -5,18 +5,13 @@ description = "Simple expense manager"
 authors = ["aangelone2 <adriano.angelone.work@gmail.com>"]
 license = "GPL v3"
 readme = "README.md"
-packages = []
+packages = [{include = "modules"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
 PyQt6 = "^6.5.2"
 # vulnerability fix requirement
 urllib3 = "^2.0.7"
-
-[tool.poetry.group.dev.dependencies]
-black = "^23.7.0"
-pylint = "^2.17.5"
-pydocstyle = "^6.3.0"
 
 [tool.poetry.group.doc.dependencies]
 mkdocs = "^1.4.2"

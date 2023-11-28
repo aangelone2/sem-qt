@@ -160,9 +160,7 @@ class ModelWrapper:
             ) ;
         """
         query.exec(command)
-        query.exec(
-            "CREATE INDEX date_index ON expenses(date) ;"
-        )
+        query.exec("CREATE INDEX date_index ON expenses(date) ;")
 
         query.finish()
 
@@ -282,9 +280,7 @@ class ModelWrapper:
         # or names will be overridden by the query fields
         colnames = ["type", "sum"]
         for i, c in enumerate(colnames):
-            self.sumModel.setHeaderData(
-                i, Qt.Orientation.Horizontal, c
-            )
+            self.sumModel.setHeaderData(i, Qt.Orientation.Horizontal, c)
 
     def applyDateFilter(self, dates: list[str]):
         """Apply data filter to the model.
@@ -324,9 +320,7 @@ class ModelWrapper:
 
         # applying filters, setQuery() requires WHERE
         self.listModel.setFilter(flt)
-        self.sumModel.setQuery(
-            queryTemplate.substitute(flt=flt)
-        )
+        self.sumModel.setQuery(queryTemplate.substitute(flt=flt))
 
         self.listModel.select()
 
@@ -345,9 +339,7 @@ class ModelWrapper:
 
         # setting default values for other fields
         # notice the realigned indices
-        record.setValue(
-            0, datetime.date.today().strftime("%Y-%m-%d")
-        )
+        record.setValue(0, datetime.date.today().strftime("%Y-%m-%d"))
         record.setValue(1, "-")
         record.setValue(2, 0.0)
         record.setValue(3, "-")
@@ -357,9 +349,7 @@ class ModelWrapper:
         if not chk:
             raise DatabaseError("Error in inserting record")
 
-    def removeRecords(
-        self, indices: list[QPersistentModelIndex]
-    ):
+    def removeRecords(self, indices: list[QPersistentModelIndex]):
         """Remove the records with the given indices from the model.
 
         Raises
@@ -369,9 +359,7 @@ class ModelWrapper:
         for i, index in enumerate(indices):
             chk = self.listModel.removeRow(index.row())
             if not chk:
-                raise DatabaseError(
-                    f"Error in deleting record {i}"
-                )
+                raise DatabaseError(f"Error in deleting record {i}")
 
         # updating changes
         self.listModel.select()
@@ -396,9 +384,7 @@ class ModelWrapper:
         # handreading of csv file required
         # (QSqlQuery cannot pass .mode commands,
         # and record() is not iterable)
-        with open(
-            filename, "r", newline="", encoding="utf-8"
-        ) as csvfile:
+        with open(filename, "r", newline="", encoding="utf-8") as csvfile:
             reader = csv.reader(csvfile, quotechar='"')
 
             try:
@@ -419,9 +405,7 @@ class ModelWrapper:
                         record.setValue(ic, col)
 
                     # inserting at last position
-                    chk = self.listModel.insertRecord(
-                        -1, record
-                    )
+                    chk = self.listModel.insertRecord(-1, record)
                     if not chk:
                         raise DatabaseError(
                             f"Error in inserting record {ir + 1}"
@@ -431,9 +415,7 @@ class ModelWrapper:
                     # inserting line-by-line to check lines
                     chk = self.listModel.submitAll()
                     if not chk:
-                        raise DatabaseError(
-                            f"Error in inserting row {ir + 1}"
-                        )
+                        raise DatabaseError(f"Error in inserting row {ir + 1}")
             except csv.Error as err:
                 raise DatabaseError(
                     f"CSV file error :: line {reader.line_num} :: {err}"
@@ -467,9 +449,7 @@ class ModelWrapper:
         # handwriting of csv file required
         # (QSqlQuery cannot pass .mode commands,
         # and record() is not iterable)
-        with open(
-            filename, "w", newline="", encoding="utf-8"
-        ) as csvfile:
+        with open(filename, "w", newline="", encoding="utf-8") as csvfile:
             writer = csv.writer(
                 csvfile,
                 quotechar='"',
@@ -477,9 +457,7 @@ class ModelWrapper:
             )
 
             while query.next():
-                writer.writerow(
-                    [query.value(i) for i in range(COLS)]
-                )
+                writer.writerow([query.value(i) for i in range(COLS)])
 
         query.finish()
 
