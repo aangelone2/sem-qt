@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sem-qt"
-version = "2.0.0"
+version = "2.0.2"
 description = "Simple expense manager"
 authors = ["aangelone2 <adriano.angelone.work@gmail.com>"]
 license = "GPL v3"
