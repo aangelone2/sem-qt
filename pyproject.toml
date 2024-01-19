@@ -10,8 +10,9 @@ packages = [{include = "modules"}]
 [tool.poetry.dependencies]
 python = "^3.11"
 PyQt6 = "^6.5.2"
-# vulnerability fix requirement
+# vulnerability fixes requirements
 urllib3 = "^2.0.7"
+jinja2 = "^3.1.3"
 
 [tool.poetry.group.doc.dependencies]
 mkdocs = "^1.4.2"
