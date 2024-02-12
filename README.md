@@ -10,11 +10,12 @@
 
 
 
-`sem-qt` (Simple Expense Manager in Qt) is a simple Python
-utility for the management of domestic expenses.
+`sem-qt` (Simple Expense Manager in Qt) is a simple
+Python utility for the management of domestic expenses.
 
-A streamlined Qt graphical interface allows straightforward
-management and analysis of expense data stored in SQLite databases.
+A streamlined Qt graphical interface allows
+straightforward management and analysis of expense data
+stored in SQLite databases.
 
 
 
@@ -22,8 +23,8 @@ management and analysis of expense data stored in SQLite databases.
 ## Current capabilities
 
 - Expense data management via SQLite database
-- Manual addition of single expenses or bulk importing from CSV
-  files
+- Manual addition of single expenses or bulk importing
+  from CSV files
 - Reviewing and summarizing of expenses by date and type
 - Expense deletion via graphical interface
 - Exporting and backup of user databases to CSV files
@@ -33,8 +34,8 @@ management and analysis of expense data stored in SQLite databases.
 
 ## Imported libraries
 
-The following external libraries are imported in `sem-qt`, and
-required for its operation:
+The following external libraries are imported in
+`sem-qt`, and required for its operation:
 
 - [PyQt6](https://www.riverbankcomputing.com/software/pyqt/)
   (GUI toolkit and Model/View interfaces)
@@ -54,13 +55,7 @@ will setup a virtual environment will all required
 dependencies. The command
 
 ```
-$ poetry run python -m modules.main
-```
-
-or a call to the launch bash script
-
-```
-$ ./sem-qt
+$ poetry --directory <project directory> run sem-qt
 ```
 
 will execute the program.
@@ -83,8 +78,8 @@ or
 $ make docs
 ```
 
-generate the documentation, which can be browsed at the URL
-[http://localhost:8000](http://localhost:8000).
+generate the documentation, which can be browsed at the
+URL [http://localhost:8000](http://localhost:8000).
 
 Most of the documentation (including all the information
 related to the UI and the statistical background) can be

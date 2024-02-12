@@ -32,13 +32,17 @@ from PyQt6.QtWidgets import QApplication
 from modules.MainWindow import MainWindow
 
 
-__version__ = "2.0.2"
+__version__ = "2.0.3"
 
 
-if __name__ == "__main__":
+def main():
     app = QApplication([])
 
     mw = MainWindow()
     mw.show()
 
     sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    main()
