@@ -32,7 +32,7 @@ from PyQt6.QtWidgets import QApplication
 from modules.MainWindow import MainWindow
 
 
-__version__ = "2.0.3"
+__version__ = "2.0.4"
 
 
 def main():
